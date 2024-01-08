@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %} ZES&#179; Add product {% endblock %}
+{% block content %}
+{% from "includes/formhelper.html" import render_field %}
+<h1 class="display-4">Add product</h1>
+<form method="POST" action="" class="productform">
+    <div class="form-group">
+        {{ render_field(form.name, class="form-control") }}
+    </div>
+    <div class="form-group">
+        {{ render_field(form.price, class="form-control") }}
+    </div>
+    <div class="form-group">
+        {{ render_field(form.category, class="form-control") }}
+    </div>
+    <div class="form-group">
+        {{ render_field(form.remarks, class="form-control") }}
+    </div>
+    <div class="form-group">
+        {{ render_field(form.drinks, class="form-check", style="list-style-type:none") }}
+    </div>
+    <input type="submit" value="Submit" class="btn btn-primary "/>
+
+</form>
+{% endblock %}

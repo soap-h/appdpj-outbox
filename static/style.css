@@ -1,0 +1,62 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@500&display=swap');
+
+/* about us */
+* {
+    font-family: 'Poppins', sans-serif;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    scroll-padding-top: 4rem;
+    scroll-behavior: smooth;
+    list-style: none;
+    text-decoration: none;
+}
+.about {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(17rem, auto));
+    align-items: center;
+    gap: 1.5rem;
+    padding-top
+}
+
+.about-img img {
+    border-radius: 0.5rem;
+    margin-top: 100px;
+}
+
+.about-text h2 {
+    margin-top: 50px;
+    font-size: 50px;
+    text-transform: uppercase;
+}
+
+.about-text p {
+    margin-top: 20px;
+    font-size: 17px;
+    text-align: justified;
+}
+
+.button {
+    margin-top: 60px;
+    padding: 10px 40px;
+    border-radius: 0.3rem;
+    background: lightblue;
+    color: black;
+    font-weight: 500;
+    text-decoration: none;
+}
+
+.button:hover {
+    background-color: #87cbe1;
+    color:black;
+}
+
+/* registering member */
+
+.memberform {
+    margin: 20px;
+}
+
+.memberform input {
+    margin-top: 10px;
+}

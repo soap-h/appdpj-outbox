@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %} ZES&#179; Register member {% endblock %}
+{% block content %}
+{% from "includes/formhelper.html" import render_field %}
+<h1 class="display-4">Register</h1>
+<form method="POST" action="" class="memberform">
+    <div class="form-group">
+        {{ render_field(form.first_name, class="form-control") }}
+    </div>
+    <div class="form-group">
+        {{ render_field(form.last_name, class="form-control") }}
+    </div>
+    <div class="form-group">
+        {{ render_field(form.email, class="form-control") }}
+    </div>
+    <div class="form-group">
+        {{ render_field(form.phone, class="form-control") }}
+    </div>
+    <div class="form-group">
+        {{ render_field(form.password, class="form-check", style="list-style-type:none") }}
+    </div>
+    <input type="submit" value="Submit" class="btn btn-primary "/>
+
+</form>
+{% endblock %}

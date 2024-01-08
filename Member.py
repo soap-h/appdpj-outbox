@@ -45,3 +45,5 @@ class Member:
 
     def set_password(self, password):
         self.__password = password
+
+# can you see this

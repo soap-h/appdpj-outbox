@@ -27,7 +27,12 @@ def create_member():
         member = Member.Member(create_member_form.first_name.data, create_member_form.last_name.data,
                                create_member_form.email.data, create_member_form.phone.data,
                                create_member_form.password.data)
-        members_dict[member.get_member_id()] = member
+        if len(members_dict) == 0:
+            my_key = 1
+        else:
+            my_key = len(members_dict.keys()) + 1
+        member.set_member_id(my_key)
+        members_dict[my_key] = member
         db['Members'] = members_dict
 
         db.close()

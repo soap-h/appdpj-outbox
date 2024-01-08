@@ -43,3 +43,4 @@ class Product:
     def set_drinks(self, drinks):
         self.__drinks = drinks
 
+    # kids

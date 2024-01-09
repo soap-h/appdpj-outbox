@@ -13,6 +13,10 @@ app = Flask(__name__)
 def homepage():
     return render_template('homepage.html')
 
+@app.route('/outbox')
+def outbox():
+    return render_template('outbox.html')
+
 
 @app.route('/register', methods=['GET', 'POST'])
 def create_member():

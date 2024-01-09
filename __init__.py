@@ -208,7 +208,7 @@ def update_product(id):
 def delete_product(id):
     inventory_dict = {}
     db = shelve.open('inventory.db', 'w')
-    inventory_dict = db['Members']
+    inventory_dict = db['Inventory']
     inventory_dict.pop(id)
     db['Inventory'] = inventory_dict
     db.close()

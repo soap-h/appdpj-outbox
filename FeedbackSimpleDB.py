@@ -1,0 +1,62 @@
+# This module will do all the database things
+# Advantage: 1. Much cleaner 2. Easy to change
+
+import shelve
+
+from Question import Question
+
+
+def get_key(my_dict):  # Find latest key > key is the largest number
+    # commonly used function to pass key from a dictionary
+    if len(my_dict) == 0:
+        my_key = 1
+    else:
+        print(my_dict.keys())
+        my_key = max(my_dict.keys()) + 1
+
+    return my_key
+
+
+def add_question(qn:Question):
+    question_dict = {}
+
+    db = shelve.open('question.db', 'c')
+    try:
+        question_dict = db['Question']
+    except:
+        print("Error in retrieving questions from question.db.")
+
+    k= get_key(question_dict)
+    qn.set_question_id(k)
+    print(qn)
+    question_dict[k] = qn
+    db['Question'] = question_dict  # update database
+
+    db.close()
+
+
+# see if adding user is successful
+def display_all_question():  # for testing purposes
+    question_dict = {}
+    db = shelve.open('question.db', 'c')  # open db
+    try:
+        question_dict = db['Question']  # retrieve data
+        for k, v in question_dict.items():
+            print(f"{k}:{v}")  # display data
+    except:
+        print("Error in retrieving Questions from question.db.")
+
+
+if __name__ == '__main__':  # only run on this file
+
+    q1 = Question('aa@aa.com', 'aaa', 'aaaaaaa', '2024-01-08')
+    add_question(q1)
+    print("Questions")
+    display_all_question()
+
+
+    # Test codes
+# questions_dict = db['Question']
+# user = questions_dict[user.get_customer_id()]
+# print(user.get_first_name(), user.get_last_name(), "was stored in user.db successfully with user_id ==",
+#       user.get_customer_id())

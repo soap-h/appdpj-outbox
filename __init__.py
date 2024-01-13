@@ -214,6 +214,74 @@ def delete_product(id):
     db.close()
     return redirect(url_for('view_inventory'))
 
+@app.route('/createQuestion', methods=['GET', 'POST'])
+def create_question():
+    create_question_form = CreateQuestionForm(request.form)
+    # need to get data from  create_user_form and save to shelve database
+    if request.method == 'POST' and create_question_form.validate():
+        question = Question(create_question_form.email.data,
+                            create_question_form.title.data,
+                            create_question_form.question.data,
+                            create_question_form.date_posted.data)
+        # first_name is a data filled object so need to retrieve data
+        add_question(question)
+        return redirect(url_for('home'))
+    return render_template('createQuestion.html', form=create_question_form)
+
+
+@app.route('/retrieveQuestion')
+def retrieve_questions():
+    questions_dict = {}
+    db = shelve.open('question.db', 'r')
+    questions_dict = db['Question']
+    db.close()
+    questions_list = []
+    for key in questions_dict:
+        question = questions_dict.get(key)
+        questions_list.append(question)
+    return render_template('retrieveQuestion.html', count=len(questions_list), questions_list=questions_list)
+
+
+@app.route('/updateQuestion/<int:id>/', methods=['GET', 'POST'])
+def update_question(id):
+    update_question_form = CreateQuestionForm(request.form)
+    if request.method == 'POST' and update_question_form.validate():
+        print("updating question")
+        db = shelve.open('question.db', 'w')
+        questions_dict = db['Question']
+        question = questions_dict.get(id)
+        question.set_email(update_question_form.email.data)
+        question.set_title(update_question_form.title.data)
+        question.set_question(update_question_form.question.data)
+        question.set_date_posted(update_question_form.date_posted.data)
+        db['Question'] = questions_dict
+        db.close()
+        return redirect(url_for('retrieve_questions'))
+
+    else:
+        questions_dict = {}
+        db = shelve.open('question.db', 'r')
+        questions_dict = db['Question']
+        db.close()
+        question = questions_dict.get(id)
+        update_question_form.email.data = question.get_email()
+        update_question_form.date_posted.data = question.get_date_posted()
+        update_question_form.title.data = question.get_title()
+        update_question_form.question.data = question.get_question()
+        return render_template('updateQuestion.html', form=update_question_form)
+
+
+@app.route('/deleteQuestion/<int:id>', methods=['POST'])
+def delete_questions(id):
+    questions_dict = {}
+    db = shelve.open('question.db', 'w')
+    questions_dict = db['Question']
+
+    questions_dict.pop(id)
+
+    db['Question'] = questions_dict
+    db.close()
+    return redirect(url_for('retrieve_questions'))
 
 if __name__ == '__main__':
     app.run(debug=True)

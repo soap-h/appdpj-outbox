@@ -225,7 +225,7 @@ def create_question():
                             create_question_form.date_posted.data)
         # first_name is a data filled object so need to retrieve data
         add_question(question)
-        return redirect(url_for('home'))
+        return redirect(url_for('homepage'))
     return render_template('createQuestion.html', form=create_question_form)
 
 

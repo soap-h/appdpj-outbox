@@ -3,12 +3,12 @@ import Product
 import shelve
 import Question
 
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, flash
 
 from forms import CreateMemberForm, CreateProductForm, CreateQuestionForm
 
 app = Flask(__name__)
-
+app.secret_key = 'PKfEKJh0'
 
 @app.route('/')
 def homepage():
@@ -24,32 +24,6 @@ def outbox():
     db_inventory.close()
 
     return render_template('outbox.html', outbox_products=inventory_dict.values())
-
-@app.route('/register', methods=['GET', 'POST'])
-def create_member():
-    create_member_form = CreateMemberForm(request.form)
-    if request.method == 'POST' and create_member_form.validate():
-        members_dict = {}
-        db = shelve.open('database.db', 'c')
-        try:
-            members_dict = db['Members']
-        except:
-            print("Error in retrieving members from database.db")
-        member = Member.Member(create_member_form.first_name.data, create_member_form.last_name.data,
-                               create_member_form.email.data, create_member_form.phone.data,
-                               create_member_form.password.data)
-        if len(members_dict) == 0:
-            my_key = 1
-        else:
-            my_key = len(members_dict.keys()) + 1
-        member.set_member_id(my_key)
-        members_dict[my_key] = member
-        db['Members'] = members_dict
-
-        db.close()
-
-        return redirect(url_for('admin'))
-    return render_template('adminmembers.html', form=create_member_form)
 
 @app.route('/add_to_outbox/<int:product_id>')
 def add_to_outbox(product_id):
@@ -96,6 +70,42 @@ def delete_cart(id):
 @app.route('/admin')
 def admin():
     return render_template('admin.html')
+
+@app.route('/register', methods=['GET', 'POST'])
+def create_member():
+    create_member_form = CreateMemberForm(request.form)
+    if request.method == 'POST' and create_member_form.validate():
+        members_dict = {}
+        db = shelve.open('database.db', 'c')
+        try:
+            members_dict = db['Members']
+        except:
+            print("Error in retrieving members from database.db")
+
+        email_list = []
+        member_list = db['Members']
+        for i in member_list:
+            email_list.append(member_list[i].get_email())
+        if create_member_form.email.data in email_list:
+            flash('email already exists. Please choose a different one.', 'error')
+        else:
+            member = Member.Member(create_member_form.first_name.data, create_member_form.last_name.data,
+                                   create_member_form.email.data, create_member_form.phone.data,
+                                   create_member_form.password.data)
+            if len(members_dict) == 0:
+                my_key = 1
+            else:
+                my_key = len(members_dict.keys()) + 1
+            member.set_member_id(my_key)
+            members_dict[my_key] = member
+            db['Members'] = members_dict
+            db.close()
+            return redirect(url_for('admin'))
+
+
+
+
+    return render_template('adminmembers.html', form=create_member_form)
 
 
 @app.route('/members')

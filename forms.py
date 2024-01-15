@@ -1,4 +1,4 @@
-from wtforms import Form, StringField, RadioField, SelectField, TextAreaField, validators, TelField
+from wtforms import Form, StringField, RadioField, SelectField, TextAreaField, validators, TelField, PasswordField
 from wtforms.fields import EmailField, DateField
 
 
@@ -8,7 +8,9 @@ class CreateMemberForm(Form):
     last_name = StringField('Last Name', [validators.Length(min=1, max=150), validators.DataRequired()])
     email = StringField('email', [validators.Length(min=1, max=150), validators.DataRequired()])
     phone = StringField('Phone Number', [validators.DataRequired()])
-    password = StringField('Enter password', [validators.DataRequired(), validators.Length(min=1, max=150)])
+    password = PasswordField('Enter password', [validators.DataRequired(), validators.Length(min=8, message='Too Short')])
+    confirm = PasswordField('Confirm password:', [validators.DataRequired(),
+                                                  validators.EqualTo('password', 'password does not match')])
 
 
 class CreateProductForm(Form):

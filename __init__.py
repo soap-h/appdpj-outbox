@@ -4,7 +4,7 @@ import shelve
 
 from flask import Flask, render_template, request, redirect, url_for
 
-from forms import CreateMemberForm, CreateProductForm
+from forms import CreateMemberForm, CreateProductForm, CreateQuestionForm
 
 app = Flask(__name__)
 

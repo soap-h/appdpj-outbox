@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block title %}View Outbox{% endblock %}
+{% block content %}
+    <h1 class="display-4">View Cart</h1>
+    <div>
+        {% if count == 0 %}
+            <p>Your Cart is empty.</p>
+        {% elif count == 1 %}
+            <p>There is 1 product in your Cart.</p>
+        {% else %}
+            <p>There are {{ count }} products in your Cart.</p>
+        {% endif %}
+    </div>
+    <div>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Product ID</th>
+                    <th>Name</th>
+                    <th>Price</th>
+                    <th>Category</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for product in outbox_list %}
+                    <tr>
+                        <td>{{ product.get_product_id() }}</td>
+                        <td>{{ product.get_name() }}</td>
+                        <td>${{ product.get_price() }}</td>
+                        <td>{{ product.get_category() }}</td>
+                        <td>
+                <form action="{{url_for('delete_cart', id=product.get_product_id())}}" method="POST">
+                    <!-- Button to Open the Modal -->
+                    <button type="button" class="btn btn-danger" data-bs-toggle="modal"
+                            data-bs-target="#myModal_{{product.get_product_id()}}">
+                        Delete
+                    </button>
+
+                    <!-- The Modal -->
+                    <div class="modal" id="myModal_{{product.get_product_id()}}">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h4 class="modal-title">Delete Confirmation</h4>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                </div>
+                                <div class="modal-body">
+                                    Are you sure you want to delete {{product.get_name()}}?
+                                </div>
+                                <div class="modal-footer">
+                                    <input type="submit" value="Delete" class="btn btn-danger">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <a href="{{ url_for('outbox') }}" class="btn btn-secondary mt-3">Back to Outbox</a>
+{% endblock %}

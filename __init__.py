@@ -13,10 +13,16 @@ app = Flask(__name__)
 def homepage():
     return render_template('homepage.html')
 
+
 @app.route('/outbox')
 def outbox():
-    return render_template('outbox.html')
+    # Retrieve products from inventory
+    inventory_dict = {}
+    db_inventory = shelve.open('inventory.db', 'r')
+    inventory_dict = db_inventory['Inventory']
+    db_inventory.close()
 
+    return render_template('outbox.html', outbox_products=inventory_dict.values())
 
 @app.route('/register', methods=['GET', 'POST'])
 def create_member():
@@ -44,6 +50,47 @@ def create_member():
         return redirect(url_for('admin'))
     return render_template('adminmembers.html', form=create_member_form)
 
+@app.route('/add_to_outbox/<int:product_id>')
+def add_to_outbox(product_id):
+    inventory_dict = {}
+    db_inventory = shelve.open('inventory.db', 'r')
+    inventory_dict = db_inventory['Inventory']
+    db_inventory.close()
+
+    selected_product = inventory_dict.get(product_id)
+
+    outbox_dict = {}
+    db_outbox = shelve.open('outbox.db', 'c')
+    try:
+        outbox_dict = db_outbox['Outbox']
+    except:
+        print("Error in retrieving products from Outbox.db")
+
+    outbox_dict[selected_product.get_product_id()] = selected_product
+    db_outbox['Outbox'] = outbox_dict
+    db_outbox.close()
+
+    return redirect(url_for('outbox'))
+
+@app.route('/view_cart')
+def view_cart():
+    outbox_dict = {}
+    db_outbox = shelve.open('outbox.db', 'r')
+    outbox_dict = db_outbox['Outbox']
+    db_outbox.close()
+
+    outbox_list = list(outbox_dict.values())
+    return render_template('viewcart.html', count=len(outbox_list), outbox_list=outbox_list)
+
+@app.route('/deleteitem/<int:id>', methods=['POST'])
+def delete_cart(id):
+    cart_dict = {}
+    db = shelve.open('outbox.db', 'w')
+    cart_dict = db['Outbox']
+    cart_dict.pop(id)
+    db['Outbox'] = cart_dict
+    db.close()
+    return redirect(url_for('view_cart'))
 
 @app.route('/admin')
 def admin():

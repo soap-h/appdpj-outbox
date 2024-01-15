@@ -20,11 +20,11 @@ def get_key(my_dict):  # Find latest key > key is the largest number
 def add_question(qn:Question):
     question_dict = {}
 
-    db = shelve.open('question.db', 'c')
+    db = shelve.open('database.db', 'c')
     try:
         question_dict = db['Question']
     except:
-        print("Error in retrieving questions from question.db.")
+        print("Error in retrieving questions from database.db.")
 
     k= get_key(question_dict)
     qn.set_question_id(k)
@@ -38,13 +38,13 @@ def add_question(qn:Question):
 # see if adding user is successful
 def display_all_question():  # for testing purposes
     question_dict = {}
-    db = shelve.open('question.db', 'c')  # open db
+    db = shelve.open('database.db', 'c')  # open db
     try:
         question_dict = db['Question']  # retrieve data
         for k, v in question_dict.items():
             print(f"{k}:{v}")  # display data
     except:
-        print("Error in retrieving Questions from question.db.")
+        print("Error in retrieving Questions from database.db.")
 
 
 if __name__ == '__main__':  # only run on this file

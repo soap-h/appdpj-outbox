@@ -18,7 +18,7 @@ def homepage():
 def outbox():
     # Retrieve products from inventory
     inventory_dict = {}
-    db_inventory = shelve.open('inventory.db', 'r')
+    db_inventory = shelve.open('database.db', 'r')
     inventory_dict = db_inventory['Inventory']
     db_inventory.close()
 
@@ -29,11 +29,11 @@ def create_member():
     create_member_form = CreateMemberForm(request.form)
     if request.method == 'POST' and create_member_form.validate():
         members_dict = {}
-        db = shelve.open('member.db', 'c')
+        db = shelve.open('database.db', 'c')
         try:
             members_dict = db['Members']
         except:
-            print("Error in retrieving members from Members.db")
+            print("Error in retrieving members from database.db")
         member = Member.Member(create_member_form.first_name.data, create_member_form.last_name.data,
                                create_member_form.email.data, create_member_form.phone.data,
                                create_member_form.password.data)
@@ -53,18 +53,18 @@ def create_member():
 @app.route('/add_to_outbox/<int:product_id>')
 def add_to_outbox(product_id):
     inventory_dict = {}
-    db_inventory = shelve.open('inventory.db', 'r')
+    db_inventory = shelve.open('database.db', 'r')
     inventory_dict = db_inventory['Inventory']
     db_inventory.close()
 
     selected_product = inventory_dict.get(product_id)
 
     outbox_dict = {}
-    db_outbox = shelve.open('outbox.db', 'c')
+    db_outbox = shelve.open('database.db', 'c')
     try:
         outbox_dict = db_outbox['Outbox']
     except:
-        print("Error in retrieving products from Outbox.db")
+        print("Error in retrieving products from database.db")
 
     outbox_dict[selected_product.get_product_id()] = selected_product
     db_outbox['Outbox'] = outbox_dict
@@ -75,7 +75,7 @@ def add_to_outbox(product_id):
 @app.route('/view_cart')
 def view_cart():
     outbox_dict = {}
-    db_outbox = shelve.open('outbox.db', 'r')
+    db_outbox = shelve.open('database.db', 'r')
     outbox_dict = db_outbox['Outbox']
     db_outbox.close()
 
@@ -85,7 +85,7 @@ def view_cart():
 @app.route('/deleteitem/<int:id>', methods=['POST'])
 def delete_cart(id):
     cart_dict = {}
-    db = shelve.open('outbox.db', 'w')
+    db = shelve.open('database.db', 'w')
     cart_dict = db['Outbox']
     cart_dict.pop(id)
     db['Outbox'] = cart_dict
@@ -102,32 +102,10 @@ def members():
     return render_template('adminmembers.html')
 
 
-# @app.route('/members/createmembers', methods=['GET', 'POST'])
-# def create_member():
-#     create_member_form = CreateMemberForm(request.form)
-#     if request.method == 'POST' and create_member_form.validate():
-#         members_dict = {}
-#         db = shelve.open('member.db', 'c')
-#         try:
-#             members_dict = db['Members']
-#         except:
-#             print("Error in retrieving members from Members.db")
-#         member = Member.Member(create_member_form.first_name.data, create_member_form.last_name.data,
-#                                create_member_form.email.data, create_member_form.phone.data,
-#                                create_member_form.password.data)
-#         members_dict[member.get_member_id()] = member
-#         db['Members'] = members_dict
-#
-#         db.close()
-#
-#         return redirect(url_for('admin'))
-#     return render_template('adminmembers.html', form=create_member_form)
-
-
 @app.route('/members/viewmembers')
 def view_members():
     member_dict = {}
-    db = shelve.open('member.db', 'r')
+    db = shelve.open('database.db', 'r')
     member_dict = db['Members']
     db.close()
 
@@ -143,7 +121,7 @@ def update_user(id):
     update_member_form = CreateMemberForm(request.form)
     if request.method == 'POST' and update_member_form.validate():
         members_dict = {}
-        db = shelve.open('member.db', 'w')
+        db = shelve.open('database.db', 'w')
         members_dict = db['Members']
         member = members_dict.get(id)
         member.set_first_name(update_member_form.first_name.data)
@@ -156,7 +134,7 @@ def update_user(id):
         return redirect(url_for('view_members'))
     else:
         members_dict = {}
-        db = shelve.open('member.db', 'r')
+        db = shelve.open('database.db', 'r')
         members_dict = db['Members']
         db.close()
         member = members_dict.get(id)
@@ -171,7 +149,7 @@ def update_user(id):
 @app.route('/deletemember/<int:id>', methods=['POST'])
 def delete_user(id):
     member_dict = {}
-    db = shelve.open('member.db', 'w')
+    db = shelve.open('database.db', 'w')
     member_dict = db['Members']
     member_dict.pop(id)
     db['Members'] = member_dict
@@ -185,11 +163,11 @@ def create_product():
     create_product_form = CreateProductForm(request.form)
     if request.method == 'POST' and create_product_form.validate():
         inventory_dict = {}
-        db = shelve.open('inventory.db', 'c')
+        db = shelve.open('database.db', 'c')
         try:
             inventory_dict = db['Inventory']
         except:
-            print("Error in retrieving products from Inventory.db")
+            print("Error in retrieving products from database.db")
         product = Product.Product(create_product_form.name.data, create_product_form.price.data,
                                   create_product_form.category.data, create_product_form.remarks.data,
                                   create_product_form.drinks.data)
@@ -210,7 +188,7 @@ def inventory():
 @app.route('/inventory/viewinventory')
 def view_inventory():
     inventory_dict = {}
-    db = shelve.open('inventory.db', 'r')
+    db = shelve.open('database.db', 'r')
     inventory_dict = db['Inventory']
     db.close()
 
@@ -226,7 +204,7 @@ def update_product(id):
     update_product_form = CreateProductForm(request.form)
     if request.method == 'POST' and update_product_form.validate():
         inventory_dict = {}
-        db = shelve.open('inventory.db', 'w')
+        db = shelve.open('database.db', 'w')
         inventory_dict = db['Inventory']
         product = inventory_dict.get(id)
         product.set_name(update_product_form.name.data)
@@ -239,7 +217,7 @@ def update_product(id):
         return redirect(url_for('view_inventory'))
     else:
         inventory_dict = {}
-        db = shelve.open('inventory.db', 'r')
+        db = shelve.open('database.db', 'r')
         inventory_dict = db['Inventory']
         db.close()
         product = inventory_dict.get(id)
@@ -254,7 +232,7 @@ def update_product(id):
 @app.route('/deleteproduct/<int:id>', methods=['POST'])
 def delete_product(id):
     inventory_dict = {}
-    db = shelve.open('inventory.db', 'w')
+    db = shelve.open('database.db', 'w')
     inventory_dict = db['Inventory']
     inventory_dict.pop(id)
     db['Inventory'] = inventory_dict
@@ -279,7 +257,7 @@ def create_question():
 @app.route('/retrieveQuestion')
 def retrieve_questions():
     questions_dict = {}
-    db = shelve.open('question.db', 'r')
+    db = shelve.open('database.db', 'r')
     questions_dict = db['Question']
     db.close()
     questions_list = []
@@ -294,7 +272,7 @@ def update_question(id):
     update_question_form = CreateQuestionForm(request.form)
     if request.method == 'POST' and update_question_form.validate():
         print("updating question")
-        db = shelve.open('question.db', 'w')
+        db = shelve.open('database.db', 'w')
         questions_dict = db['Question']
         question = questions_dict.get(id)
         question.set_email(update_question_form.email.data)
@@ -307,7 +285,7 @@ def update_question(id):
 
     else:
         questions_dict = {}
-        db = shelve.open('question.db', 'r')
+        db = shelve.open('database.db', 'r')
         questions_dict = db['Question']
         db.close()
         question = questions_dict.get(id)
@@ -321,7 +299,7 @@ def update_question(id):
 @app.route('/deleteQuestion/<int:id>', methods=['POST'])
 def delete_questions(id):
     questions_dict = {}
-    db = shelve.open('question.db', 'w')
+    db = shelve.open('database.db', 'w')
     questions_dict = db['Question']
 
     questions_dict.pop(id)

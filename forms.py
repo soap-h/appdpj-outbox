@@ -19,3 +19,10 @@ class CreateProductForm(Form):
     remarks = StringField('Remarks', [validators.Length(min=1, max=150), validators.Optional()])
     # picture =
     drinks = StringField('Drinks', [validators.Length(min=1, max=150), validators.DataRequired()])
+
+
+class CreateQuestionForm(Form):  # inherit from Form
+    title = StringField('Title',[validators.Length(min=1, max=150), validators.DataRequired()])
+    email = EmailField('Email', [validators.Email(), validators.DataRequired()])
+    date_posted = DateField('Date Posted', format='%Y-%m-%d')
+    question = TextAreaField('Question(s)', [validators.DataRequired()])

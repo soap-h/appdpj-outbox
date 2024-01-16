@@ -7,7 +7,6 @@ from flask import Flask, render_template, request, redirect, url_for, flash
 import os
 from werkzeug.utils import secure_filename
 from forms import CreateMemberForm, CreateProductForm, CreateQuestionForm
-from FeedbackForms import CreateQuestionForm
 from FeedbackSimpleDB import add_question
 from Question import Question
 

@@ -32,6 +32,9 @@ class Product:
     def get_image(self):
         return self.__image
 
+    def set_product_id(self, id):
+        self.__product_id = id
+
     def set_name(self, name):
         self.__name = name
 

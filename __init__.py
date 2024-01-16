@@ -254,9 +254,13 @@ def create_product():
             product = Product.Product(create_product_form.name.data, create_product_form.price.data,
                                       create_product_form.category.data, create_product_form.remarks.data,
                                       create_product_form.drinks.data, filename)
-            inventory_dict[product.get_product_id()] = product
+            if len(inventory_dict) == 0:
+                my_key = 1
+            else:
+                my_key = len(inventory_dict.keys()) + 1
+            product.set_product_id(my_key)
+            inventory_dict[my_key] = product
             db['Inventory'] = inventory_dict
-
             db.close()
 
             return redirect(url_for('admin'))

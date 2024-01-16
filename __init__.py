@@ -4,16 +4,26 @@ import shelve
 import Question
 
 from flask import Flask, render_template, request, redirect, url_for, flash
-
+import os
+from werkzeug.utils import secure_filename
 from forms import CreateMemberForm, CreateProductForm, CreateQuestionForm
 
 app = Flask(__name__)
+UPLOAD_FOLDER = 'static/uploads/'
 app.secret_key = 'PKfEKJh0'
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
+
+ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif'])
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
+
 
 @app.route('/')
 def homepage():
     return render_template('homepage.html')
-# iyhtbrf
 
 @app.route('/outbox')
 def outbox():
@@ -173,24 +183,33 @@ def delete_user(id):
 def create_product():
     create_product_form = CreateProductForm(request.form)
     if request.method == 'POST' and create_product_form.validate():
-        inventory_dict = {}
-        db = shelve.open('database.db', 'c')
-        try:
-            inventory_dict = db['Inventory']
-        except:
-            print("Error in retrieving products from database.db")
-        product = Product.Product(create_product_form.name.data, create_product_form.price.data,
-                                  create_product_form.category.data, create_product_form.remarks.data,
-                                  create_product_form.drinks.data)
-        inventory_dict[product.get_product_id()] = product
-        db['Inventory'] = inventory_dict
+        if 'file' not in request.files:
+            flash('No file part')
+            return redirect(request.url)
+        file = request.files['file']
+        if file.filename == '':
+            flash('No selected file')
+            return redirect(request.url)
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
 
-        db.close()
+            inventory_dict = {}
+            db = shelve.open('database.db', 'c')
+            try:
+                inventory_dict = db['Inventory']
+            except:
+                print("Error in retrieving products from database.db")
+            product = Product.Product(create_product_form.name.data, create_product_form.price.data,
+                                      create_product_form.category.data, create_product_form.remarks.data,
+                                      create_product_form.drinks.data, filename)
+            inventory_dict[product.get_product_id()] = product
+            db['Inventory'] = inventory_dict
 
-        return redirect(url_for('admin'))
+            db.close()
+
+            return redirect(url_for('admin'))
     return render_template('admininventory.html', form=create_product_form)
-
-
 @app.route('/inventory')
 def inventory():
     return render_template('admininventory.html')

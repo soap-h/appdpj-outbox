@@ -3,7 +3,7 @@
 {% block content %}
 {% from "includes/formhelper.html" import render_field %}
 <h1 class="display-4">Add product</h1>
-<form method="POST" action="" class="productform">
+<form method="POST" action="" class="productform" enctype="multipart/form-data">
     <div class="form-group">
         {{ render_field(form.name, class="form-control") }}
     </div>
@@ -19,6 +19,31 @@
     <div class="form-group">
         {{ render_field(form.drinks, class="form-check", style="list-style-type:none") }}
     </div>
+    <div class="container">
+        <div class="row">
+    <h2>Select a file to upload</h2>
+    <p>
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+            <ul>
+            {% for message in messages %}
+              <li>{{ message }}</li>
+            {% endfor %}
+            </ul>
+          {% endif %}
+        {% endwith %}
+    </p>
+    {% if filename %}
+        <div>
+            <img src="{{ url_for('display_image', filename=filename) }}">
+        </div>
+    {% endif %}
+            <p>
+                <input type="file" name="file" class="form-control" autocomplete="off" required>
+            </p>
+
+</div>
+</div>
     <input type="submit" value="Submit" class="btn btn-primary "/>
 
 </form>

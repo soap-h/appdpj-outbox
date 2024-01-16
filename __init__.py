@@ -324,6 +324,8 @@ def delete_product(id):
     db.close()
     return redirect(url_for('view_inventory'))
 
+#Forum vvv
+
 @app.route('/createQuestion', methods=['GET', 'POST'])
 def create_question():
     create_question_form = CreateQuestionForm(request.form)
@@ -332,8 +334,9 @@ def create_question():
         question = Question(create_question_form.email.data,
                             create_question_form.title.data,
                             create_question_form.question.data,
-                            create_question_form.date_posted.data)
-        # first_name is a data filled object so need to retrieve data
+                            create_question_form.date_posted.data,
+                            create_question_form.overall.data,
+                            create_question_form.feedback.data)
         add_question(question)
         return redirect(url_for('homepage'))
     return render_template('createQuestion.html', form=create_question_form)
@@ -364,6 +367,8 @@ def update_question(id):
         question.set_title(update_question_form.title.data)
         question.set_question(update_question_form.question.data)
         question.set_date_posted(update_question_form.date_posted.data)
+        question.set_overall(update_question_form.overall.data)
+        question.set_feedback(update_question_form.feedback.data)
         db['Question'] = questions_dict
         db.close()
         return redirect(url_for('retrieve_questions'))
@@ -378,8 +383,10 @@ def update_question(id):
         update_question_form.date_posted.data = question.get_date_posted()
         update_question_form.title.data = question.get_title()
         update_question_form.question.data = question.get_question()
-        return render_template('updateQuestion.html', form=update_question_form)
+        update_question_form.overall.data = question.get_overall()
+        update_question_form.feedback.data = question.get_feedback()
 
+        return render_template('updateQuestion.html', form=update_question_form)
 
 @app.route('/deleteQuestion/<int:id>', methods=['POST'])
 def delete_questions(id):

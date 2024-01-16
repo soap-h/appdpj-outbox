@@ -2,6 +2,9 @@ from wtforms import Form, StringField, RadioField, SelectField, TextAreaField, v
 from wtforms.fields import EmailField, DateField
 
 
+class CreateLoginForm(Form):
+    email = EmailField('Email:', [validators.Length(min=1, max=150), validators.DataRequired()])
+    password = PasswordField('Password:', [validators.Length(min=1, max=150), validators.DataRequired()])
 
 class CreateMemberForm(Form):
     first_name = StringField('First Name', [validators.Length(min=1, max=150), validators.DataRequired()])
@@ -11,7 +14,6 @@ class CreateMemberForm(Form):
     password = PasswordField('Enter password', [validators.DataRequired(), validators.Length(min=8, message='Too Short')])
     confirm = PasswordField('Confirm password:', [validators.DataRequired(),
                                                   validators.EqualTo('password', 'password does not match')])
-
 
 class CreateProductForm(Form):
     name = StringField('Name', [validators.Length(min=1, max=150), validators.DataRequired()])
@@ -25,6 +27,6 @@ class CreateProductForm(Form):
 
 class CreateQuestionForm(Form):  # inherit from Form
     title = StringField('Title',[validators.Length(min=1, max=150), validators.DataRequired()])
-    email = EmailField('Email', [validators.Email(), validators.DataRequired()])
+    email = EmailField('Email', [validators.Email(), validators.Optional()])
     date_posted = DateField('Date Posted', format='%Y-%m-%d')
-    question = TextAreaField('Question(s)', [validators.DataRequired()])
+    question = TextAreaField('Question(s) (if any)', [validators.DataRequired()])

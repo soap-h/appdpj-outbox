@@ -2,11 +2,12 @@ import Member
 import Product
 import shelve
 import Question
+import FeedbackSimpleDB
 
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request, redirect, url_for, flash, session
 import os
 from werkzeug.utils import secure_filename
-from forms import CreateMemberForm, CreateProductForm, CreateQuestionForm
+from forms import CreateMemberForm, CreateProductForm, CreateQuestionForm, CreateLoginForm
 
 app = Flask(__name__)
 UPLOAD_FOLDER = 'static/uploads/'
@@ -15,12 +16,36 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 
 ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif'])
+
+
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
 
 @app.route('/')
 def homepage():
     return render_template('homepage.html')
+
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    create_login_form = CreateLoginForm(request.form)
+
+    db = shelve.open('database.db', 'r')
+    login_list = db["Members"]
+    if request.method == "POST" and create_login_form.validate():
+        email = create_login_form.email.data
+        password = create_login_form.password.data
+        for member_id, member in login_list.items():
+            if member.get_email() == email and member.get_password() == password:
+                session['email'] = email
+                session['member_id'] = member_id
+                flash("Login successful", "success")
+                print("Control reached here without redirecting to outbox")
+                return redirect(url_for('outbox'))
+        flash("Invalid email or password. Please try again", "error")
+
+    return render_template('login.html', form=create_login_form)
 
 @app.route('/outbox')
 def outbox():
@@ -31,6 +56,7 @@ def outbox():
     db_inventory.close()
 
     return render_template('outbox.html', outbox_products=inventory_dict.values())
+
 
 @app.route('/add_to_outbox/<int:product_id>')
 def add_to_outbox(product_id):
@@ -54,6 +80,7 @@ def add_to_outbox(product_id):
 
     return redirect(url_for('outbox'))
 
+
 @app.route('/view_cart')
 def view_cart():
     outbox_dict = {}
@@ -63,6 +90,7 @@ def view_cart():
 
     outbox_list = list(outbox_dict.values())
     return render_template('viewcart.html', count=len(outbox_list), outbox_list=outbox_list)
+
 
 @app.route('/checkout')
 def checkout():
@@ -85,9 +113,11 @@ def delete_cart(id):
     db.close()
     return redirect(url_for('view_cart'))
 
+
 @app.route('/admin')
 def admin():
     return render_template('admin.html')
+
 
 @app.route('/register', methods=['GET', 'POST'])
 def create_member():
@@ -119,9 +149,6 @@ def create_member():
             db['Members'] = members_dict
             db.close()
             return redirect(url_for('admin'))
-
-
-
 
     return render_template('adminmembers.html', form=create_member_form)
 
@@ -287,7 +314,7 @@ def create_question():
                             create_question_form.question.data,
                             create_question_form.date_posted.data)
         # first_name is a data filled object so need to retrieve data
-        add_question(question)
+        FeedbackSimpleDB.add_question(question)
         return redirect(url_for('homepage'))
     return render_template('createQuestion.html', form=create_question_form)
 

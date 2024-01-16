@@ -47,8 +47,6 @@ def display_all_question():  # for testing purposes
         print("Error in retrieving Questions from database.db.")
 
 
-if __name__ == '__main__':  # only run on this file
-
 
 
 

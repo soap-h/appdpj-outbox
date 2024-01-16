@@ -41,7 +41,7 @@ def login():
         password = create_login_form.password.data
         for member_id, member in login_list.items():
             if member.get_email() == email and member.get_password() == password:
-                session['email'] = email
+                session['name'] = member.get_first_name() + " " + member.get_last_name()
                 session['member_id'] = member_id
                 flash("Login successful", "success")
                 print("Control reached here without redirecting to outbox")
@@ -49,6 +49,19 @@ def login():
         flash("Invalid email or password. Please try again", "error")
 
     return render_template('login.html', form=create_login_form)
+
+@app.route("/profile")
+def profile():
+    if "name" in session:
+        name = session["name"]
+        id = session["member_id"]
+    return render_template('profile.html', name=name, id=id)
+
+@app.route("/logout")
+def logout():
+    session.pop('name', None)
+    session.pop('member_id', None)
+    return redirect(url_for('homepage'))
 
 @app.route('/outbox')
 def outbox():

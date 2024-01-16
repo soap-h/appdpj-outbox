@@ -18,9 +18,16 @@
                         <li><a class="dropdown-item" href="#">Beanbox</a></li>
                     </ul>
                 </li>
+                {% if 'name' not in session %}
                 <li class="nav-item">
-                    <a class="nav-link" href="/login">Log in</a>
+                    <a class="nav-link" href="{{ url_for('login') }}">Login</a>
                 </li>
+                {% endif %}
+                {% if 'name' in session %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('profile') }}">Profile</a>
+                    </li>
+                {% endif %}
             </ul>
         </div>
 

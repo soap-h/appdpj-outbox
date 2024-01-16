@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Checkout{% endblock %}
+{% block content %}
+    <h1 class="display-4">Checkout</h1>
+    <div>
+        <h2>Order Summary</h2>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Product ID</th>
+                    <th>Name</th>
+                    <th>Price</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in cart_items %}
+                    <tr>
+                        <td>{{ item.get_product_id() }}</td>
+                        <td>{{ item.get_name() }}</td>
+                        <td>${{ item.get_price() }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <p>Total Price: ${{ total_price }}</p>
+    </div>
+    <div>
+        <h2>Payment Information</h2>
+
+        <form method="post" action="{{ url_for('outbox') }}">
+            <button type="submit" class="btn btn-primary">Process Payment</button>
+        </form>
+    </div>
+    <a href="{{ url_for('outbox') }}" class="btn btn-secondary mt-3">Back to Cart</a>
+{% endblock %}

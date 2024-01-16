@@ -18,9 +18,6 @@ ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif'])
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-
-
-
 @app.route('/')
 def homepage():
     return render_template('homepage.html')
@@ -66,6 +63,17 @@ def view_cart():
 
     outbox_list = list(outbox_dict.values())
     return render_template('viewcart.html', count=len(outbox_list), outbox_list=outbox_list)
+
+@app.route('/checkout')
+def checkout():
+    db = shelve.open("database.db", "c")
+    checkout_dict = {}
+    checkout_dict = db['Outbox']
+    db.close()
+    total_price = sum(float(item.get_price()) for item in checkout_dict.values())
+
+    return render_template('checkout.html', cart_items=checkout_dict.values(), total_price=total_price)
+
 
 @app.route('/deleteitem/<int:id>', methods=['POST'])
 def delete_cart(id):

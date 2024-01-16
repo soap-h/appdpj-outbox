@@ -7,6 +7,9 @@ import FeedbackSimpleDB
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 import os
 from werkzeug.utils import secure_filename
+from FeedbackSimpleDB import add_question
+from Question import Question
+
 from forms import CreateMemberForm, CreateProductForm, CreateQuestionForm, CreateLoginForm
 
 app = Flask(__name__)
@@ -314,7 +317,7 @@ def create_question():
                             create_question_form.question.data,
                             create_question_form.date_posted.data)
         # first_name is a data filled object so need to retrieve data
-        FeedbackSimpleDB.add_question(question)
+        add_question(question)
         return redirect(url_for('homepage'))
     return render_template('createQuestion.html', form=create_question_form)
 

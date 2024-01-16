@@ -15,6 +15,7 @@ class CreateMemberForm(Form):
     confirm = PasswordField('Confirm password:', [validators.DataRequired(),
                                                   validators.EqualTo('password', 'password does not match')])
 
+
 class CreateProductForm(Form):
     name = StringField('Name', [validators.Length(min=1, max=150), validators.DataRequired()])
     price = StringField('Price ($)', [validators.Length(min=1, max=10), validators.DataRequired()])

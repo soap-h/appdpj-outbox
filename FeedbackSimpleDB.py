@@ -49,14 +49,7 @@ def display_all_question():  # for testing purposes
 
 if __name__ == '__main__':  # only run on this file
 
-    q1 = Question('aa@aa.com', 'aaa', 'aaaaaaa', '2024-01-08')
-    add_question(q1)
-    print("Questions")
-    display_all_question()
 
 
-    # Test codes
-# questions_dict = db['Question']
-# user = questions_dict[user.get_customer_id()]
-# print(user.get_first_name(), user.get_last_name(), "was stored in user.db successfully with user_id ==",
-#       user.get_customer_id())
+
+

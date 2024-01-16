@@ -1,13 +1,18 @@
 class Question:
     count_id = 0
 
-    def __init__(self, email, title, question, date_posted):
+    def __init__(self, email, title, question, date_posted, overall, feedback):
         Question.count_id += 1  # Increment the class-level count_id
         self.__email = email
         self.__title = title
         self.__question = question
         self.__date_posted = date_posted
         self.__question_id = Question.count_id
+
+        #######################
+        self.__overall = overall
+        self.__feedback = feedback
+        #######################
 
     def get_question_id(self):
         return self.__question_id
@@ -24,6 +29,15 @@ class Question:
     def get_question(self):
         return self.__question
 
+    #######################
+    def get_overall(self):
+        return self.__overall
+
+    def get_feedback(self):
+        return self.__feedback
+
+    #######################
+
     def set_question_id(self, question_id):
         self.__question_id = question_id
 
@@ -39,5 +53,13 @@ class Question:
     def set_question(self, question):
         self.__question = question
 
+    #######################
+    def set_overall(self, overall):
+        self.__overall = overall
+
+    def set_feedback(self, feedback):
+        self.__feedback = feedback
+    #######################
+
     def __str__(self):
-        return f"{self.__question_id}, {self.__title}, {self.__question}, {self.__date_posted}, {type(self.__date_posted)}"
+        return f"{self.__question_id}, {self.__title}, {self.__question}, {self.__date_posted}, {type(self.__date_posted)}, {self.__overall}, {type(self.__overall)}"

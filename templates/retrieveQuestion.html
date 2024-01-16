@@ -1,14 +1,14 @@
 {% extends "base.html" %}
-{% block title %}OutBox - Retrieve Questions{% endblock %}
+{% block title %}OutBox - Retrieve Forum{% endblock %}
 {% block content %}
-<h1 class="display-4">Retrieve Questions</h1>
+<h1 class="display-4">Retrieve Forum</h1>
 <div>
 {% if count == 0 %}
-<p>There are no Questions.</p>
+<p>There are no Questions/Feedbacks.</p>
 {% elif count == 1 %}
-<p>There is 1 question.</p>
+<p>There is 1 question/feedback.</p>
 {% else %}
-<p>There are {{ count }} questions.</p>
+<p>There are {{ count }} questions/feedback.</p>
 {% endif %}
 </div>
 <div>
@@ -20,6 +20,9 @@
     <th>Date Posted</th>
     <th>Title</th>
     <th>Question</th>
+    <th>Overall Experience</th>
+    <th>Feedback</th>
+
     <th></th>
     <th></th>
     </tr>
@@ -32,6 +35,19 @@
     <td>{{ question.get_date_posted() }}</td>
     <td>{{ question.get_title() }}</td>
     <td>{{ question.get_question() }}</td>
+
+
+    {% if question.get_overall() == "B" %}
+    <td>😡</td>
+    {% elif question.get_overall() == "N" %}
+    <td>😐</td>
+    {% elif question.get_overall() == "E" %}
+    <td>😁</td>
+    {% endif %}
+
+    <td>{{  question.get_feedback() }}</td>
+
+
     <td><a href="/updateQuestion/{{question.get_question_id()}}" class="btn btn-warning">Update</a>
     </td>
       <td>

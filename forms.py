@@ -31,3 +31,6 @@ class CreateQuestionForm(Form):  # inherit from Form
     email = EmailField('Email', [validators.Email(), validators.Optional()])
     date_posted = DateField('Date Posted', format='%Y-%m-%d')
     question = TextAreaField('Question(s) (if any)', [validators.DataRequired()])
+    overall = RadioField('Overall Experience', choices=[('B', 'Bad'), ('N', 'Neutral'), ('E', 'Excellent')],
+                     default='N')
+    feedback = TextAreaField('Feedback (if any)', [validators.Optional()])

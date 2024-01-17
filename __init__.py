@@ -10,7 +10,7 @@ from werkzeug.utils import secure_filename
 from FeedbackSimpleDB import add_question
 from Question import Question
 
-from forms import CreateMemberForm, CreateProductForm, CreateQuestionForm, CreateLoginForm
+from forms import CreateMemberForm, CreateProductForm, CreateQuestionForm, CreateLoginForm, CreateCardForm
 
 app = Flask(__name__)
 UPLOAD_FOLDER = 'static/uploads/'
@@ -108,15 +108,23 @@ def view_cart():
     return render_template('viewcart.html', count=len(outbox_list), outbox_list=outbox_list)
 
 
-@app.route('/checkout')
+@app.route('/checkout', methods=['GET', 'POST'])
 def checkout():
+    create_card_form = CreateCardForm(request.form)
     db = shelve.open("database.db", "c")
     checkout_dict = {}
     checkout_dict = db['Outbox']
-    db.close()
-    total_price = sum(float(item.get_price()) for item in checkout_dict.values())
 
-    return render_template('checkout.html', cart_items=checkout_dict.values(), total_price=total_price)
+    total_price = sum(float(item.get_price()) for item in checkout_dict.values())
+    if request.method == "POST" and create_card_form.validate():
+        checkout_dict = {}
+        db['Outbox'] = checkout_dict
+        db.close()
+        return render_template("homepage.html")
+    db.close()
+
+    return render_template('checkout.html',
+                           cart_items=checkout_dict.values(), total_price=total_price, form=create_card_form)
 
 
 @app.route('/deleteitem/<int:id>', methods=['POST'])

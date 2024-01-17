@@ -1,10 +1,12 @@
-from wtforms import Form, StringField, RadioField, SelectField, TextAreaField, validators, TelField, PasswordField
+from wtforms import (Form, StringField, RadioField, SelectField, TextAreaField,
+                     validators, TelField, PasswordField, IntegerField)
 from wtforms.fields import EmailField, DateField
 
 
 class CreateLoginForm(Form):
     email = EmailField('Email:', [validators.Length(min=1, max=150), validators.DataRequired()])
     password = PasswordField('Password:', [validators.Length(min=1, max=150), validators.DataRequired()])
+
 
 class CreateMemberForm(Form):
     first_name = StringField('First Name', [validators.Length(min=1, max=150), validators.DataRequired()])
@@ -34,3 +36,17 @@ class CreateQuestionForm(Form):  # inherit from Form
     overall = RadioField('Overall Experience', choices=[('B', 'Bad'), ('N', 'Neutral'), ('E', 'Excellent')],
                      default='N')
     feedback = TextAreaField('Feedback (if any)', [validators.Optional()])
+
+
+class CreateCardForm(Form):
+    card = StringField('Card Number', [validators.Length(min=16, max=16, message='Card number must be 16 digits'),
+                                validators.Regexp('^\d+$', message='Card number must only contain digits'),
+                                validators.DataRequired(message='Card number is required')])
+
+    expdate = StringField('Expiry Date (MM/YY)', [validators.Length(min=5, max=5, message='Expiry date must be in MM/YY format'),
+                                      validators.Regexp('^\d{2}/\d{2}$', message='Expiry date must be in MM/YY format'),
+                                      validators.DataRequired(message='Expiry date is required')])
+
+    CVV = StringField('Security Code (CVV)', [validators.Length(min=3, max=3, message='Security code must be 3 digits'),
+                              validators.Regexp('^\d+$', message='Security code must only contain digits'),
+                              validators.DataRequired(message='Security code is required')])

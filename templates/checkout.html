@@ -1,35 +1,62 @@
 {% extends "base.html" %}
 {% block title %}Checkout{% endblock %}
 {% block content %}
+{% from "includes/formHelper.html" import render_field %}
     <h1 class="display-4">Checkout</h1>
-    <div>
-        <h2>Order Summary</h2>
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>Product ID</th>
-                    <th>Name</th>
-                    <th>Price</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for item in cart_items %}
-                    <tr>
-                        <td>{{ item.get_product_id() }}</td>
-                        <td>{{ item.get_name() }}</td>
-                        <td>${{ item.get_price() }}</td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        <p>Total Price: ${{ total_price }}</p>
-    </div>
-    <div>
+    <div class="row">
+        <!-- Left column for cart items -->
+        <div class="col-md-6">
+            <div class="checkout_items">
+                <h2>Order Summary</h2>
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Product ID</th>
+                            <th>Name</th>
+                            <th>Price</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in cart_items %}
+                            <tr>
+                                <td>{{ item.get_product_id() }}</td>
+                                <td>{{ item.get_name() }}</td>
+                                <td>${{ item.get_price() }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <p>Total Price: ${{ total_price }}</p>
+            </div>
+        </div>
+
+        <!-- Right column for payment information -->
+        <div class="col-md-6">
+    <div class="checkout_items">
         <h2>Payment Information</h2>
 
-        <form method="post" action="{{ url_for('outbox') }}">
+        <form method="post" action="">
+            <!-- Card Number -->
+            <div class="mb-3 form-group">
+                {{ render_field(form.card, class="form-control") }}
+            </div>
+            <!-- Expiry Date and Security Code (CVV) -->
+            <div class="row">
+                <div class="col-md-6 mb-3 form-group">
+                    {{ render_field(form.expdate, class="form-control") }}
+                </div>
+                <div class="col-md-6 mb-3 form-group">
+                    {{ render_field(form.CVV, class="form-control") }}
+                </div>
+            </div>
+
+            <!-- Add other necessary form fields for billing information if needed -->
+
             <button type="submit" class="btn btn-primary">Process Payment</button>
         </form>
     </div>
+</div>
+    </div>
+
     <a href="{{ url_for('outbox') }}" class="btn btn-secondary mt-3">Back to Cart</a>
 {% endblock %}

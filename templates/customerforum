@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}OutBox - Retrieve Forum{% endblock %}
+{% block content %}
+<br>
+<br>
+<h1 class="display-4">View Forum</h1>
+<div>
+{% if count == 0 %}
+<p>There are no Questions/Feedbacks.</p>
+{% elif count == 1 %}
+<p>There is 1 question/feedback.</p>
+{% else %}
+<p>There are {{ count }} questions/feedback.</p>
+{% endif %}
+</div>
+<div>
+<table class="table table-striped">
+  <thead>
+  <tr>
+    <th>Question ID</th>
+    <th>Date Posted</th>
+    <th>Title</th>
+    <th>Question</th>
+    <th>Overall Experience</th>
+    <th>Feedback</th>
+
+
+    </tr>
+  </thead>
+<tbody>
+  {% for question in questions_list %}
+  <tr>
+    <td>{{ question.get_question_id() }}</td>
+    <td>{{ question.get_date_posted() }}</td>
+    <td>{{ question.get_title() }}</td>
+    <td>{{ question.get_question() }}</td>
+
+
+    {% if question.get_overall() == "B" %}
+    <td>😡</td>
+    {% elif question.get_overall() == "N" %}
+    <td>😐</td>
+    {% elif question.get_overall() == "E" %}
+    <td>😁</td>
+    {% endif %}
+
+    <td>{{  question.get_feedback() }}</td>
+
+
+
+
+</tr>
+{% endfor %}
+</tbody>
+</table>
+</div>
+{% endblock %}

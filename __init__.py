@@ -350,7 +350,7 @@ def create_question():
     return render_template('createQuestion.html', form=create_question_form)
 
 
-@app.route('/retrieveQuestion')
+@app.route('/viewQuestion')
 def retrieve_questions():
     questions_dict = {}
     db = shelve.open('database.db', 'r')

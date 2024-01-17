@@ -365,7 +365,7 @@ def retrieve_questions():
 @app.route('/cviewQuestion')
 def cretrieve_questions():
     questions_dict = {}
-    db = shelve.open('question.db', 'r')
+    db = shelve.open('database.db', 'r')
     questions_dict = db['Question']
     db.close()
     questions_list = []

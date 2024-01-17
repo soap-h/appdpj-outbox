@@ -1,4 +1,5 @@
 'Question', (0, 6)
-'Inventory', (512, 6)
-'Members', (1024, 6)
-'Outbox', (1536, 6)
+'Inventory', (8192, 466)
+'Members', (1024, 480)
+'Outbox', (3584, 6)
+'OrderHist', (9216, 638)

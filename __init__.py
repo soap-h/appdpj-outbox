@@ -1,14 +1,17 @@
 import Member
 import Product
+import Orderhistory
 import shelve
 import Question
 import FeedbackSimpleDB
 
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 import os
+import datetime
 from werkzeug.utils import secure_filename
 from FeedbackSimpleDB import add_question
 from Question import Question
+
 
 from forms import CreateMemberForm, CreateProductForm, CreateQuestionForm, CreateLoginForm, CreateCardForm
 
@@ -28,7 +31,6 @@ def allowed_file(filename):
 @app.route('/')
 def homepage():
     return render_template('homepage.html')
-
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -117,15 +119,72 @@ def checkout():
 
     total_price = sum(float(item.get_price()) for item in checkout_dict.values())
     if request.method == "POST" and create_card_form.validate():
-        checkout_dict = {}
-        db['Outbox'] = checkout_dict
+        order_dict = {}
+        order_dict = db['OrderHist']
+        if 'name' in session:
+            id = session['member_id']
+            memberdb = db['Members']
+            product = []
+            for i in checkout_dict:
+                product.append(checkout_dict[i].get_name())
+            date = datetime.date.today()
+            order_hist = Orderhistory.OrderHistory(session['name'], memberdb[id].get_email(),
+                                      product, date, memberdb[id].get_phone(),
+                                      total_price)
+            if len(order_dict) == 0:
+                my_key = 1
+            else:
+                my_key = len(order_dict.keys()) + 1
+            order_hist.set_order_id(my_key)
+            order_dict[my_key] = order_hist
+            db['OrderHist'] = order_dict
+            # date.strftime("%d/%m/%y")
+        else:
+            product = []
+            for i in checkout_dict:
+                product.append(checkout_dict[i].get_name())
+            date = datetime.date.today()
+            order_hist = Orderhistory.OrderHistory("Guest", "Null",
+                                                   product, date, "Null",
+                                                   total_price)
+            if len(order_dict) == 0:
+                my_key = 1
+            else:
+                my_key = len(order_dict.keys()) + 1
+            order_hist.set_order_id(my_key)
+            order_dict[my_key] = order_hist
+            db['OrderHist'] = order_dict
+        nothing = {}
+        db['Outbox'] = nothing
         db.close()
         return render_template("homepage.html")
-    db.close()
 
+    db.close()
     return render_template('checkout.html',
                            cart_items=checkout_dict.values(), total_price=total_price, form=create_card_form)
 
+
+@app.route('/orderhistory')
+def orderhistory():
+    db = shelve.open("database.db", "c")
+    order_dict = db['OrderHist']
+    order_list = []
+
+    for key in order_dict:
+        orderid = order_dict.get(key)
+        order_list.append(orderid)
+
+    db.close()
+    return render_template("orderhistory.html", count=len(order_dict), order_list=order_list)
+@app.route('/deleteorder/<int:id>', methods=['POST'])
+def delete_order(id):
+    order_dict = {}
+    db = shelve.open('database.db', 'w')
+    order_dict = db['OrderHist']
+    order_dict.pop(id)
+    db['OrderHist'] = order_dict
+    db.close()
+    return redirect(url_for('orderhistory'))
 
 @app.route('/deleteitem/<int:id>', methods=['POST'])
 def delete_cart(id):

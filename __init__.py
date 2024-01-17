@@ -362,6 +362,18 @@ def retrieve_questions():
         questions_list.append(question)
     return render_template('retrieveQuestion.html', count=len(questions_list), questions_list=questions_list)
 
+@app.route('/cviewQuestion')
+def cretrieve_questions():
+    questions_dict = {}
+    db = shelve.open('question.db', 'r')
+    questions_dict = db['Question']
+    db.close()
+    questions_list = []
+    for key in questions_dict:
+        question = questions_dict.get(key)
+        questions_list.append(question)
+    return render_template('customerforum.html', count=len(questions_list), questions_list=questions_list)
+
 
 @app.route('/updateQuestion/<int:id>/', methods=['GET', 'POST'])
 def update_question(id):

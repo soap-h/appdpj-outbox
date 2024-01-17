@@ -24,7 +24,6 @@ class CreateProductForm(Form):
     category = SelectField('Category', [validators.Length(min=1, max=150), validators.DataRequired()],
                            choices=[('Basic', 'Basic'), ('Emo', 'Emo'), ('Grunge', 'Grunge'), ('Preppy', 'Preppy')], default='')
     remarks = StringField('Remarks', [validators.Length(min=1, max=150), validators.Optional()])
-    # picture =
     drinks = StringField('Drinks', [validators.Length(min=1, max=150), validators.DataRequired()])
 
 

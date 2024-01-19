@@ -277,3 +277,10 @@
 .display-4 {
     text-align: center;
 }
+
+#cart-badge {
+    position: absolute;
+    top: 25%;
+    left: 80%;
+    transform: translate(-50%, -50%);
+}

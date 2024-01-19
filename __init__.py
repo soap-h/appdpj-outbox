@@ -90,6 +90,17 @@ def outbox():
     return render_template('outbox.html', outbox_products=inventory_dict.values(), categories = categories)
 
 
+@app.route('/view_cart')
+def view_cart():
+    outbox_dict = {}
+    db_outbox = shelve.open('database.db', 'r')
+    outbox_dict = db_outbox['Outbox']
+    db_outbox.close()
+
+    outbox_list = list(outbox_dict.values())
+    cart_list = session.get('cart', [])
+    return render_template('viewcart.html', count=len(cart_list), outbox_list=outbox_list)
+
 
 @app.route('/add_to_outbox/<int:product_id>')
 def add_to_outbox(product_id):
@@ -107,26 +118,45 @@ def add_to_outbox(product_id):
     except:
         print("Error in retrieving products from database.db")
 
+    if 'cart' not in session:
+        session['cart'] = []
+
+    session['cart'].append(product_id)
+    session.modified = True
+
     outbox_dict[selected_product.get_product_id()] = selected_product
     db_outbox['Outbox'] = outbox_dict
     db_outbox.close()
-
+    flash("Item successfully added to cart.", "success")
     return redirect(url_for('outbox'))
 
+@app.route('/deleteitem/<int:id>', methods=['POST'])
+def delete_cart(id):
+    cart_dict = {}
+    db = shelve.open('database.db', 'w')
+    cart_dict = db['Outbox']
+    cart_dict.pop(id)
+    db['Outbox'] = cart_dict
+    db.close()
+    cart_list = session.get('cart', [])
+    if id in cart_list:
+        cart_list.remove(id)
 
-@app.route('/view_cart')
-def view_cart():
-    outbox_dict = {}
-    db_outbox = shelve.open('database.db', 'r')
-    outbox_dict = db_outbox['Outbox']
-    db_outbox.close()
+    session['cart'] = cart_list
+    session.modified = True
 
-    outbox_list = list(outbox_dict.values())
-    return render_template('viewcart.html', count=len(outbox_list), outbox_list=outbox_list)
+    return redirect(url_for('view_cart'))
+
+
 
 
 @app.route('/checkout', methods=['GET', 'POST'])
 def checkout():
+    cart_list = session.get('cart', [])
+    if not cart_list:
+        flash("Your cart is empty. Add items to your cart before proceeding to checkout.", "warning")
+        return redirect(url_for('view_cart'))
+
     create_card_form = CreateCardForm(request.form)
     db = shelve.open("database.db", "c")
     checkout_dict = {}
@@ -169,6 +199,15 @@ def checkout():
             order_hist.set_order_id(my_key)
             order_dict[my_key] = order_hist
             db['OrderHist'] = order_dict
+
+
+        for id in checkout_dict:
+            if id in cart_list:
+                cart_list.remove(id)
+
+        session['cart'] = cart_list
+        session.modified = True
+
         nothing = {}
         db['Outbox'] = nothing
         db.close()
@@ -202,15 +241,6 @@ def delete_order(id):
     return redirect(url_for('orderhistory'))
 
 
-@app.route('/deleteitem/<int:id>', methods=['POST'])
-def delete_cart(id):
-    cart_dict = {}
-    db = shelve.open('database.db', 'w')
-    cart_dict = db['Outbox']
-    cart_dict.pop(id)
-    db['Outbox'] = cart_dict
-    db.close()
-    return redirect(url_for('view_cart'))
 
 
 @app.route('/admin')

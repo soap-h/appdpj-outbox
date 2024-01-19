@@ -10,14 +10,14 @@
         <h1 class="navbar-brand">ADMIN MODE</h1>
         {% endif %}
         <div class="collapse navbar-collapse justify-content-end" id="collapsibleNavbar">
-            <ul class="navbar-nav">
+            <ul class="navbar-nav ms-auto d-flex align-items-center">
                 {% if 'admin' in session %}
                 <li class="nav-item">
                     <a href="/admin" class="nav-link">ADMIN PAGE</a>
                 </li>
                 {% endif %}
                 <li class="nav-item p">
-                    <a class="nav-link" href="#">Home</a>
+                    <a class="nav-link" href="/">Home</a>
                 </li>
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Stores</a>
@@ -36,9 +36,17 @@
                         <a class="nav-link" href="{{ url_for('profile') }}">Profile</a>
                     </li>
                 {% endif %}
+                <li class="nav-item d-flex align-items-center">
+                    <div class="position-relative">
+                        <a href="{{ url_for('view_cart') }}" class="nav-link"><i class="bi bi-cart-dash" style="font-size: 2rem; color:white;"></i></a>
+                        {% if 'cart' in session and session['cart'] %}
+                            <span id="cart-badge" class="badge bg-danger position-absolute translate-middle">{{ session['cart']|length }}</span>
+                        {% endif %}
+                    </div>
+                </li>
             </ul>
+            </li>
         </div>
-
         <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">Manage
                         Forum</a>

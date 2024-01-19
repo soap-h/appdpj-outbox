@@ -2,4 +2,5 @@
 'Inventory', (8192, 466)
 'Members', (1024, 480)
 'Outbox', (3584, 6)
-'OrderHist', (9216, 638)
+'OrderHist', (9216, 858)
+'Admin', (10240, 213)

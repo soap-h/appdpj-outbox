@@ -1,11 +1,37 @@
 {% extends "adminbase.html" %}
 {% block title %} ZES&#179; admin page{% endblock %}
 {% block content %}
-<h1>Admin Page</h1>
+<style>
+    .admin-buttons {
+        justify-content: space-around;
+        margin-top: 20px;
+    }
+
+    .admin-buttons a {
+        display: inline-block;
+        margin: 10px 0 10px 10px;
+        text-decoration: none;
+    }
+</style>
+
+{% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <div class="alert alert-info text-center" role="alert">
+                {{ messages[0] }}
+            </div>
+        {% endif %}
+    {% endwith %}
+<h1>Welcome {{ name }}! This is the admin page.</h1>
 <p>What would you like to do?</p>
-<a href="members/viewmembers">View members</a>
-<a href="inventory/viewinventory">View inventory</a>
-<a href="/addproduct">Add product</a>
-<a href="/viewQuestion">View Forum</a>
-<a href="/orderhistory">View orders</a>
+
+<div class="admin-buttons">
+    <a href="members/viewmembers" class="btn btn-primary btn-lg rounded-pill">View members</a>
+    <a href="inventory/viewinventory" class="btn btn-primary btn-lg rounded-pill">View inventory</a>
+    <a href="/addproduct" class="btn btn-primary btn-lg rounded-pill">Add product</a>
+    <a href="/viewQuestion" class="btn btn-primary btn-lg rounded-pill">View Forum</a>
+    <a href="/orderhistory" class="btn btn-primary btn-lg rounded-pill">View orders</a>
+    <a href="/addadmin" class="btn btn-primary btn-lg rounded-pill">Add Admin Member</a>
+    <a href="/viewadmins" class="btn btn-primary btn-lg rounded-pill">View Admin Members</a>
+</div>
+
 {% endblock %}

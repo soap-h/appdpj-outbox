@@ -49,3 +49,14 @@ class CreateCardForm(Form):
     CVV = StringField('Security Code (CVV)', [validators.Length(min=3, max=3, message='Security code must be 3 digits'),
                               validators.Regexp('^\d+$', message='Security code must only contain digits'),
                               validators.DataRequired(message='Security code is required')])
+
+
+class CreateAdminForm(Form):
+    first_name = StringField('First Name', [validators.Length(min=1, max=150), validators.DataRequired()])
+    last_name = StringField('Last Name', [validators.Length(min=1, max=150), validators.DataRequired()])
+    email = StringField('email', [validators.Length(min=1, max=150), validators.DataRequired()])
+    password = PasswordField('Enter password',
+                             [validators.DataRequired(), validators.Length(min=8, message='Too Short')])
+    confirm = PasswordField('Confirm password:', [validators.DataRequired(),
+                                                  validators.EqualTo('password', 'password does not match')])
+

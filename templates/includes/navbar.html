@@ -6,8 +6,16 @@
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#collapsibleNavbar">
             <span class="navbar-toggler-icon"></span>
         </button>
+        {% if 'admin' in session %}
+        <h1 class="navbar-brand">ADMIN MODE</h1>
+        {% endif %}
         <div class="collapse navbar-collapse justify-content-end" id="collapsibleNavbar">
             <ul class="navbar-nav">
+                {% if 'admin' in session %}
+                <li class="nav-item">
+                    <a href="/admin" class="nav-link">ADMIN PAGE</a>
+                </li>
+                {% endif %}
                 <li class="nav-item p">
                     <a class="nav-link" href="#">Home</a>
                 </li>

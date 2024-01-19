@@ -2,6 +2,7 @@
 {% block title %}Update User{% endblock %}
 {% block content %}
 {% from "includes/formHelper.html" import render_field %}
+<a href="{{ url_for('view_members') }}" class="btn btn-secondary mb-2" style="margin-top: 10px;"><i style="margin-right:5px;" class="bi bi-arrow-left"></i>Back</a>
 <h1 class="display-4">Update Member Information</h1>
 <form method="POST" action="" class="memberform">
     <div class="form-group">

@@ -3,6 +3,7 @@ import Product
 import Orderhistory
 import shelve
 import Question
+import Admin
 import FeedbackSimpleDB
 
 from flask import Flask, render_template, request, redirect, url_for, flash, session
@@ -13,7 +14,7 @@ from FeedbackSimpleDB import add_question
 from Question import Question
 
 
-from forms import CreateMemberForm, CreateProductForm, CreateQuestionForm, CreateLoginForm, CreateCardForm
+from forms import CreateMemberForm, CreateProductForm, CreateQuestionForm, CreateLoginForm, CreateCardForm, CreateAdminForm
 
 app = Flask(__name__)
 UPLOAD_FOLDER = 'static/uploads/'
@@ -38,6 +39,7 @@ def login():
 
     db = shelve.open('database.db', 'r')
     login_list = db["Members"]
+    admin_list = db["Admin"]
     if request.method == "POST" and create_login_form.validate():
         email = create_login_form.email.data
         password = create_login_form.password.data
@@ -46,8 +48,15 @@ def login():
                 session['name'] = member.get_first_name() + " " + member.get_last_name()
                 session['member_id'] = member_id
                 flash("Login successful", "success")
-                print("Control reached here without redirecting to outbox")
                 return redirect(url_for('outbox'))
+            else:
+                for admin_id, admin in admin_list.items():
+                    if admin.get_email() == email and admin.get_password() == password:
+                        session['name'] = admin.get_first_name() + " " + admin.get_last_name()
+                        session['member_id'] = admin_id
+                        session['admin'] = "active"
+                        flash("Admin Login successful" , "success")
+                        return redirect(url_for('admin'))
         flash("Invalid email or password. Please try again", "error")
 
     return render_template('login.html', form=create_login_form)
@@ -63,6 +72,8 @@ def profile():
 def logout():
     session.pop('name', None)
     session.pop('member_id', None)
+    if 'admin' in session:
+        session.pop('admin', None)
     return redirect(url_for('homepage'))
 
 @app.route('/outbox')
@@ -204,7 +215,95 @@ def delete_cart(id):
 
 @app.route('/admin')
 def admin():
-    return render_template('admin.html')
+    if 'admin' in session:
+        name = session['name']
+        return render_template('admin.html', name=name)
+    else:
+        flash("UNAUTHORISED ACCESS. LOG IN TO ACCESS", category='error')
+        return redirect(url_for('login'))
+
+
+@app.route("/addadmin", methods=['GET', 'POST'])
+def addadmin():
+    create_admin_form = CreateAdminForm(request.form)
+    if request.method == 'POST' and create_admin_form.validate():
+        admin_dict = {}
+        db = shelve.open('database.db', 'c')
+        try:
+            admin_dict = db['Admin']
+        except:
+            print("Error in retrieving admins from database.db")
+
+        admin = Admin.Admin(create_admin_form.first_name.data, create_admin_form.last_name.data,
+                            create_admin_form.email.data, create_admin_form.password.data)
+
+        if len(admin_dict) == 0:
+            my_key = 1
+        else:
+            my_key = len(admin_dict.keys()) + 1
+
+        admin.set_member_id(my_key)
+        admin_dict[my_key] = admin
+        db['Admin'] = admin_dict
+        db.close()
+        return redirect(url_for('admin'))
+
+    return render_template('registeradmin.html', form=create_admin_form)
+
+@app.route('/viewadmins')
+def viewadmins():
+    admin_dict = {}
+    db = shelve.open('database.db', 'r')
+    admin_dict = db['Admin']
+    db.close()
+
+    admin_list = []
+    for key in admin_dict:
+        admin = admin_dict.get(key)
+        admin_list.append(admin)
+    return render_template('viewadmins.html', count = len(admin_list), admin_list=admin_list)
+
+
+@app.route('/updateadmin/<int:id>/', methods=['GET', 'POST'])
+def update_admin(id):
+    update_admin_form = CreateAdminForm(request.form)
+    if request.method == 'POST' and update_admin_form.validate():
+        admin_dict = {}
+        db = shelve.open('database.db', 'w')
+        admin_dict = db['Admin']
+        admin = admin_dict.get(id)
+
+        admin.set_first_name(update_admin_form.first_name.data)
+        admin.set_last_name(update_admin_form.last_name.data)
+        admin.set_email(update_admin_form.email.data)
+        admin.set_password(update_admin_form.password.data)
+
+        db['Admin'] = admin_dict
+        db.close()
+        return redirect(url_for('viewadmins'))
+    else:
+        admin_dict = {}
+        db = shelve.open('database.db', 'w')
+        admin_dict = db['Admin']
+        db.close()
+
+        admin = admin_dict.get(id)
+        update_admin_form.first_name.data = admin.get_first_name()
+        update_admin_form.last_name.data = admin.get_last_name()
+        update_admin_form.email.data = admin.get_email()
+        update_admin_form.password.data = admin.get_password()
+        return render_template('updateAdmin.html', form=update_admin_form)
+
+
+@app.route('/deleteadmin/<int:id>/', methods=['POST'])
+def delete_admin(id):
+    admin_dict = {}
+    db = shelve.open('database.db', 'w')
+    admin_dict = db['Admin']
+    admin_dict.pop(id)
+    db['Admin'] = admin_dict
+    db.close()
+    return redirect(url_for('viewadmins'))
 
 
 @app.route('/register', methods=['GET', 'POST'])

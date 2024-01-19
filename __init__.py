@@ -66,7 +66,17 @@ def profile():
     if "name" in session:
         name = session["name"]
         id = session["member_id"]
-    return render_template('profile.html', name=name, id=id)
+
+        member_dict = {}
+        db = shelve.open('database.db', 'r')
+        member_dict = db['Members']
+        user_info = member_dict[id]
+        order_hist = db['OrderHist']
+        member_orderhist = []
+        for order_id in order_hist:
+            if order_hist[order_id].get_name() == name:
+                member_orderhist.append(order_hist[order_id])
+    return render_template('profile.html', name=name, id=id, user=user_info, history=member_orderhist)
 
 @app.route("/logout")
 def logout():

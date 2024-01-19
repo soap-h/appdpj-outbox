@@ -12,8 +12,59 @@
             </div>
         {% endif %}
     {% endwith %}
-    <p>Welcome {{ name }}! This is your profile page.</p>
 
-    <p><a href="{{ url_for('logout') }}">Logout</a></p>
+    <div class="card">
+        <div class="card-body">
+            {% if user %}
+                <h5>Welcome, {{ user.get_first_name() }} {{ user.get_last_name() }}!</h5>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item"><b>Email:</b> {{ user.get_email() }}</li>
+                    <li class="list-group-item"><b>Phone:</b> {{ user.get_phone() }}</li>
+                    <li><a href="/updatemember/{{user.get_member_id()}}" class="btn btn-warning">Update</a></li>
+                </ul>
+            {% else %}
+                <p>No user information found.</p>
+            {% endif %}
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-body">
+            <h5>Vouchers</h5>
+            <p>You have no vouchers</p>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-body">
+            <h5>Order History</h5>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Products</th>
+                        <th>Vouchers</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for order in history %}
+                <tr>
+                    <td>{{ order.get_date() }}</td>
+                    <td>
+                        {% for product in order.get_products() %}
+                            <p>{{ product }}</p>
+                        {% endfor %}
+                    </td>
+                    <td>None</td>
+                    <td>{{ order.get_payment_amt() }}</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="mt-3">
+        <a href="{{ url_for('logout') }}" class="btn btn-danger">Logout</a>
+    </div>
 </div>
 {% endblock %}

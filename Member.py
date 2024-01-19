@@ -9,6 +9,7 @@ class Member:
         self.__email = email
         self.__phone = phone
         self.__password = password
+        self.__coupons = None
 
     def get_member_id(self):
         return self.__member_id
@@ -28,6 +29,9 @@ class Member:
     def get_password(self):
         return self.__password
 
+    def get_coupons(self):
+        return self.__coupons
+
     def set_member_id(self, member_id):
         self.__member_id = member_id
 
@@ -46,4 +50,6 @@ class Member:
     def set_password(self, password):
         self.__password = password
 
+    def gset_coupons(self, coupons):
+        self.__coupons = coupons
 # can you see this

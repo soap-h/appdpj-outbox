@@ -1,4 +1,5 @@
 class Product:
+    products = []
     count_id = 0
 
     def __init__(self, name, price, category, remarks, drinks, image):
@@ -52,3 +53,7 @@ class Product:
 
     def set_image(self, image):
         self.__image = image
+
+
+def filter_by_category(cls, category_id):
+    return [product for product in cls.products if product.get_category() == category_id]

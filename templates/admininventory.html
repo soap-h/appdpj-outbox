@@ -33,11 +33,6 @@
           {% endif %}
         {% endwith %}
     </p>
-    {% if filename %}
-        <div>
-            <img src="{{ url_for('display_image', filename=filename) }}">
-        </div>
-    {% endif %}
             <p>
                 <input type="file" name="file" class="form-control" autocomplete="off" required>
             </p>

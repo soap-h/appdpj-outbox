@@ -67,13 +67,17 @@ def logout():
 
 @app.route('/outbox')
 def outbox():
+    if request.method == 'POST':
+        return redirect(url_for('filter_outbox'))
     # Retrieve products from inventory
     inventory_dict = {}
     db_inventory = shelve.open('database.db', 'r')
     inventory_dict = db_inventory['Inventory']
     db_inventory.close()
 
-    return render_template('outbox.html', outbox_products=inventory_dict.values())
+    categories = set(product.get_category() for product in inventory_dict.values())
+    return render_template('outbox.html', outbox_products=inventory_dict.values(), categories = categories)
+
 
 
 @app.route('/add_to_outbox/<int:product_id>')
@@ -185,6 +189,7 @@ def delete_order(id):
     db['OrderHist'] = order_dict
     db.close()
     return redirect(url_for('orderhistory'))
+
 
 @app.route('/deleteitem/<int:id>', methods=['POST'])
 def delete_cart(id):
@@ -332,6 +337,8 @@ def create_product():
 
             return redirect(url_for('admin'))
     return render_template('admininventory.html', form=create_product_form)
+
+
 @app.route('/inventory')
 def inventory():
     return render_template('admininventory.html')
@@ -392,6 +399,7 @@ def delete_product(id):
     return redirect(url_for('view_inventory'))
 
 #Forum vvv
+
 
 @app.route('/createQuestion', methods=['GET', 'POST'])
 def create_question():
@@ -478,6 +486,25 @@ def delete_questions(id):
     db['Question'] = questions_dict
     db.close()
     return redirect(url_for('retrieve_questions'))
+
+
+@app.route('/filter_outbox', methods=['GET', 'POST'])
+def filter_outbox():
+    # Retrieve products from inventory
+    inventory_dict = {}
+    db_inventory = shelve.open('database.db', 'r')
+    inventory_dict = db_inventory['Inventory']
+    db_inventory.close()
+
+    categories = set(product.get_category() for product in inventory_dict.values())
+
+    selected_category = request.form.get('category')  # Change to request.form for POST
+    if selected_category:
+        filtered_products = {k: v for k, v in inventory_dict.items() if v.get_category() == selected_category}
+    else:
+        filtered_products = inventory_dict
+
+    return render_template('outbox.html', outbox_products=filtered_products.values(), categories=categories)
 
 if __name__ == '__main__':
     app.run(debug=True)

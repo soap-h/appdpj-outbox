@@ -1,26 +1,41 @@
-
 {% extends "base.html" %}
 {% block title %}Outbox{% endblock %}
 {% block content %}
-    <h1 class="display-4">Outbox</h1>
-    <div class="row">
-        {% for product in outbox_products %}
-            <div class="col-md-4 mb-4">
-                <div class="card">
-                    <div class="card-body">
-                        <p><img src="{{ url_for('static', filename='uploads/' + product.get_image()) }}" alt="Product Image" style="width: 400px; height: 300px;"></p>
-                        <h3 class="card-title">{{ product.get_name() }}</h3>
-                        <p class="card-text">Price: ${{ product.get_price() }}</p>
-                        <p class="card-text">Category: {{ product.get_category() }}</p>
-                        <p class="card-text">Remarks: {{ product.get_remarks() }}</p>
-                        <p class="card-text">Drinks: {{ product.get_drinks() }}</p>
-
-
-                        <a href="{{ url_for('add_to_outbox', product_id=product.get_product_id()) }}" class="btn btn-primary">Add to Cart</a>
-                    </div>
-                </div>
-            </div>
-        {% endfor %}
+<h1 class="display-4">Outbox</h1>
+<form method="post" action="{{ url_for('filter_outbox') }}" class="mb-3">
+    <div class="input-group">
+        <select name="category" class="form-select" aria-label="Select Category">
+            <option value="" selected>All Categories</option>
+            {% for category in categories %}
+                <option value="{{ category }}">{{ category }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit" class="btn btn-primary">Filter by Category</button>
     </div>
-    <a href="{{ url_for('view_cart') }}" class="btn btn-success mt-3">View Cart</a>
+</form>
+<div class="row">
+    {% for product in outbox_products %}
+    <div class="col-md-4 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <p><img src="{{ url_for('static', filename='uploads/' + product.get_image()) }}" alt="Product Image"
+                        style="width: 400px; height: 300px;"></p>
+                <h3 class="card-title">{{ product.get_name() }}</h3>
+                <p class="card-text">Price: ${{ product.get_price() }}</p>
+                <p class="card-text">Category: {{ product.get_category() }}</p>
+                <p class="card-text">Remarks: {{ product.get_remarks() }}</p>
+                <p class="card-text">Drinks: {{ product.get_drinks() }}</p>
+
+
+                <a href="{{ url_for('add_to_outbox', product_id=product.get_product_id()) }}" class="btn btn-primary">Add
+                    to Cart</a>
+                <a href="{{ url_for('add_to_outbox', product_id=product.get_product_id()) }}" class="btn btn-primary">View
+                    More</a>
+
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+<a href="{{ url_for('view_cart') }}" class="btn btn-success mt-3">View Cart</a>
 {% endblock %}

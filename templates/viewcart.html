@@ -19,6 +19,7 @@
                     <th>Name</th>
                     <th>Price</th>
                     <th>Category</th>
+                    <th>Image</th>
                     <th></th>
                 </tr>
             </thead>
@@ -29,6 +30,7 @@
                         <td>{{ product.get_name() }}</td>
                         <td>${{ product.get_price() }}</td>
                         <td>{{ product.get_category() }}</td>
+                        <td><img src="{{ url_for('static', filename='uploads/' + product.get_image()) }}" alt="Product Image" style="max-width: 100px; max-height: 100px;"></td>
                         <td>
                 <form action="{{url_for('delete_cart', id=product.get_product_id())}}" method="POST">
                     <!-- Button to Open the Modal -->

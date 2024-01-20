@@ -1,5 +1,6 @@
 class OrderHistory:
     count_id = 0
+
     def __init__(self, name, email, products, date, number, payment_amt):
         OrderHistory.count_id += 1
         self.__orderid = OrderHistory.count_id
@@ -9,6 +10,11 @@ class OrderHistory:
         self.__date = date
         self.__number = number
         self.__payment_amt = payment_amt
+
+    def as_dict(self):
+        return {"Order ID": self.__orderid, "Name": self.__name, "Email": self.__email,
+                "Products": self.__products, "Date": self.__date, "Phone no.": self.__number,
+                "Payment amount": self.__payment_amt}
 
     def get_order_id(self):
         return self.__orderid

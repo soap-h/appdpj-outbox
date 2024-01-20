@@ -2,7 +2,8 @@
 {% block title %} ZES&#179; Add product {% endblock %}
 {% block content %}
 {% from "includes/formhelper.html" import render_field %}
-<a href="{{ url_for('admin') }}" class="btn btn-secondary mb-2" style="margin-top: 10px;"><i style="margin-right:5px;" class="bi bi-arrow-left"></i>Back</a>
+<a href="{{ url_for('admin') }}" class="btn btn-secondary mb-2" style="margin-top: 10px;"><i style="margin-right:5px;"
+                                                                                             class="bi bi-arrow-left"></i>Back</a>
 <h1 class="display-4">Add product</h1>
 <form method="POST" action="" class="productform" enctype="multipart/form-data">
     <div class="form-group">
@@ -22,24 +23,24 @@
     </div>
     <div class="container">
         <div class="row">
-    <h2>Select a file to upload</h2>
-    <p>
-        {% with messages = get_flashed_messages() %}
-          {% if messages %}
+            <h2>Select a file to upload</h2>
+            <p>
+                {% with messages = get_flashed_messages() %}
+                {% if messages %}
             <ul>
-            {% for message in messages %}
-              <li>{{ message }}</li>
-            {% endfor %}
+                {% for message in messages %}
+                <li>{{ message }}</li>
+                {% endfor %}
             </ul>
-          {% endif %}
-        {% endwith %}
-    </p>
+            {% endif %}
+            {% endwith %}
+            </p>
             <p>
                 <input type="file" name="file" class="form-control" autocomplete="off" required>
             </p>
 
-</div>
-</div>
+        </div>
+    </div>
     <input type="submit" value="Submit" class="btn btn-primary "/>
 
 </form>

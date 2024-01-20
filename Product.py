@@ -12,6 +12,11 @@ class Product:
         self.__drinks = drinks
         self.__image = image
 
+    def as_dict(self):
+        return {"Product ID": self.__product_id, "Name": self.__name, "Price": self.__price,
+                "Category": self.__category, "Remarks": self.__remarks, "Recommended drinks": self.__drinks,
+                "Image": self.__image}
+
     def get_product_id(self):
         return self.__product_id
 

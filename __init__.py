@@ -6,15 +6,17 @@ import Question
 import Admin
 import FeedbackSimpleDB
 
-from flask import Flask, render_template, request, redirect, url_for, flash, session
+from flask import Flask, render_template, request, redirect, url_for, flash, session, send_file
 import os
 import datetime
+import pandas as pd
+import openpyxl
 from werkzeug.utils import secure_filename
 from FeedbackSimpleDB import add_question
 from Question import Question
 
-
-from forms import CreateMemberForm, CreateProductForm, CreateQuestionForm, CreateLoginForm, CreateCardForm, CreateAdminForm
+from forms import CreateMemberForm, CreateProductForm, CreateQuestionForm, CreateLoginForm, CreateCardForm, \
+    CreateAdminForm
 
 app = Flask(__name__)
 UPLOAD_FOLDER = 'static/uploads/'
@@ -32,6 +34,7 @@ def allowed_file(filename):
 @app.route('/')
 def homepage():
     return render_template('homepage.html')
+
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -55,11 +58,12 @@ def login():
                         session['name'] = admin.get_first_name() + " " + admin.get_last_name()
                         session['member_id'] = admin_id
                         session['admin'] = "active"
-                        flash("Admin Login successful" , "success")
+                        flash("Admin Login successful", "success")
                         return redirect(url_for('admin'))
         flash("Invalid email or password. Please try again", "error")
 
     return render_template('login.html', form=create_login_form)
+
 
 @app.route("/profile")
 def profile():
@@ -78,6 +82,7 @@ def profile():
                 member_orderhist.append(order_hist[order_id])
     return render_template('profile.html', name=name, id=id, user=user_info, history=member_orderhist)
 
+
 @app.route("/logout")
 def logout():
     session.pop('name', None)
@@ -85,6 +90,7 @@ def logout():
     if 'admin' in session:
         session.pop('admin', None)
     return redirect(url_for('homepage'))
+
 
 @app.route('/outbox')
 def outbox():
@@ -97,7 +103,7 @@ def outbox():
     db_inventory.close()
 
     categories = set(product.get_category() for product in inventory_dict.values())
-    return render_template('outbox.html', outbox_products=inventory_dict.values(), categories = categories)
+    return render_template('outbox.html', outbox_products=inventory_dict.values(), categories=categories)
 
 
 @app.route('/view_cart')
@@ -140,6 +146,7 @@ def add_to_outbox(product_id):
     flash("Item successfully added to cart.", "success")
     return redirect(url_for('outbox'))
 
+
 @app.route('/deleteitem/<int:id>', methods=['POST'])
 def delete_cart(id):
     cart_dict = {}
@@ -156,8 +163,6 @@ def delete_cart(id):
     session.modified = True
 
     return redirect(url_for('view_cart'))
-
-
 
 
 @app.route('/checkout', methods=['GET', 'POST'])
@@ -184,8 +189,8 @@ def checkout():
                 product.append(checkout_dict[i].get_name())
             date = datetime.date.today()
             order_hist = Orderhistory.OrderHistory(session['name'], memberdb[id].get_email(),
-                                      product, date, memberdb[id].get_phone(),
-                                      total_price)
+                                                   product, date, memberdb[id].get_phone(),
+                                                   total_price)
             if len(order_dict) == 0:
                 my_key = 1
             else:
@@ -209,7 +214,6 @@ def checkout():
             order_hist.set_order_id(my_key)
             order_dict[my_key] = order_hist
             db['OrderHist'] = order_dict
-
 
         for id in checkout_dict:
             if id in cart_list:
@@ -240,6 +244,8 @@ def orderhistory():
 
     db.close()
     return render_template("orderhistory.html", count=len(order_dict), order_list=order_list)
+
+
 @app.route('/deleteorder/<int:id>', methods=['POST'])
 def delete_order(id):
     order_dict = {}
@@ -249,8 +255,6 @@ def delete_order(id):
     db['OrderHist'] = order_dict
     db.close()
     return redirect(url_for('orderhistory'))
-
-
 
 
 @app.route('/admin')
@@ -290,6 +294,7 @@ def addadmin():
 
     return render_template('registeradmin.html', form=create_admin_form)
 
+
 @app.route('/viewadmins')
 def viewadmins():
     admin_dict = {}
@@ -301,7 +306,7 @@ def viewadmins():
     for key in admin_dict:
         admin = admin_dict.get(key)
         admin_list.append(admin)
-    return render_template('viewadmins.html', count = len(admin_list), admin_list=admin_list)
+    return render_template('viewadmins.html', count=len(admin_list), admin_list=admin_list)
 
 
 @app.route('/updateadmin/<int:id>/', methods=['GET', 'POST'])
@@ -440,7 +445,6 @@ def delete_user(id):
     return redirect(url_for('view_members'))
 
 
-# my input
 @app.route('/addproduct', methods=['GET', 'POST'])
 def create_product():
     create_product_form = CreateProductForm(request.form)
@@ -537,7 +541,8 @@ def delete_product(id):
     db.close()
     return redirect(url_for('view_inventory'))
 
-#Forum vvv
+
+# Forum vvv
 
 
 @app.route('/createQuestion', methods=['GET', 'POST'])
@@ -567,6 +572,7 @@ def retrieve_questions():
         question = questions_dict.get(key)
         questions_list.append(question)
     return render_template('retrieveQuestion.html', count=len(questions_list), questions_list=questions_list)
+
 
 @app.route('/cviewQuestion')
 def cretrieve_questions():
@@ -614,6 +620,7 @@ def update_question(id):
 
         return render_template('updateQuestion.html', form=update_question_form)
 
+
 @app.route('/deleteQuestion/<int:id>', methods=['POST'])
 def delete_questions(id):
     questions_dict = {}
@@ -644,6 +651,42 @@ def filter_outbox():
         filtered_products = inventory_dict
 
     return render_template('outbox.html', outbox_products=filtered_products.values(), categories=categories)
+
+
+@app.route('/download_excel/<db_name>')
+def excel_converter(db_name):
+    try:
+        with shelve.open('database.db', 'r') as db:
+            data_dict = db.get(db_name, {})
+    except Exception as e:
+        print(f"Error in retrieving data from database.db: {e}")
+        return
+
+    if not data_dict:
+        print(f"No data found for '{db_name}' in the database.")
+        return
+
+    # converting the data into a pd DataFrame
+    df = pd.DataFrame([obj.as_dict() for obj in data_dict.values()])
+
+    # checking if 'Image' column (which is only from 'Inventory') exists in the DataFrame
+    if 'Image' in df.columns:
+        image_folder = "/static/photos"
+        # creating new column for image URLs (public attribute from 'Inventory')
+        df['ImageURL'] = df['Image'].apply(lambda filename: f'{image_folder}/{filename}' if filename else '')
+    else:
+        print("No image data found in the database.")
+
+    # saving the DataFrame to an Excel file
+    while True:
+        excel_filename = f'{db_name}.xlsx'
+        try:
+            df.to_excel(excel_filename, index=False)
+            print(f"Excel file '{excel_filename}' created successfully.")
+            return send_file(excel_filename, as_attachment=True)
+        except Exception as e:
+            print(f"Error saving Excel file '{excel_filename}': {e}")
+
 
 if __name__ == '__main__':
     app.run(debug=True)

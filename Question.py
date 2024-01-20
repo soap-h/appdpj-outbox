@@ -14,6 +14,11 @@ class Question:
         self.__feedback = feedback
         #######################
 
+    def as_dict(self):
+        return {'Question ID': self.__question_id, 'Email': self.__email, 'Title': self.__title,
+                'Question': self.__question, 'Date posted': self.__date_posted,
+                'Overall rating': self.__overall, 'Written feedback': self.__feedback}
+
     def get_question_id(self):
         return self.__question_id
 

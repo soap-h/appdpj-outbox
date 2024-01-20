@@ -9,6 +9,10 @@ class Admin:
         self.__email = email
         self.__password = password
 
+    def as_dict(self):
+        return {"Admin ID": self.__member_id, "First name": self.__first_name, "Last name": self.__last_name,
+                "Email": self.__email, "Password": self.__password}
+
     def get_member_id(self):
         return self.__member_id
 
@@ -38,5 +42,3 @@ class Admin:
 
     def set_password(self, password):
         self.__password = password
-
-# can you see this

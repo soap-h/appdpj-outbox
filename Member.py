@@ -11,6 +11,10 @@ class Member:
         self.__password = password
         self.__coupons = None
 
+    def as_dict(self):
+        return {'Member ID': self.__member_id, 'First name': self.__first_name, 'Last name': self.__last_name,
+                'Email': self.__email, 'Phone no.': self.__phone, 'Password': self.__password}
+
     def get_member_id(self):
         return self.__member_id
 

@@ -9,11 +9,14 @@ import FeedbackSimpleDB
 from flask import Flask, render_template, request, redirect, url_for, flash, session, send_file
 import os
 import datetime
-import pandas as pd
-import openpyxl
 from werkzeug.utils import secure_filename
 from FeedbackSimpleDB import add_question
 from Question import Question
+import pandas as pd
+import openpyxl
+from openpyxl import Workbook
+from openpyxl.utils.dataframe import dataframe_to_rows
+from openpyxl.drawing.image import Image as XLImage
 
 from forms import CreateMemberForm, CreateProductForm, CreateQuestionForm, CreateLoginForm, CreateCardForm, \
     CreateAdminForm
@@ -666,26 +669,47 @@ def excel_converter(db_name):
         print(f"No data found for '{db_name}' in the database.")
         return
 
-    # converting the data into a pd DataFrame
+    # convert data to DataFrame
     df = pd.DataFrame([obj.as_dict() for obj in data_dict.values()])
 
-    # checking if 'Image' column (which is only from 'Inventory') exists in the DataFrame
-    if 'Image' in df.columns:
-        image_folder = "/static/photos"
-        # creating new column for image URLs (public attribute from 'Inventory')
-        df['ImageURL'] = df['Image'].apply(lambda filename: f'{image_folder}/{filename}' if filename else '')
-    else:
-        print("No image data found in the database.")
+    # new Excel workbook
+    wb = Workbook()
+    ws = wb.active
 
-    # saving the DataFrame to an Excel file
-    while True:
-        excel_filename = f'{db_name}.xlsx'
-        try:
-            df.to_excel(excel_filename, index=False)
-            print(f"Excel file '{excel_filename}' created successfully.")
-            return send_file(excel_filename, as_attachment=True)
-        except Exception as e:
-            print(f"Error saving Excel file '{excel_filename}': {e}")
+    # write DataFrame to Excel
+    for row in dataframe_to_rows(df, index=False, header=True):
+        ws.append(row)
+
+    # set 'wrap text' for all cells
+    for row in ws.iter_rows(min_row=1, max_col=ws.max_column, max_row=ws.max_row):
+        for cell in row:
+            cell.alignment = cell.alignment.copy(wrap_text=True)
+
+    # 'Image' refers to the image file name written in text
+    # 'Image file' refers to the actual picture in png, jpg, jpeg, or gif
+
+    # add images (if 'Image' column exists)
+    if 'Image' in df.columns:
+        image_folder = 'static/uploads'
+        for index, row in df.iterrows():
+            image_filename = row['Image']
+            if image_filename:
+                # os.path.join method to construct the file path, and os.path.normpath method to normalize the path
+                image_path = os.path.normpath(os.path.join(image_folder, image_filename))
+                img = XLImage(image_path)
+                # img.width = 120  # no need to adjust the image dimensions for now
+                # img.height = 160
+                ws.add_image(img, f'H{index + 2}')  # 'Image file' column to be in column H
+                ws['H1'] = 'Image file'             # add title
+
+    # save
+    excel_filename = f'{db_name}.xlsx'
+    try:
+        wb.save(excel_filename)
+        print(f"Excel file '{excel_filename}' created successfully.")
+        return send_file(excel_filename, as_attachment=True)
+    except Exception as e:
+        print(f"Error saving Excel file '{excel_filename}': {e}")
 
 
 if __name__ == '__main__':

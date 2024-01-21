@@ -12,9 +12,10 @@ class OrderHistory:
         self.__payment_amt = payment_amt
 
     def as_dict(self):
-        return {"Order ID": self.__orderid, "Name": self.__name, "Email": self.__email,
-                "Products": self.__products, "Date": self.__date, "Phone no.": self.__number,
-                "Payment amount": self.__payment_amt}
+        return {"Order ID": self.__orderid,
+                "Products": ', '.join(self.__products),    # convert list to comma-separated string
+                "Date": self.__date, "Payment amount": self.__payment_amt,
+                "Name": self.__name, "Email": self.__email, "Phone no.": self.__number}
 
     def get_order_id(self):
         return self.__orderid

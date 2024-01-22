@@ -13,11 +13,15 @@ import datetime
 from werkzeug.utils import secure_filename
 from FeedbackSimpleDB import add_question
 from Question import Question
+
 import pandas as pd
 import openpyxl
 from openpyxl import Workbook
 from openpyxl.utils.dataframe import dataframe_to_rows
 from openpyxl.drawing.image import Image as XLImage
+from ReportGeneration import *
+from pyecharts import options as opts
+from pyecharts.charts import Bar, Calendar, Tab
 
 from forms import CreateMemberForm, CreateProductForm, CreateQuestionForm, CreateLoginForm, CreateCardForm, \
     CreateAdminForm, CreateVoucherForm, VoucherForm
@@ -288,16 +292,19 @@ def checkout():
         nothing = {}
         db['Outbox'] = nothing
         db.close()
-        return render_template("homepage.html")
+        return render_template("checkoutconfirmation.html")
     db.close()
     return render_template('checkout.html',
-                           cart_items=checkout_dict.values(), total_price=total_price, form=create_card_form, vouchers=vouchers, name=name)
+                           cart_items=checkout_dict.values(), total_price=total_price, form=create_card_form,
+                           vouchers=vouchers, name=name)
+
 
 @app.route('/set_voucher_session/<voucher_id>', methods=['POST'])
 def set_voucher_session(voucher_id):
     session['applied_voucher'] = voucher_id
     session.modified = True
     return jsonify({'success': True})
+
 
 @app.route('/orderhistory')
 def orderhistory():
@@ -447,9 +454,13 @@ def create_member():
             members_dict[my_key] = member
             db['Members'] = members_dict
             db.close()
-            return redirect(url_for('login'))
-
+            return redirect(url_for('registrationconfirmation'))
     return render_template('adminmembers.html', form=create_member_form)
+
+
+@app.route('/registrationconfirmation')
+def registrationconfirmation():
+    return render_template('registrationconfirmation.html')
 
 
 @app.route('/members')
@@ -621,12 +632,17 @@ def create_question():
         question = Question(create_question_form.email.data,
                             create_question_form.title.data,
                             create_question_form.question.data,
-                           date,
+                            date,
                             create_question_form.overall.data,
                             create_question_form.feedback.data)
         add_question(question)
-        return redirect(url_for('homepage'))
+        return redirect(url_for('feedbackformconfirmation'))
     return render_template('createQuestion.html', form=create_question_form)
+
+
+@app.route('/feedbackformconfirmation')
+def feedbackformconfirmation():
+    return render_template('feedbackformconfirmation.html')
 
 
 @app.route('/viewQuestion')
@@ -810,6 +826,7 @@ def givevoucher():
         db.close()
     return render_template("givevoucher.html", form=voucher_form)
 
+
 @app.route('/download_excel/<db_name>')
 def excel_converter(db_name):
     try:
@@ -854,7 +871,7 @@ def excel_converter(db_name):
                 # img.width = 120  # no need to adjust the image dimensions for now
                 # img.height = 160
                 ws.add_image(img, f'H{index + 2}')  # 'Image file' column to be in column H
-                ws['H1'] = 'Image file'             # add title
+                ws['H1'] = 'Image file'  # add title
 
     # save
     excel_filename = f'{db_name}.xlsx'
@@ -865,10 +882,55 @@ def excel_converter(db_name):
     except Exception as e:
         print(f"Error saving Excel file '{excel_filename}': {e}")
 
+
 @app.route('/beanbox')
 def beanbox():
     return render_template('beanbox.html')
 
+
+@app.route('/feedbackreport')
+def feedback_report():
+    df = combine_databases()
+
+    # convert 'Question_Date Posted' to DateTime format
+    df['Question_Date Posted'] = pd.to_datetime(df['Question_Date Posted'])
+
+    # add month columns into df
+    df['Question_Date Posted_Month'] = df['Question_Date Posted'].dt.month
+
+
+@app.route('/performancereport')
+def performance_report():
+    df = combine_databases()
+
+    # convert 'OrderHist_Date' to DateTime format
+    df['OrderHist_Date'] = pd.to_datetime(df['OrderHist_Date'])
+
+    # add month columns into df
+    df['OrderHist_Month'] = df['OrderHist_Date'].dt.month
+
+    # group df by months and sum the 'OrderHist_Payment amount'
+    grouped_by_months = df.groupby(by=['OrderHist_Month'])['OrderHist_Payment amount'].sum()
+
+    # plot Sales (Payment amount) by months
+    bar_chart_by_month = (
+        Bar()
+        .add_xaxis(grouped_by_months.index.tolist())
+        .add_yaxis('Sales', grouped_by_months.round().tolist())
+        .set_global_opts(
+            title_opts=opts.TitleOpts(title='Outbox Sales by month', subtitle='in SGD($)')
+        )
+    )
+
+    bar_chart_by_month.render_notebook()
+
+    # Create a Tab and add the chart
+    tab = Tab(page_title='Sales Overview')
+    tab.add(bar_chart_by_month, 'Outbox Sales by month')
+
+    # Render the tab directly in the HTML template
+    chart_html = tab.render_embed()
+    return render_template('performancereport.html', chart_html=chart_html)
 
 
 if __name__ == '__main__':

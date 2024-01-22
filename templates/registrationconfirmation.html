@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block title %}Registration Confirmation{% endblock %}
+
+{% block content %}
+
+{% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <div class="alert alert-info text-center" role="alert">
+                {{ messages[0] }}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+<div class="container" style="text-align: center;">
+    <h1 class="mt-4 mb-4">Thank you for registering!</h1>
+    <p>
+
+    </p>
+    <a href="/login" class="btn btn-warning">Login</a>
+    <a href="/outbox" class="btn btn-warning">Continue as guest</a>
+</div>
+{% endblock %}

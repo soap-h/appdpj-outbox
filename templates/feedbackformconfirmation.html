@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block title %}Feedback Confirmation{% endblock %}
+
+{% block content %}
+<div class="container" style="text-align: center;">
+    <h1 class="mt-4 mb-4">Thank you for your feedback!</h1>
+    <div class="card text-center">
+        <div class="card-body">
+            <h5 class="card-title">What would you like to do next?</h5>
+
+            <div class="btn-group mt-3" role="group">
+                <a href="/homepage" class="btn btn-warning">Home</a>
+                <a href="/profile" class="btn btn-warning">Profile</a>
+                <a href="/outbox" class="btn btn-warning">Outbox</a>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

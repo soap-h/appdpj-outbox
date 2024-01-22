@@ -1,57 +1,43 @@
 {% extends "adminbase.html" %}
-{% block title %}ZES&#179; view order history{% endblock %}
+{% block title %}ZES&#179; view vouchers{% endblock %}
 {% block content %}
 <a href="{{ url_for('admin') }}" class="btn btn-secondary mb-2" style="margin-top: 10px;"><i style="margin-right:5px;" class="bi bi-arrow-left"></i>Back</a>
-<h1 class="display-4">View Order History</h1>
+<h1 class="display-4">View all vouchers</h1>
 <div>
     {% if count == 0 %}
-    <p>There are no orders.</p>
+    <p>There are no vouchers created.</p>
     {% elif count == 1 %}
-    <p>There is 1 order.</p>
+    <p>There is 1 voucher created.</p>
     {% else %}
-    <p>There are {{ count }} orders.</p>
+    <p>There are {{ count }} vouchers.</p>
     {% endif %}
 </div>
 <div>
     <table class="table table-striped">
         <thead>
             <tr>
-                <th>Order ID</th>
-                <th>Products</th>
-                <th>Date</th>
-                <th>Payment Amount</th>
+                <th>Voucher ID</th>
                 <th>Name</th>
-                <th>Email</th>
-                <th>Number</th>
-                <th>Discount</th>
+                <th>Discount (%)</th>
                 <th></th>
             </tr>
         </thead>
         <tbody>
-        {% for order in order_list %}
+        {% for voucher in voucher_list %}
         <tr>
-            <td>{{ order.get_order_id() }}</td>
+            <td>{{ voucher.get_voucher_id() }}</td>
+            <td>{{ voucher.get_name() }}</td>
+            <td>{{ voucher.get_discount() }}</td>
             <td>
-                {% for product in order.get_products() %}
-                    <p>{{ product }}</p>
-                {% endfor %}
-            </td>
-            <td>{{ order.get_date() }}</td>
-            <td>{{ order.get_payment_amt() }}</td>
-            <td>{{ order.get_name() }}</td>
-            <td>{{ order.get_email() }}</td>
-            <td>{{ order.get_number() }}</td>
-            <td>{{ order.get_voucher() }}</td>
-            <td>
-                <form action="{{url_for('delete_order', id=order.get_order_id())}}" method="POST">
+                <form action="{{url_for('delete_voucher', id=voucher.get_voucher_id() )}}" method="POST">
                     <!-- Button to Open the Modal -->
                     <button type="button" class="btn btn-danger" data-bs-toggle="modal"
-                            data-bs-target="#myModal_{{order.get_order_id()}}">
+                            data-bs-target="#myModal_{{voucher.get_voucher_id()}}">
                         Delete
                     </button>
 
                     <!-- The Modal -->
-                    <div class="modal" id="myModal_{{order.get_order_id()}}">
+                    <div class="modal" id="myModal_{{voucher.get_voucher_id()}}">
                         <div class="modal-dialog">
                             <div class="modal-content">
                                 <div class="modal-header">
@@ -59,7 +45,7 @@
                                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                                 </div>
                                 <div class="modal-body">
-                                    Are you sure you want to delete order #{{order.get_order_id()}}?
+                                    Are you sure you want to delete coupon #{{voucher.get_voucher_id()}}?
                                 </div>
                                 <div class="modal-footer">
                                     <input type="submit" value="Delete" class="btn btn-danger">
@@ -75,6 +61,5 @@
         {% endfor %}
         </tbody>
     </table>
-    <a href="{{url_for('excel_converter', db_name='OrderHist')}}" class="btn btn-primary btn-lg rounded-pill">Download as Excel file</a>
 </div>
 {% endblock %}

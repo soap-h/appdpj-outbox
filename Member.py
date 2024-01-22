@@ -9,7 +9,7 @@ class Member:
         self.__email = email
         self.__phone = phone
         self.__password = password
-        self.__coupons = None
+        self.__vouchers = []
 
     def as_dict(self):
         return {'Member ID': self.__member_id, 'First name': self.__first_name, 'Last name': self.__last_name,
@@ -33,8 +33,8 @@ class Member:
     def get_password(self):
         return self.__password
 
-    def get_coupons(self):
-        return self.__coupons
+    def get_vouchers(self):
+        return self.__vouchers
 
     def set_member_id(self, member_id):
         self.__member_id = member_id
@@ -54,6 +54,12 @@ class Member:
     def set_password(self, password):
         self.__password = password
 
-    def gset_coupons(self, coupons):
-        self.__coupons = coupons
+    def set_vouchers(self, vouchers):
+        self.__vouchers.append(vouchers)
+
+    def set_voucher_list(self, voucher_list):
+        self.__vouchers = voucher_list
+
+    def del_vouchers(self):
+        self.__vouchers = []
 # can you see this

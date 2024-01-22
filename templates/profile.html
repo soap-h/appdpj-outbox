@@ -12,7 +12,7 @@
             </div>
         {% endif %}
     {% endwith %}
-
+{% if 'admin' not in session %}
     <div class="card">
         <div class="card-body">
             {% if user %}
@@ -29,8 +29,25 @@
     </div>
     <div class="card">
         <div class="card-body">
-            <h5>Vouchers</h5>
-            <p>You have no vouchers</p>
+            <h5>Vouchers Owned</h5>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>VoucherID</th>
+                        <th>Name</th>
+                        <th>Discount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for voucher in vouchers %}
+                <tr>
+                    <td>{{ voucher.get_voucher_id() }}</td>
+                    <td>{{ voucher.get_name() }}</td>
+                    <td>{{ voucher.get_discount() }}%</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
         </div>
     </div>
     <div class="card">
@@ -54,7 +71,7 @@
                             <p>{{ product }}</p>
                         {% endfor %}
                     </td>
-                    <td>None</td>
+                    <td>{{ order.get_voucher() }}</td>
                     <td>{{ order.get_payment_amt() }}</td>
                 </tr>
                 {% endfor %}
@@ -62,7 +79,10 @@
             </table>
         </div>
     </div>
-
+    {% endif %}
+{% if 'admin' in session %}
+    <h1>THERE IS NO PROFILE. YOU ARE IN ADMIN MODE.</h1>
+    {% endif %}
     <div class="mt-3">
         <a href="{{ url_for('logout') }}" class="btn btn-danger">Logout</a>
     </div>

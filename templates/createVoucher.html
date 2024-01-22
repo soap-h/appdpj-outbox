@@ -1,0 +1,29 @@
+{% extends "adminbase.html" %}
+{% block title %} Create voucher {% endblock %}
+{% block content %}
+{% from "includes/formhelper.html" import render_field %}
+<a href="{{ url_for('admin') }}" class="btn btn-secondary mb-2" style="margin-top: 10px;"><i style="margin-right:5px;" class="bi bi-arrow-left"></i>Back</a>
+<h1 class="display-4">Add voucher</h1>
+{% with messages = get_flashed_messages() %}
+    {% if messages %}
+        <ul style="list-style: none; padding: 0; margin: 0;">
+            {% for message in messages %}
+                <li style="color: red;">{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+{% endwith %}
+<form method="POST" action="" class="memberform">
+    <div class="form-group">
+        {{ render_field(form.voucher_id, class="form-control") }}
+    </div>
+    <div class="form-group">
+        {{ render_field(form.name, class="form-control") }}
+    </div>
+    <div class="form-group">
+        {{ render_field(form.discount, class="form-control") }}
+    </div>
+    <input type="submit" value="Submit" class="btn btn-primary "/>
+
+</form>
+{% endblock %}

@@ -4,9 +4,10 @@ import Orderhistory
 import shelve
 import Question
 import Admin
+import Voucher
 import FeedbackSimpleDB
 
-from flask import Flask, render_template, request, redirect, url_for, flash, session, send_file
+from flask import Flask, render_template, request, redirect, url_for, flash, session, send_file, jsonify
 import os
 import datetime
 from werkzeug.utils import secure_filename
@@ -19,7 +20,7 @@ from openpyxl.utils.dataframe import dataframe_to_rows
 from openpyxl.drawing.image import Image as XLImage
 
 from forms import CreateMemberForm, CreateProductForm, CreateQuestionForm, CreateLoginForm, CreateCardForm, \
-    CreateAdminForm
+    CreateAdminForm, CreateVoucherForm, VoucherForm
 
 app = Flask(__name__)
 UPLOAD_FOLDER = 'static/uploads/'
@@ -36,6 +37,12 @@ def allowed_file(filename):
 
 @app.route('/')
 def homepage():
+    # db = shelve.open('database.db', 'c')
+    # member_dict = db['Members']
+    # for i in member_dict:
+    #     member_dict[i].del_vouchers()
+    # db['Members'] = member_dict
+    # db.close()
     return render_template('homepage.html')
 
 
@@ -73,7 +80,10 @@ def profile():
     if "name" in session:
         name = session["name"]
         id = session["member_id"]
-
+        if 'admin' in session:
+            admin = session['admin']
+        else:
+            admin = None
         member_dict = {}
         db = shelve.open('database.db', 'r')
         member_dict = db['Members']
@@ -83,7 +93,16 @@ def profile():
         for order_id in order_hist:
             if order_hist[order_id].get_name() == name:
                 member_orderhist.append(order_hist[order_id])
-    return render_template('profile.html', name=name, id=id, user=user_info, history=member_orderhist)
+
+        voucher_dict = db['Vouchers']
+        voucher_list = []
+        voucher_id = member_dict[id].get_vouchers()
+        for i in voucher_id:
+            voucher_list.append(voucher_dict[i])
+
+    return render_template('profile.html', admin=admin,
+                           name=name, id=id, user=user_info, history=member_orderhist,
+                           vouchers=voucher_list)
 
 
 @app.route("/logout")
@@ -171,6 +190,11 @@ def delete_cart(id):
 @app.route('/checkout', methods=['GET', 'POST'])
 def checkout():
     cart_list = session.get('cart', [])
+    if 'name' in session:
+        name = session['name']
+    else:
+        name = None
+
     if not cart_list:
         flash("Your cart is empty. Add items to your cart before proceeding to checkout.", "warning")
         return redirect(url_for('view_cart'))
@@ -179,41 +203,75 @@ def checkout():
     db = shelve.open("database.db", "c")
     checkout_dict = {}
     checkout_dict = db['Outbox']
+    discount = None
 
     total_price = sum(float(item.get_price()) for item in checkout_dict.values())
+    vouchers = []
+    voucher_dict = []
+
+    if 'name' in session and 'admin' not in session:
+        voucher_dict = db['Vouchers']
+        member_dict = db['Members']
+        member_id = session['member_id']
+        voucher_list = member_dict[member_id].get_vouchers()
+        for i in voucher_list:
+            vouchers.append(voucher_dict[i])
+        print(vouchers)
+
     if request.method == "POST" and create_card_form.validate():
-        order_dict = {}
         order_dict = db['OrderHist']
+        applied_voucher = None  # Initialize applied voucher to None
+
         if 'name' in session:
             id = session['member_id']
             memberdb = db['Members']
-            product = []
-            for i in checkout_dict:
-                product.append(checkout_dict[i].get_name())
+            product = [item.get_name() for item in checkout_dict.values()]
             date = datetime.date.today()
-            order_hist = Orderhistory.OrderHistory(session['name'], memberdb[id].get_email(),
-                                                   product, date, memberdb[id].get_phone(),
-                                                   total_price)
+
+            # Check if a voucher has been applied
+            if 'applied_voucher' in session:
+                applied_voucher_id = session['applied_voucher']
+                applied_voucher_discount = voucher_dict[applied_voucher_id].get_discount()
+                discount = float(applied_voucher_discount)
+                # Apply voucher discount to the total amount
+                total_price -= total_price * (discount / 100)
+
+                member_dict = db['Members']
+                voucher_list = member_dict[id].get_vouchers()
+
+                if applied_voucher_id in voucher_list:
+                    voucher_list.remove(applied_voucher_id)
+                    member_dict[id].set_voucher_list(voucher_list)
+                    db['Members'] = member_dict
+
+            order_hist = Orderhistory.OrderHistory(
+                session['name'], memberdb[id].get_email(),
+                product, date, memberdb[id].get_phone(),
+                total_price, int(discount)
+            )
+
             if len(order_dict) == 0:
                 my_key = 1
             else:
                 my_key = len(order_dict.keys()) + 1
+
             order_hist.set_order_id(my_key)
             order_dict[my_key] = order_hist
             db['OrderHist'] = order_dict
-            # date.strftime("%d/%m/%y")
         else:
-            product = []
-            for i in checkout_dict:
-                product.append(checkout_dict[i].get_name())
+            product = [item.get_name() for item in checkout_dict.values()]
             date = datetime.date.today()
-            order_hist = Orderhistory.OrderHistory("Guest", "Null",
-                                                   product, date, "Null",
-                                                   total_price)
+
+            order_hist = Orderhistory.OrderHistory(
+                "Guest", "Null", product, date, "Null",
+                total_price, "Null"
+            )
+
             if len(order_dict) == 0:
                 my_key = 1
             else:
                 my_key = len(order_dict.keys()) + 1
+
             order_hist.set_order_id(my_key)
             order_dict[my_key] = order_hist
             db['OrderHist'] = order_dict
@@ -223,17 +281,23 @@ def checkout():
                 cart_list.remove(id)
 
         session['cart'] = cart_list
+        if 'applied_voucher' in session:
+            session.pop('applied_voucher', None)
         session.modified = True
 
         nothing = {}
         db['Outbox'] = nothing
         db.close()
         return render_template("homepage.html")
-
     db.close()
     return render_template('checkout.html',
-                           cart_items=checkout_dict.values(), total_price=total_price, form=create_card_form)
+                           cart_items=checkout_dict.values(), total_price=total_price, form=create_card_form, vouchers=vouchers, name=name)
 
+@app.route('/set_voucher_session/<voucher_id>', methods=['POST'])
+def set_voucher_session(voucher_id):
+    session['applied_voucher'] = voucher_id
+    session.modified = True
+    return jsonify({'success': True})
 
 @app.route('/orderhistory')
 def orderhistory():
@@ -383,7 +447,7 @@ def create_member():
             members_dict[my_key] = member
             db['Members'] = members_dict
             db.close()
-            return redirect(url_for('admin'))
+            return redirect(url_for('login'))
 
     return render_template('adminmembers.html', form=create_member_form)
 
@@ -602,7 +666,7 @@ def update_question(id):
         question.set_email(update_question_form.email.data)
         question.set_title(update_question_form.title.data)
         question.set_question(update_question_form.question.data)
-        
+
         question.set_overall(update_question_form.overall.data)
         question.set_feedback(update_question_form.feedback.data)
         db['Question'] = questions_dict
@@ -616,7 +680,7 @@ def update_question(id):
         db.close()
         question = questions_dict.get(id)
         update_question_form.email.data = question.get_email()
-      
+
         update_question_form.title.data = question.get_title()
         update_question_form.question.data = question.get_question()
         update_question_form.overall.data = question.get_overall()
@@ -656,6 +720,95 @@ def filter_outbox():
 
     return render_template('outbox.html', outbox_products=filtered_products.values(), categories=categories)
 
+
+@app.route('/createvoucher', methods=['GET', 'POST'])
+def createvoucher():
+    create_voucher_form = CreateVoucherForm(request.form)
+    if request.method == 'POST' and create_voucher_form.validate():
+        voucher_dict = {}
+        db = shelve.open('database.db', 'c')
+        try:
+            voucher_dict = db['Vouchers']
+        except:
+            print("Error in retrieving vouchers from database.db")
+
+        voucher_list = []
+        for i in voucher_dict:
+            voucher_list.append(voucher_dict[i].get_voucher_id())
+        if create_voucher_form.voucher_id.data in voucher_list:
+            flash('voucher already exists.', 'error')
+        else:
+            voucher = Voucher.Voucher(create_voucher_form.voucher_id.data,
+                                      create_voucher_form.name.data,
+                                      create_voucher_form.discount.data)
+            voucher_dict[create_voucher_form.voucher_id.data] = voucher
+            db['Vouchers'] = voucher_dict
+            db.close()
+            return redirect(url_for('admin'))
+    return render_template('createVoucher.html', form=create_voucher_form)
+
+
+@app.route('/viewvouchers')
+def viewvouchers():
+    voucher_dict = {}
+    db = shelve.open('database.db', 'r')
+    voucher_dict = db['Vouchers']
+    db.close()
+
+    voucher_list = []
+
+    for key in voucher_dict:
+        voucher = voucher_dict.get(key)
+        voucher_list.append(voucher)
+
+    return render_template('viewVouchers.html', count=len(voucher_list), voucher_list=voucher_list)
+
+
+@app.route('/deletevoucher/<id>', methods=['POST'])
+def delete_voucher(id):
+    voucher_dict = {}
+    db = shelve.open('database.db', 'w')
+    voucher_dict = db['Vouchers']
+    member_dict = db['Members']
+    for i in member_dict:
+        vouchers = member_dict[i].get_vouchers()
+        if voucher_dict[id].get_voucher_id() in vouchers:
+            vouchers.remove(voucher_dict[id].get_voucher_id())
+    voucher_dict.pop(id)
+    db['Vouchers'] = voucher_dict
+    db['Members'] = member_dict
+    db.close()
+    return redirect(url_for('viewvouchers'))
+
+
+@app.route('/givevoucher', methods=['GET', 'POST'])
+def givevoucher():
+    voucher_form = VoucherForm(request.form)
+    if request.method == "POST" and voucher_form.validate():
+        db = shelve.open('database.db', 'w')
+        member_dict = db['Members']
+        voucher_dict = db['Vouchers']
+        email_list = []
+        voucher_list = []
+
+        for i in db['Members']:
+            email_list.append(member_dict[i].get_email())
+        for i in voucher_dict:
+            voucher_list.append(voucher_dict[i].get_voucher_id())
+
+        if voucher_form.email.data not in email_list:
+            flash('Email does not exist', 'error')
+        elif voucher_form.voucher_id.data not in voucher_list:
+            flash('Voucher does not exist', 'error')
+        else:
+            for i in member_dict:
+                if member_dict[i].get_email() == voucher_form.email.data:
+                    member_dict[i].set_vouchers(voucher_form.voucher_id.data)
+                    flash(f'coupon successfully given to {voucher_form.email.data}')
+                    break
+            db['Members'] = member_dict
+        db.close()
+    return render_template("givevoucher.html", form=voucher_form)
 
 @app.route('/download_excel/<db_name>')
 def excel_converter(db_name):

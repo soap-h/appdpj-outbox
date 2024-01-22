@@ -2,7 +2,7 @@ from wtforms import (Form, StringField, RadioField, SelectField, TextAreaField,
                      validators, TelField, PasswordField, IntegerField)
 from wtforms.fields import EmailField, DateField
 
-
+# CAN YOU FUCKING WORK PLEASE I FUCKING HATE YOU PLEASE PLEASE PLEASE PLEASE PLEASE PLEASE PLEASE
 class CreateLoginForm(Form):
     email = EmailField('Email:', [validators.Length(min=1, max=150), validators.DataRequired()])
     password = PasswordField('Password:', [validators.Length(min=1, max=150), validators.DataRequired()])
@@ -38,6 +38,9 @@ class CreateQuestionForm(Form):  # inherit from Form
 
 
 class CreateCardForm(Form):
+    name = StringField('Customer Name', [validators.length(min=1, max=100), validators.DataRequired("message")])
+    address = StringField('Address', [validators.Length(min=1, max=100), validators.DataRequired("message")])
+    postalcode = StringField('Postal Code', [validators.length(min=6, max=6), validators.DataRequired("message")])
     card = StringField('Card Number', [validators.Length(min=16, max=16, message='Card number must be 16 digits'),
                                 validators.Regexp('^\d+$', message='Card number must only contain digits'),
                                 validators.DataRequired(message='Card number is required')])
@@ -60,3 +63,20 @@ class CreateAdminForm(Form):
     confirm = PasswordField('Confirm password:', [validators.DataRequired(),
                                                   validators.EqualTo('password', 'password does not match')])
 
+
+class CreateVoucherForm(Form):
+    voucher_id = StringField('ID code',
+                             [validators.length(min=1, max=10),
+                              validators.Regexp('^[a-zA-Z0-9_-]+$',
+                            message='Invalid characters in ID code, you can only use \"_\" and \"-\"'),
+                              validators.DataRequired()])
+    name = StringField('Voucher name', [validators.length(min=1, max=150), validators.DataRequired()])
+    discount = StringField('Discount (%)',
+                           [validators.length(min=1, max=3),
+                            validators.Regexp('^[1-9]\d?$|^100$', message='Discount can only be from 1 to 100'),
+                            validators.DataRequired()])
+
+
+class VoucherForm(Form):
+    voucher_id = StringField('Voucher Code', [validators.Length(min=1, max=10), validators.DataRequired()])
+    email = StringField('Recipient Email', [validators.Email(), validators.DataRequired()])

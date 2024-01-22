@@ -26,16 +26,66 @@
                         {% endfor %}
                     </tbody>
                 </table>
-                <p>Total Price: ${{ total_price }}</p>
+                {% if 'name' in session %}
+                <p>Coupon applied: <span id="appliedCoupon">None</span></p>
+                {% endif %}
+                <p>Total Price: $<span id="totalPrice">{{ total_price }}</span></p>
             </div>
+            {% if 'name' in session %}
+            <div class="checkout_items">
+                <h2>Apply vouchers</h2>
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Discount</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for voucher in vouchers %}
+                            <tr>
+                                <td>{{ voucher.get_name()[:10] }}{% if voucher.get_name()|length > 10 %}...{% endif %}</td>
+                                <td>{{ voucher.get_discount() }}%</td>
+                                <td></td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <div class="mb-3 form-group">
+                    <label for="applied_voucher">Select Voucher:</label>
+                    <select id="applied_voucher" class="form-control">
+                    <option value="">None</option>
+                    {% for voucher in vouchers %}
+                        <option value="{{ voucher.get_voucher_id() }}" data-discount="{{ voucher.get_discount() }}">
+                            {{ voucher.get_name() }}
+                        </option>
+                    {% endfor %}
+            </select>
+            <button type="button" onclick="applyVoucher()" id="applyVoucherBtn">Apply Voucher</button>
+            </div>
+            </div>
+            {% endif %}
+            {% if 'name' not in session %}
+            <h3>Sign up to use Vouchers</h3>
+            {% endif %}
         </div>
 
         <!-- Right column for payment information -->
         <div class="col-md-6">
     <div class="checkout_items">
-        <h2>Payment Information</h2>
-
+        <h2>Customer Information</h2>
         <form method="post" action="">
+            <div class="mb-3 form-group">
+                {{ render_field(form.name, class="form-control") }}
+            </div>
+            <div class="mb-3 form-group">
+                {{ render_field(form.address, class="form-control") }}
+            </div>
+            <div class="mb-3 form-group">
+                {{ render_field(form.postalcode, class="form-control") }}
+            </div>
+            <hr>
             <!-- Card Number -->
             <div class="mb-3 form-group">
                 {{ render_field(form.card, class="form-control") }}
@@ -59,4 +109,44 @@
     </div>
 
     <a href="{{ url_for('outbox') }}" class="btn btn-secondary mt-3">Back to Cart</a>
+<script>
+    function applyVoucher() {
+    var applyVoucherBtn = document.getElementById('applyVoucherBtn');
+    if (applyVoucherBtn.disabled) {
+        return;
+    }
+    var selectedVoucher = document.getElementById('applied_voucher');
+    var selectedVoucherId = selectedVoucher.value;
+    var selectedVoucherDiscount = parseFloat(selectedVoucher.options[selectedVoucher.selectedIndex].getAttribute('data-discount'));
+
+    if (selectedVoucherId) {
+        // Set voucher session variable
+        fetch('/set_voucher_session/' + selectedVoucherId, {method: 'POST'})
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to set voucher session variable.');
+                }
+                // Update applied coupon display
+                document.getElementById('appliedCoupon').innerText = selectedVoucher.options[selectedVoucher.selectedIndex].innerText;
+
+                // Apply voucher discount to the total amount
+                var totalPriceElement = document.getElementById('totalPrice');
+                var currentTotal = parseFloat(totalPriceElement.innerText);
+                var discountedTotal = currentTotal - (currentTotal * (selectedVoucherDiscount / 100));
+
+                // Update total price display
+                totalPriceElement.innerText = discountedTotal.toFixed(2);
+
+                // Disable the apply voucher button
+                applyVoucherBtn.disabled = true;
+            })
+            .catch(error => {
+                console.error(error);
+                alert('Failed to set voucher session variable.');
+            });
+    } else {
+        alert('No voucher selected.');
+    }
+    }
+</script>
 {% endblock %}

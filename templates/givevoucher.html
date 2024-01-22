@@ -1,0 +1,23 @@
+{% extends "adminbase.html" %}
+{% block title %} ZES³ admin page{% endblock %}
+{% block content %}
+{% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <div class="alert alert-info text-center" role="alert">
+                {{ messages[0] }}
+            </div>
+        {% endif %}
+    {% endwith %}
+    <h2>Give Voucher</h2>
+    <form method="post" action="">
+        <div class="form-group">
+            {{ form.voucher_id.label }}
+            {{ form.voucher_id(class="form-control") }}
+        </div>
+        <div class="form-group">
+            {{ form.email.label }}
+            {{ form.email(class="form-control") }}
+        </div>
+        <button type="submit" class="btn btn-primary">Give Voucher</button>
+    </form>
+{% endblock %}

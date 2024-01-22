@@ -49,9 +49,6 @@ class Question:
     def set_email(self, email):
         self.__email = email
 
-    def set_date_posted(self, date_posted):
-        self.__date_posted = date_posted
-
     def set_title(self, title):
         self.__title = title
 

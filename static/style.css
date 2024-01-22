@@ -284,3 +284,52 @@
     left: 80%;
     transform: translate(-50%, -50%);
 }
+
+.Title{
+    vertical-align: center;
+    padding-top:1em;
+    padding-left: 20px;
+    font-size: 10em;
+    color: white;
+
+}
+
+.Sub {
+    padding: 20px;
+    font-size: 1em;
+    color: white;
+    width: 55%;
+     padding-bottom: 4em;
+}
+
+.Image {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 50%;
+}
+
+.GPS {
+    padding:20px;
+    height:509px;
+    width:638px;
+}
+
+#Find {
+    padding-top:2em;
+}
+
+
+#Space {
+    padding: 13px
+}
+
+#GPSFrame {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-gap: 20px;
+}
+
+#Details {
+padding-top: 4em;
+}

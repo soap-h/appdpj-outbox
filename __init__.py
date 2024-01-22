@@ -865,6 +865,11 @@ def excel_converter(db_name):
     except Exception as e:
         print(f"Error saving Excel file '{excel_filename}': {e}")
 
+@app.route('/beanbox')
+def beanbox():
+    return render_template('beanbox.html')
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)

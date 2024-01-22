@@ -550,13 +550,14 @@ def delete_product(id):
 
 @app.route('/createQuestion', methods=['GET', 'POST'])
 def create_question():
+    date = datetime.date.today().strftime('%d-%m-%Y')
     create_question_form = CreateQuestionForm(request.form)
     # need to get data from  create_user_form and save to shelve database
     if request.method == 'POST' and create_question_form.validate():
         question = Question(create_question_form.email.data,
                             create_question_form.title.data,
                             create_question_form.question.data,
-                            create_question_form.date_posted.data,
+                           date,
                             create_question_form.overall.data,
                             create_question_form.feedback.data)
         add_question(question)
@@ -601,7 +602,7 @@ def update_question(id):
         question.set_email(update_question_form.email.data)
         question.set_title(update_question_form.title.data)
         question.set_question(update_question_form.question.data)
-        question.set_date_posted(update_question_form.date_posted.data)
+        
         question.set_overall(update_question_form.overall.data)
         question.set_feedback(update_question_form.feedback.data)
         db['Question'] = questions_dict
@@ -615,7 +616,7 @@ def update_question(id):
         db.close()
         question = questions_dict.get(id)
         update_question_form.email.data = question.get_email()
-        update_question_form.date_posted.data = question.get_date_posted()
+      
         update_question_form.title.data = question.get_title()
         update_question_form.question.data = question.get_question()
         update_question_form.overall.data = question.get_overall()

@@ -883,6 +883,16 @@ def delete_voucher(id):
 @app.route('/givevoucher', methods=['GET', 'POST'])
 def givevoucher():
     voucher_form = VoucherForm(request.form)
+    db = shelve.open('database.db', 'r')
+    member_dict = db['Members']
+    voucher_dict = db['Vouchers']
+    member_list = []
+    voucher_list = []
+    for i in member_dict:
+        member_list.append(member_dict[i])
+    for i in voucher_dict:
+        voucher_list.append(voucher_dict[i])
+
     if request.method == "POST" and voucher_form.validate():
         db = shelve.open('database.db', 'w')
         member_dict = db['Members']
@@ -907,7 +917,7 @@ def givevoucher():
                     break
             db['Members'] = member_dict
         db.close()
-    return render_template("givevoucher.html", form=voucher_form)
+    return render_template("givevoucher.html", form=voucher_form, member_list=member_list, voucher_list=voucher_list)
 
 
 @app.route('/download_excel/<db_name>')

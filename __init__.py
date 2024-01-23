@@ -488,29 +488,32 @@ def registrationconfirmation():
 def members():
     return render_template('adminmembers.html')
 
-
 @app.route('/members/viewmembers', methods=['GET', 'POST'])
 def view_members():
     create_search_form = CreateSearchForm(request.form)
     member_list = []  # Initialize member_list to handle both GET and POST cases
+
     if request.method == 'POST' and create_search_form.validate():
-        search = create_search_form.search.data
+        search = create_search_form.search.data.lower()  # Convert search to lowercase
+
         with shelve.open('database.db', 'r') as db:
             member_dict = db['Members']
-            # Find the matching member directly
-            matching_member = next(
-                (member for member_id, member in member_dict.items() if member.get_first_name() == search), None)
-            if matching_member:
-                flash("Member found", "success")
-                member_list.append(matching_member)  # Add only the matching member to the list
+
+            # Find matching members with case-insensitive comparison
+            matching_members = [member for member_id, member in member_dict.items() if member.get_first_name().lower() == search]
+
+            if matching_members:
+                flash("Member(s) found", "success")
+                member_list = matching_members  # Assign matching members to the list
             else:
                 flash("Member not found", "error")
+
     else:  # GET request or invalid POST
         with shelve.open('database.db', 'r') as db:
             member_dict = db['Members']
             member_list = list(member_dict.values())  # Fetch all members for initial display
-    return render_template('adminviewmembers.html', count=len(member_list), member_list=member_list, form=create_search_form)
 
+    return render_template('adminviewmembers.html', count=len(member_list), member_list=member_list, form=create_search_form)
 
 @app.route('/updatemember/<int:id>/', methods=['GET', 'POST'])
 def update_user(id):
@@ -607,7 +610,6 @@ def view_inventory():
         product = inventory_dict.get(key)
         inventory_list.append(product)
     return render_template('adminviewinventory.html', count=len(inventory_list), inventory_list=inventory_list)
-
 
 @app.route('/updateproduct/<int:id>/', methods=['GET', 'POST'])
 def update_product(id):

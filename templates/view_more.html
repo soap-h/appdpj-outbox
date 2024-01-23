@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}View More{% endblock %}
+{% block content %}
+<div style="text-align: center; margin-top: 20px;">
+    {% if selected_product %}
+    <div style="display: flex; justify-content: center;">
+        <table>
+            <tr>
+                <td style="text-align: center;">
+                    <img src="{{ url_for('static', filename='uploads/' + selected_product.get_image()) }}"
+                         alt="Product Image" style="max-width: 600px; max-height: 600px; margin-left:400px; position:relative;">
+                    <p style="padding: 30px;margin-left:400px">Drinks: {{ selected_product.get_drinks() }}</p>
+                <td style="vertical-align: top; text-align: left;">
+                    <div class="product-details" >
+                        <div style="margin-left: 250px;">
+                            <p>Product ID: {{ selected_product.get_product_id() }}</p>
+                            <p>Name: {{ selected_product.get_name() }}</p>
+                            <p>Price: ${{ selected_product.get_price() }}</p>
+                            <p>Category: {{ selected_product.get_category() }}</p>
+                            <div style="border: 1px solid #000; padding: 30px;">
+                                <p>Remarks: {{ selected_product.get_remarks() }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <a href="{{ url_for('add_to_outbox', product_id=selected_product.get_product_id()) }}" class="btn btn-primary" style="margin-left:1200px;">Add
+        to Cart</a>
+    {% else %}
+    <p>Product not found</p>
+    {% endif %}
+</div>
+{% endblock %}

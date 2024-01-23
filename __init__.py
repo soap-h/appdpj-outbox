@@ -239,7 +239,12 @@ def checkout():
             id = session['member_id']
             memberdb = db['Members']
             product = [item.get_name() for item in checkout_dict.values()]
-            date = datetime.date.today()
+            # date = datetime.date.today()
+
+            # FOR FAKE ORDERHIST DATES
+            from datetime import datetime
+            date_str = '2024-06-11'
+            date = datetime.strptime(date_str, '%Y-%m-%d').date()
 
             # Check if a voucher has been applied
             if 'applied_voucher' in session:
@@ -275,7 +280,12 @@ def checkout():
             db['OrderHist'] = order_dict
         else:
             product = [item.get_name() for item in checkout_dict.values()]
-            date = datetime.date.today()
+            # date = datetime.date.today()
+
+            # FOR FAKE ORDERHIST DATES
+            from datetime import datetime
+            date_str = '2024-06-11'
+            date = datetime.strptime(date_str, '%Y-%m-%d').date()
 
             order_hist = Orderhistory.OrderHistory(
                 "Guest", "Null", product, date,     "Null",

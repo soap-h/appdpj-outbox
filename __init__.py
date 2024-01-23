@@ -22,6 +22,7 @@ from openpyxl.drawing.image import Image as XLImage
 from ReportGeneration import *
 from pyecharts import options as opts
 from pyecharts.charts import Bar, Calendar, Tab
+from markupsafe import Markup
 
 from forms import CreateMemberForm, CreateProductForm, CreateQuestionForm, CreateLoginForm, CreateCardForm, \
     CreateAdminForm, CreateVoucherForm, VoucherForm, CreateSearchForm
@@ -1020,36 +1021,54 @@ def performance_report():
     # group df by months and sum the 'OrderHist_Payment amount'
     grouped_by_months = df.groupby(by=['OrderHist_Month'])['OrderHist_Payment amount'].sum()
 
-    # plot Sales (Payment amount) by months
+    # create Estimated Profit (80% of Sales)
+    estimated_profit = grouped_by_months * 0.8
+
+    # plot Sales (Payment amount) and Estimated Profit by months
     bar_chart_by_month = (
         Bar()
         .add_xaxis(grouped_by_months.index.tolist())
         .add_yaxis('Sales', grouped_by_months.round().tolist())
+        .add_yaxis('Estimated Profit', estimated_profit.round().tolist())
         .set_global_opts(
-            title_opts=opts.TitleOpts(title='Outbox Sales by month', subtitle='in SGD($)')
+            title_opts=opts.TitleOpts(title='Sales and Profit by Month', subtitle='in SGD($)')
         )
     )
 
     bar_chart_by_month.render_notebook()
 
-    # Create a Tab and add the chart
+    # Create a Tab and add the chart for monthly overview
     tab = Tab(page_title='Sales Overview')
-    tab.add(bar_chart_by_month, 'Outbox Sales by month')
+    tab.add(bar_chart_by_month, 'Sales and Profit by Month')
+
+    # group data by product category and sum 'OrderHist_Payment amount'
+    grouped_by_product_category = df.groupby(by='Inventory_Category', as_index=False)['OrderHist_Payment amount'].sum()
+
+    # create Estimated Profit (80% of Sales) for each product category
+    grouped_by_product_category['Estimated Profit'] = grouped_by_product_category['OrderHist_Payment amount'] * 0.8
+
+    # plot Sales (Payment amount) and Estimated Profit by product category
+    bar_chart_by_category = (
+        Bar()
+        .add_xaxis(grouped_by_product_category['Inventory_Category'].tolist())
+        .add_yaxis('Sales', grouped_by_product_category['OrderHist_Payment amount'].round().tolist())
+        .add_yaxis('Estimated Profit', grouped_by_product_category['Estimated Profit'].round().tolist())
+        .reversal_axis()
+        .set_series_opts(label_opts=opts.LabelOpts(position='right'))
+        .set_global_opts(
+            title_opts=opts.TitleOpts(title='Product Category', subtitle='in SGD($)')
+        )
+    )
+
+    bar_chart_by_category.render_notebook()
+
+    # Create a Tab and add the chart for product category overview
+    tab.add(bar_chart_by_category, 'Sales and Profit by Product Category')
 
     # Render the tab directly in the HTML template
-    chart_html = tab.render_embed()
+    chart_html = Markup(tab.render_embed())
+
     return render_template('performancereport.html', chart_html=chart_html)
-
-@app.route('/view_more/<int:product_id>')
-def view_more(product_id):
-    inventory_dict = {}
-    db_inventory = shelve.open('database.db', 'r')
-    inventory_dict = db_inventory.get('Inventory', {})
-    db_inventory.close()
-
-    selected_product = inventory_dict.get(product_id)
-
-    return render_template('view_more.html', selected_product=selected_product)
 
 
 if __name__ == '__main__':

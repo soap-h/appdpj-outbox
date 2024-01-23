@@ -248,10 +248,12 @@ def checkout():
                     member_dict[id].set_voucher_list(voucher_list)
                     db['Members'] = member_dict
 
+            discount = int(discount) if discount is not None else None
+
             order_hist = Orderhistory.OrderHistory(
                 session['name'], memberdb[id].get_email(),
                 product, date, memberdb[id].get_phone(),
-                total_price, int(discount)
+                total_price, discount
             )
 
             if len(order_dict) == 0:
@@ -284,7 +286,7 @@ def checkout():
             if id in cart_list:
                 cart_list.remove(id)
 
-        session['cart'] = cart_list
+        session['cart'] = []
         if 'applied_voucher' in session:
             session.pop('applied_voucher', None)
         session.modified = True

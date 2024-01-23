@@ -278,8 +278,8 @@ def checkout():
             date = datetime.date.today()
 
             order_hist = Orderhistory.OrderHistory(
-                "Guest", "Null", product, date, "Null",
-                total_price, "Null"
+                "Guest", "Null", product, date,     "Null",
+                total_price, "None"
             )
 
             if len(order_dict) == 0:

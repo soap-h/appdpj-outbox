@@ -18,7 +18,7 @@
 <table class="table table-striped">
   <thead>
   <tr>
-    <th>Question ID</th>
+
     <th>Date Posted</th>
     <th>Title</th>
     <th>Question</th>
@@ -31,7 +31,7 @@
 <tbody>
   {% for question in questions_list %}
   <tr>
-    <td>{{ question.get_question_id() }}</td>
+
     <td>{{ question.get_date_posted() }}</td>
     <td>{{ question.get_title() }}</td>
     <td>{{ question.get_question() }}</td>

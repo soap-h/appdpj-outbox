@@ -10,7 +10,7 @@
 {% endwith %}
 <h1 class="display-4">Outbox</h1>
 <form method="post" action="{{ url_for('filter_outbox') }}" class="mb-3">
-    <div class="input-group">
+    <div class="input-group" style="width: 30%;margin-left:auto;">
         <select name="category" class="form-select" aria-label="Select Category">
             <option value="" selected>All Categories</option>
             {% for category in categories %}

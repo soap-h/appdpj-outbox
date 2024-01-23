@@ -1070,6 +1070,15 @@ def performance_report():
 
     return render_template('performancereport.html', chart_html=chart_html)
 
+@app.route('/view_more/<int:product_id>')
+def view_more(product_id):
+    inventory_dict = {}
+    db_inventory = shelve.open('database.db', 'r')
+    inventory_dict = db_inventory.get('Inventory', {})
+    db_inventory.close()
 
+    selected_product = inventory_dict.get(product_id)
+
+    return render_template('view_more.html', selected_product=selected_product)
 if __name__ == '__main__':
     app.run(debug=True)

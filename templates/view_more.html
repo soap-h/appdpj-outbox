@@ -8,8 +8,8 @@
             <tr>
                 <td style="text-align: center;">
                     <img src="{{ url_for('static', filename='uploads/' + selected_product.get_image()) }}"
-                         alt="Product Image" style="max-width: 600px; max-height: 600px; margin-left:400px; position:relative;">
-                    <p style="padding: 30px;margin-left:400px">Drinks: {{ selected_product.get_drinks() }}</p>
+                         alt="Product Image" style="width: 600px; max-height: 600px; margin-left:400px; position:relative;">
+                    <p style="padding: 30px;margin-left:40%;">Drinks: {{ selected_product.get_drinks() }}</p>
                 <td style="vertical-align: top; text-align: left;">
                     <div class="product-details" >
                         <div style="margin-left: 250px;">
@@ -26,7 +26,7 @@
             </tr>
         </table>
     </div>
-    <a href="{{ url_for('add_to_outbox', product_id=selected_product.get_product_id()) }}" class="btn btn-primary" style="margin-left:1200px;">Add
+    <a href="{{ url_for('add_to_outbox', product_id=selected_product.get_product_id()) }}" class="btn btn-primary" style="margin-left:85%;">Add
         to Cart</a>
     {% else %}
     <p>Product not found</p>

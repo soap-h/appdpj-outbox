@@ -12,7 +12,10 @@ class CreateLoginForm(Form):
 class CreateMemberForm(Form):
     first_name = StringField('First Name', [validators.Length(min=1, max=150), validators.DataRequired()])
     last_name = StringField('Last Name', [validators.Length(min=1, max=150), validators.DataRequired()])
-    email = EmailField('email', [validators.Email(), validators.Length(min=1, max=150), validators.DataRequired()])
+    birthdate = DateField('Birthdate', format='%Y-%m-%d', validators=[validators.DataRequired()])
+    gender = SelectField('Gender', choices=[('male', 'Male'), ('female', 'Female'), ('other', 'Other')],
+                         validators=[validators.DataRequired()])
+    email = EmailField('Email', [validators.Email(), validators.Length(min=1, max=150), validators.DataRequired()])
     phone = StringField('Phone Number', [validators.DataRequired()])
     password = PasswordField('Enter password',
                              [validators.DataRequired(), validators.Length(min=8, message='Too Short')])

@@ -304,6 +304,12 @@ def checkout():
                 "Guest", "Null", product, date,     "Null",
                 total_price, "None"
             )
+            existing_ids = set(order_dict.keys())
+            missing_ids = set(range(1, max(existing_ids) + 2)) - existing_ids
+            if missing_ids:
+                my_key = min(missing_ids)
+            else:
+                my_key = len(order_dict) + 1
 
             existing_ids = set(order_dict.keys())
             missing_ids = set(range(1, max(existing_ids) + 2)) - existing_ids
@@ -507,6 +513,7 @@ def create_member():
             flash('email already exists. Please choose a different one.', 'error')
         else:
             member = Member.Member(create_member_form.first_name.data, create_member_form.last_name.data,
+                                   create_member_form.birthdate.data, create_member_form.gender.data,
                                    create_member_form.email.data, create_member_form.phone.data,
                                    create_member_form.password.data)
             member.set_member_id(my_key)

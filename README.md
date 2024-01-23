@@ -1,6 +1,6 @@
 ### **For images in Excel to work,**
 
-[pip install Pillow]() in venv Command Prompt Terminal.\
+[pip install Pillow]()  and [pip install openpyxl]() in venv Command Prompt Terminal.\
 _The Python Imaging Library adds image processing capabilities to your Python interpreter.\
 It provides extensive file format support, an efficient internal representation, and fairly powerful image processing capabilities._
 

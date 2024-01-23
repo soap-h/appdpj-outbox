@@ -1,11 +1,16 @@
+from datetime import date
+
+
 class Member:
     count_id = 0
 
-    def __init__(self, firstname, lastname, email, phone, password):
+    def __init__(self, firstname, lastname, birthdate, gender, email, phone, password):
         Member.count_id += 1
         self.__member_id = Member.count_id
         self.__first_name = firstname
         self.__last_name = lastname
+        self.__birthdate = birthdate
+        self.__gender = gender
         self.__email = email
         self.__phone = phone
         self.__password = password
@@ -13,6 +18,7 @@ class Member:
 
     def as_dict(self):
         return {'Member ID': self.__member_id, 'First name': self.__first_name, 'Last name': self.__last_name,
+                'Age': self.get_age(), 'Gender': self.__gender,
                 'Email': self.__email, 'Phone no.': self.__phone, 'Password': self.__password}
 
     def get_member_id(self):
@@ -23,6 +29,15 @@ class Member:
 
     def get_last_name(self):
         return self.__last_name
+
+    def get_age(self):
+        today = date.today()
+        birthdate = self.__birthdate
+        age = today.year - birthdate.year - ((today.month, today.day) < (birthdate.month, birthdate.day))
+        return age
+
+    def get_gender(self):
+        return self.__gender
 
     def get_email(self):
         return self.__email

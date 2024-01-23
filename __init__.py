@@ -594,6 +594,21 @@ def update_product(id):
         product.set_category(update_product_form.category.data)
         product.set_remarks(update_product_form.remarks.data)
         product.set_drinks(update_product_form.drinks.data)
+
+        if 'file' in request.files:
+            file = request.files['file']
+
+            if file.filename != '':
+                if allowed_file(file.filename):
+                    old_filename = product.get_image()
+                    old_filepath = os.path.join(app.config['UPLOAD_FOLDER'], old_filename)
+                    if os.path.exists(old_filepath):
+                        os.remove(old_filepath)
+
+                    filename = secure_filename(file.filename)
+                    file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+                    product.set_image(filename)
+
         db['Inventory'] = inventory_dict
         db.close()
         return redirect(url_for('view_inventory'))
@@ -609,6 +624,7 @@ def update_product(id):
         update_product_form.remarks.data = product.get_remarks()
         update_product_form.drinks.data = product.get_drinks()
         return render_template('adminupdateproduct.html', form=update_product_form)
+
 
 
 @app.route('/deleteproduct/<int:id>', methods=['POST'])

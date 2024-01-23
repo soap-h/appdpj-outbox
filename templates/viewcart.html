@@ -22,7 +22,6 @@
         <table class="table table-striped">
             <thead>
                 <tr>
-                    <th>Product ID</th>
                     <th>Name</th>
                     <th>Price</th>
                     <th>Category</th>
@@ -33,7 +32,6 @@
             <tbody>
                 {% for product in outbox_list %}
                     <tr>
-                        <td>{{ product.get_product_id() }}</td>
                         <td>{{ product.get_name() }}</td>
                         <td>${{ product.get_price() }}</td>
                         <td>{{ product.get_category() }}</td>

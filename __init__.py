@@ -163,7 +163,11 @@ def add_to_outbox(product_id):
     if 'cart' not in session:
         session['cart'] = []
 
-    session['cart'].append(product_id)
+    if product_id in session['cart']:
+        flash('Item already added to cart.')
+    else:
+        session['cart'].append(product_id)
+
     session.modified = True
 
     outbox_dict[selected_product.get_product_id()] = selected_product
@@ -199,6 +203,10 @@ def checkout():
     else:
         name = None
 
+    if 'admin' in session:
+        flash('YOU ARE IN ADMIN MODE. CANNOT CHECK OUT')
+        return redirect(url_for('view_cart'))
+
     if not cart_list:
         flash("Your cart is empty. Add items to your cart before proceeding to checkout.", "warning")
         return redirect(url_for('view_cart'))
@@ -224,7 +232,8 @@ def checkout():
 
     if request.method == "POST" and create_card_form.validate():
         order_dict = db['OrderHist']
-        applied_voucher = None  # Initialize applied voucher to None
+        applied_voucher = None
+
 
         if 'name' in session:
             id = session['member_id']

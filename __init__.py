@@ -24,7 +24,7 @@ from pyecharts import options as opts
 from pyecharts.charts import Bar, Calendar, Tab
 
 from forms import CreateMemberForm, CreateProductForm, CreateQuestionForm, CreateLoginForm, CreateCardForm, \
-    CreateAdminForm, CreateVoucherForm, VoucherForm
+    CreateAdminForm, CreateVoucherForm, VoucherForm, CreateSearchForm
 
 app = Flask(__name__)
 UPLOAD_FOLDER = 'static/uploads/'
@@ -479,18 +479,27 @@ def members():
     return render_template('adminmembers.html')
 
 
-@app.route('/members/viewmembers')
+@app.route('/members/viewmembers', methods=['GET', 'POST'])
 def view_members():
-    member_dict = {}
-    db = shelve.open('database.db', 'r')
-    member_dict = db['Members']
-    db.close()
-
-    member_list = []
-    for key in member_dict:
-        member = member_dict.get(key)
-        member_list.append(member)
-    return render_template('adminviewmembers.html', count=len(member_list), member_list=member_list)
+    create_search_form = CreateSearchForm(request.form)
+    member_list = []  # Initialize member_list to handle both GET and POST cases
+    if request.method == 'POST' and create_search_form.validate():
+        search = create_search_form.search.data
+        with shelve.open('database.db', 'r') as db:
+            member_dict = db['Members']
+            # Find the matching member directly
+            matching_member = next(
+                (member for member_id, member in member_dict.items() if member.get_first_name() == search), None)
+            if matching_member:
+                flash("Member found", "success")
+                member_list.append(matching_member)  # Add only the matching member to the list
+            else:
+                flash("Member not found", "error")
+    else:  # GET request or invalid POST
+        with shelve.open('database.db', 'r') as db:
+            member_dict = db['Members']
+            member_list = list(member_dict.values())  # Fetch all members for initial display
+    return render_template('adminviewmembers.html', count=len(member_list), member_list=member_list, form=create_search_form)
 
 
 @app.route('/updatemember/<int:id>/', methods=['GET', 'POST'])

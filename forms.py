@@ -1,6 +1,6 @@
 from wtforms import (Form, StringField, RadioField, SelectField, TextAreaField,
                      validators, TelField, PasswordField, IntegerField)
-from wtforms.fields import EmailField, DateField
+from wtforms.fields import EmailField, DateField, SearchField
 
 # CAN YOU FUCKING WORK PLEASE I FUCKING HATE YOU PLEASE PLEASE PLEASE PLEASE PLEASE PLEASE PLEASE
 class CreateLoginForm(Form):
@@ -80,3 +80,6 @@ class CreateVoucherForm(Form):
 class VoucherForm(Form):
     voucher_id = StringField('Voucher Code', [validators.Length(min=1, max=10), validators.DataRequired()])
     email = StringField('Recipient Email', [validators.Email(), validators.DataRequired()])
+
+class CreateSearchForm(Form):
+    search = SearchField('Search here by first name', [validators.Length(min=1, max=150), validators.DataRequired()])

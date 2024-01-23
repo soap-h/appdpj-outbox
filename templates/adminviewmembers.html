@@ -1,6 +1,7 @@
 {% extends "adminbase.html" %}
 {% block title %}ZES&#179; view members{% endblock %}
 {% block content %}
+{% from "includes/formHelper.html" import render_field %}
 <a href="{{ url_for('admin') }}" class="btn btn-secondary mb-2" style="margin-top: 10px;"><i style="margin-right:5px;" class="bi bi-arrow-left"></i>Back</a>
 <h1 class="display-4">View all members</h1>
 <div>
@@ -12,6 +13,13 @@
     <p>There are {{ count }} users.</p>
     {% endif %}
 </div>
+<form method="POST" action="" class="search">
+    <div class="form-group">
+      {{ render_field(form.search, class="form-control") }}
+    </div>
+    <input type="submit" value="Search" class="btn btn-primary"/>
+    <a href="/members/viewmembers" class="btn btn-primary">Back</a>
+</form>
 <div>
     <table class="table table-striped">
         <thead>

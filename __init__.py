@@ -5,6 +5,7 @@ import shelve
 import Question
 import Admin
 import Voucher
+import Supplier
 import FeedbackSimpleDB
 
 from flask import Flask, render_template, request, redirect, url_for, flash, session, send_file, jsonify
@@ -24,7 +25,7 @@ from pyecharts import options as opts
 from pyecharts.charts import Bar, Calendar, Tab
 
 from forms import CreateMemberForm, CreateProductForm, CreateQuestionForm, CreateLoginForm, CreateCardForm, \
-    CreateAdminForm, CreateVoucherForm, VoucherForm, CreateSearchForm
+    CreateAdminForm, CreateVoucherForm, VoucherForm, CreateSearchForm, CreateSupplierForm
 
 app = Flask(__name__)
 UPLOAD_FOLDER = 'static/uploads/'
@@ -56,27 +57,43 @@ def login():
 
     db = shelve.open('database.db', 'r')
     login_list = db["Members"]
+    supplier_list = db['Supplier']
     admin_list = db["Admin"]
+
     if request.method == "POST" and create_login_form.validate():
         email = create_login_form.email.data
         password = create_login_form.password.data
+
+        # Check for member login
         for member_id, member in login_list.items():
             if member.get_email() == email and member.get_password() == password:
                 session['name'] = member.get_first_name() + " " + member.get_last_name()
                 session['member_id'] = member_id
                 flash("Login successful", "success")
                 return redirect(url_for('outbox'))
-            else:
-                for admin_id, admin in admin_list.items():
-                    if admin.get_email() == email and admin.get_password() == password:
-                        session['name'] = admin.get_first_name() + " " + admin.get_last_name()
-                        session['member_id'] = admin_id
-                        session['admin'] = "active"
-                        flash("Admin Login successful", "success")
-                        return redirect(url_for('admin'))
+
+        # Check for supplier login
+        for supplier_id, supplier in supplier_list.items():
+            if supplier.get_company_email() == email and supplier.get_password() == password:
+                session['name'] = supplier.get_company_name()
+                session['member_id'] = supplier_id
+                flash("Supplier login successful", "success")
+                return redirect(url_for('outbox'))
+
+        # Check for admin login
+        for admin_id, admin in admin_list.items():
+            if admin.get_email() == email and admin.get_password() == password:
+                session['name'] = admin.get_first_name() + " " + admin.get_last_name()
+                session['member_id'] = admin_id
+                session['admin'] = "active"
+                flash("Admin login successful", "success")
+                return redirect(url_for('admin'))
+
+        # If none of the login attempts are successful, display an error message
         flash("Invalid email or password. Please try again", "error")
 
     return render_template('login.html', form=create_login_form)
+
 
 
 @app.route("/profile")
@@ -514,6 +531,7 @@ def view_members():
             member_list = list(member_dict.values())  # Fetch all members for initial display
 
     return render_template('adminviewmembers.html', count=len(member_list), member_list=member_list, form=create_search_form)
+
 
 @app.route('/updatemember/<int:id>/', methods=['GET', 'POST'])
 def update_user(id):
@@ -990,6 +1008,88 @@ def view_more(product_id):
     selected_product = inventory_dict.get(product_id)
 
     return render_template('view_more.html', selected_product=selected_product)
+
+@app.route('/supplier', methods=['GET', 'POST'])
+def create_supplier():
+    create_supplier_form = CreateSupplierForm(request.form)
+    if request.method == 'POST' and create_supplier_form.validate():
+        supplier_dict = {}
+        db = shelve.open('database.db', 'c')
+        try:
+            supplier_dict = db['Supplier']
+        except:
+            print("Error in retrieving members from database.db")
+
+        email_list = []
+        for i in supplier_dict:
+            email_list.append(supplier_dict[i].get_company_email())
+        if create_supplier_form.company_email.data in email_list:
+            flash('email already exists. Please choose a different one.', 'error')
+        else:
+            supplier = Supplier.Supplier(create_supplier_form.company_name.data, create_supplier_form.company_email.data,
+                                         create_supplier_form.company_phone.data, create_supplier_form.company_address.data,
+                                         create_supplier_form.password.data)
+            if len(supplier_dict) == 0:
+                my_key = 1
+            else:
+                my_key = len(supplier_dict.keys()) + 1
+            supplier.set_supplier_id(my_key)
+            supplier_dict[my_key] = supplier
+            db['Supplier'] = supplier_dict
+            db.close()
+            return redirect(url_for('registrationconfirmation'))
+    return render_template('adminsuppliers.html', form=create_supplier_form)
+@app.route('/supplier/viewsuppliers')
+def view_suppliers():
+    supplier_dict = {}
+    db = shelve.open('database.db', 'r')
+    supplier_dict = db['Supplier']
+    db.close()
+
+    supplier_list = []
+    for key in supplier_dict:
+        supplier = supplier_dict.get(key)
+        supplier_list.append(supplier)
+    return render_template('adminviewsuppliers.html', count=len(supplier_list), supplier_list=supplier_list)
+
+@app.route('/updatesupplier/<int:id>/', methods=['GET', 'POST'])
+def update_supplier(id):
+    update_supplier_form = CreateSupplierForm(request.form)
+    if request.method == 'POST' and update_supplier_form.validate():
+        supplier_dict = {}
+        db = shelve.open('database.db', 'w')
+        supplier_dict = db['Supplier']
+        supplier = supplier_dict.get(id)
+        supplier.set_company_name(update_supplier_form.company_name.data)
+        supplier.set_company_email(update_supplier_form.company_email.data)
+        supplier.set_company_phone(update_supplier_form.company_phone.data)
+        supplier.set_company_address(update_supplier_form.company_address.data)
+        supplier.set_password(update_supplier_form.password.data)
+        db['Supplier'] = supplier_dict
+        db.close()
+        return redirect(url_for('view_suppliers'))
+    else:
+        supplier_dict = {}
+        db = shelve.open('database.db', 'r')
+        supplier_dict = db['Supplier']
+        db.close()
+        supplier = supplier_dict.get(id)
+        update_supplier_form.company_name.data = supplier.get_company_name()
+        update_supplier_form.company_email.data = supplier.get_company_email()
+        update_supplier_form.company_phone.data = supplier.get_company_phone()
+        update_supplier_form.company_address.data = supplier.get_company_address()
+        update_supplier_form.password.data = supplier.get_password()
+        return render_template('adminupdatesupplier.html', form=update_supplier_form)
+
+@app.route('/deletesupplier/<int:id>', methods=['POST'])
+def delete_supplier(id):
+    supplier_dict = {}
+    db = shelve.open('database.db', 'w')
+    supplier_dict = db['Supplier']
+    supplier_dict.pop(id)
+    db['Supplier'] = supplier_dict
+    db.close()
+    return redirect(url_for('view_suppliers'))
 
 
 if __name__ == '__main__':

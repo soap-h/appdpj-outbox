@@ -83,3 +83,13 @@ class VoucherForm(Form):
 
 class CreateSearchForm(Form):
     search = SearchField('Search here by first name', [validators.Length(min=1, max=150), validators.DataRequired()])
+
+class CreateSupplierForm(Form):
+    company_name = StringField('Company name:', [validators.Length(min=1, max=150), validators.DataRequired()])
+    company_email = EmailField('Company email:', [validators.Length(min=1, max=150), validators.DataRequired()])
+    company_phone = StringField('Company phone:', [validators.Length(min=1, max=150), validators.DataRequired()])
+    company_address = StringField('Company address:', [validators.Length(min=1, max=150), validators.DataRequired()])
+    password = PasswordField('Enter password',
+                             [validators.DataRequired(), validators.Length(min=8, message='Too Short')])
+    confirm = PasswordField('Confirm password:', [validators.DataRequired(),
+                                                  validators.EqualTo('password', 'password does not match')])

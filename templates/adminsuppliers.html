@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %} ZES&#179; Register supplier {% endblock %}
+{% block content %}
+{% from "includes/formhelper.html" import render_field %}
+<a href="{{ url_for('admin') }}" class="btn btn-secondary mb-2" style="margin-top: 10px;"><i style="margin-right:5px;" class="bi bi-arrow-left"></i>Back</a>
+<h1 class="display-4">Register as supplier</h1>
+{% with messages = get_flashed_messages() %}
+    {% if messages %}
+        <ul style="list-style: none; padding: 0; margin: 0;">
+            {% for message in messages %}
+                <li style="color: red;">{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+{% endwith %}
+<form method="POST" action="" class="memberform">
+    <div class="form-group">
+        {{ render_field(form.company_name, class="form-control") }}
+    </div>
+    <div class="form-group">
+        {{ render_field(form.company_email, class="form-control") }}
+    </div>
+    <div class="form-group">
+        {{ render_field(form.company_phone, class="form-control") }}
+    </div>
+    <div class="form-group">
+        {{ render_field(form.company_address, class="form-control") }}
+    </div>
+    <div class="form-group">
+        {{ render_field(form.password, class="form-check", style="list-style-type:none") }}
+    </div>
+    <div class="form-group">
+        {{ render_field(form.confirm, class="form-check", style="list-style-type:none") }}
+    </div>
+    <input type="submit" value="Submit" class="btn btn-primary "/>
+
+</form>
+{% endblock %}

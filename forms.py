@@ -4,14 +4,14 @@ from wtforms.fields import EmailField, DateField, SearchField
 
 # CAN YOU FUCKING WORK PLEASE I FUCKING HATE YOU PLEASE PLEASE PLEASE PLEASE PLEASE PLEASE PLEASE
 class CreateLoginForm(Form):
-    email = EmailField('Email:', [validators.Length(min=1, max=150), validators.DataRequired()])
+    email = EmailField('Email:', [validators.Email(), validators.Length(min=1, max=150), validators.DataRequired()])
     password = PasswordField('Password:', [validators.Length(min=1, max=150), validators.DataRequired()])
 
 
 class CreateMemberForm(Form):
     first_name = StringField('First Name', [validators.Length(min=1, max=150), validators.DataRequired()])
     last_name = StringField('Last Name', [validators.Length(min=1, max=150), validators.DataRequired()])
-    email = StringField('email', [validators.Length(min=1, max=150), validators.DataRequired()])
+    email = EmailField('email', [validators.Email(), validators.Length(min=1, max=150), validators.DataRequired()])
     phone = StringField('Phone Number', [validators.DataRequired()])
     password = PasswordField('Enter password', [validators.DataRequired(), validators.Length(min=8, message='Too Short')])
     confirm = PasswordField('Confirm password:', [validators.DataRequired(),
@@ -57,7 +57,7 @@ class CreateCardForm(Form):
 class CreateAdminForm(Form):
     first_name = StringField('First Name', [validators.Length(min=1, max=150), validators.DataRequired()])
     last_name = StringField('Last Name', [validators.Length(min=1, max=150), validators.DataRequired()])
-    email = StringField('email', [validators.Length(min=1, max=150), validators.DataRequired()])
+    email = EmailField('email', [validators.Email(), validators.Length(min=1, max=150), validators.DataRequired()])
     password = PasswordField('Enter password',
                              [validators.DataRequired(), validators.Length(min=8, message='Too Short')])
     confirm = PasswordField('Confirm password:', [validators.DataRequired(),
@@ -79,7 +79,8 @@ class CreateVoucherForm(Form):
 
 class VoucherForm(Form):
     voucher_id = StringField('Voucher Code', [validators.Length(min=1, max=10), validators.DataRequired()])
-    email = StringField('Recipient Email', [validators.Email(), validators.DataRequired()])
+    email = EmailField('Recipient Email', [validators.Email(), validators.DataRequired()])
+
 
 class CreateSearchForm(Form):
     search = SearchField('Search here by first name', [validators.Length(min=1, max=150), validators.DataRequired()])

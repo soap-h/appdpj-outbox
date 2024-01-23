@@ -20,6 +20,13 @@
         <button type="submit" class="btn btn-primary">Filter by Category</button>
     </div>
 </form>
+<style>
+    .card:hover {
+        box-shadow: 3px 4px 8px rgba(0, 0, 0, 0.3);
+        transition: box-shadow 0.2s ease-in-out;
+    }
+</style>
+
 <div class="row">
     {% for product in outbox_products %}
     <div class="col-md-4 mb-4">
@@ -32,7 +39,6 @@
                 <p class="card-text">Category: {{ product.get_category() }}</p>
                 <p class="card-text">Remarks: {{ product.get_remarks() }}</p>
                 <p class="card-text">Drinks: {{ product.get_drinks() }}</p>
-
 
                 <a href="{{ url_for('add_to_outbox', product_id=product.get_product_id()) }}" class="btn btn-primary">Add
                     to Cart</a>

@@ -132,6 +132,10 @@ def logout():
     session.pop('member_id', None)
     if 'admin' in session:
         session.pop('admin', None)
+    session['cart'] = []
+    db = shelve.open('database.db', 'c')
+    db['Outbox'] = {}
+    db.close()
     return redirect(url_for('homepage'))
 
 
@@ -287,10 +291,12 @@ def checkout():
                 total_price, discount
             )
 
-            if len(order_dict) == 0:
-                my_key = 1
+            existing_ids = set(order_dict.keys())
+            missing_ids = set(range(1, max(existing_ids) + 2)) - existing_ids
+            if missing_ids:
+                my_key = min(missing_ids)
             else:
-                my_key = len(order_dict.keys()) + 1
+                my_key = len(order_dict) + 1
 
             order_hist.set_order_id(my_key)
             order_dict[my_key] = order_hist
@@ -301,7 +307,7 @@ def checkout():
 
             # FOR FAKE ORDERHIST DATES
             from datetime import datetime
-            date_str = '2024-06-11'
+            date_str = '2024-05-11'
             date = datetime.strptime(date_str, '%Y-%m-%d').date()
 
             order_hist = Orderhistory.OrderHistory(
@@ -309,10 +315,12 @@ def checkout():
                 total_price, "None"
             )
 
-            if len(order_dict) == 0:
-                my_key = 1
+            existing_ids = set(order_dict.keys())
+            missing_ids = set(range(1, max(existing_ids) + 2)) - existing_ids
+            if missing_ids:
+                my_key = min(missing_ids)
             else:
-                my_key = len(order_dict.keys()) + 1
+                my_key = len(order_dict) + 1
 
             order_hist.set_order_id(my_key)
             order_dict[my_key] = order_hist
@@ -389,20 +397,33 @@ def addadmin():
             admin_dict = db['Admin']
         except:
             print("Error in retrieving admins from database.db")
-
-        admin = Admin.Admin(create_admin_form.first_name.data, create_admin_form.last_name.data,
-                            create_admin_form.email.data, create_admin_form.password.data)
-
-        if len(admin_dict) == 0:
-            my_key = 1
+        email_list = []
+        admin_email_list = []
+        member_list = db['Members']
+        admin_list = db['Admin']
+        existing_ids = set(admin_list.keys())
+        missing_ids = set(range(1, max(existing_ids) + 2)) - existing_ids
+        if missing_ids:
+            my_key = min(missing_ids)
         else:
-            my_key = len(admin_dict.keys()) + 1
+            my_key = len(admin_dict) + 1
 
-        admin.set_member_id(my_key)
-        admin_dict[my_key] = admin
-        db['Admin'] = admin_dict
-        db.close()
-        return redirect(url_for('admin'))
+        for i in member_list:
+            email_list.append(member_list[i].get_email())
+        for i in admin_list:
+            admin_email_list.append(admin_list[i].get_email())
+        if create_admin_form.email.data in email_list:
+            flash('email already exists. Please choose a different one.', 'error')
+        elif create_admin_form.email.data in admin_email_list:
+            flash('email already exists. Please choose a different one.', 'error')
+        else:
+            admin = Admin.Admin(create_admin_form.first_name.data, create_admin_form.last_name.data,
+                                create_admin_form.email.data, create_admin_form.password.data)
+            admin.set_member_id(my_key)
+            admin_dict[my_key] = admin
+            db['Admin'] = admin_dict
+            db.close()
+            return redirect(url_for('admin'))
 
     return render_template('registeradmin.html', form=create_admin_form)
 
@@ -475,19 +496,29 @@ def create_member():
             print("Error in retrieving members from database.db")
 
         email_list = []
+        admin_email_list = []
         member_list = db['Members']
+        admin_list = db['Admin']
+
+        existing_ids = set(member_list.keys())
+        missing_ids = set(range(1, max(existing_ids) + 2)) - existing_ids
+        if missing_ids:
+            my_key = min(missing_ids)
+        else:
+            my_key = len(members_dict) + 1
+
         for i in member_list:
             email_list.append(member_list[i].get_email())
+        for i in admin_list:
+            admin_email_list.append(admin_list[i].get_email())
         if create_member_form.email.data in email_list:
+            flash('email already exists. Please choose a different one.', 'error')
+        elif create_member_form.email.data in admin_email_list:
             flash('email already exists. Please choose a different one.', 'error')
         else:
             member = Member.Member(create_member_form.first_name.data, create_member_form.last_name.data,
                                    create_member_form.email.data, create_member_form.phone.data,
                                    create_member_form.password.data)
-            if len(members_dict) == 0:
-                my_key = 1
-            else:
-                my_key = len(members_dict.keys()) + 1
             member.set_member_id(my_key)
             members_dict[my_key] = member
             db['Members'] = members_dict
@@ -595,13 +626,17 @@ def create_product():
                 inventory_dict = db['Inventory']
             except:
                 print("Error in retrieving products from database.db")
+
+            existing_ids = set(inventory_dict.keys())
+            missing_ids = set(range(1, max(existing_ids) + 2)) - existing_ids
+            if missing_ids:
+                my_key = min(missing_ids)
+            else:
+                my_key = len(inventory_dict) + 1
+
             product = Product.Product(create_product_form.name.data, create_product_form.price.data,
                                       create_product_form.category.data, create_product_form.remarks.data,
                                       create_product_form.drinks.data, filename)
-            if len(inventory_dict) == 0:
-                my_key = 1
-            else:
-                my_key = len(inventory_dict.keys()) + 1
             product.set_product_id(my_key)
             inventory_dict[my_key] = product
             db['Inventory'] = inventory_dict
@@ -866,6 +901,16 @@ def delete_voucher(id):
 @app.route('/givevoucher', methods=['GET', 'POST'])
 def givevoucher():
     voucher_form = VoucherForm(request.form)
+    db = shelve.open('database.db', 'r')
+    member_dict = db['Members']
+    voucher_dict = db['Vouchers']
+    member_list = []
+    voucher_list = []
+    for i in member_dict:
+        member_list.append(member_dict[i])
+    for i in voucher_dict:
+        voucher_list.append(voucher_dict[i])
+
     if request.method == "POST" and voucher_form.validate():
         db = shelve.open('database.db', 'w')
         member_dict = db['Members']
@@ -890,7 +935,7 @@ def givevoucher():
                     break
             db['Members'] = member_dict
         db.close()
-    return render_template("givevoucher.html", form=voucher_form)
+    return render_template("givevoucher.html", form=voucher_form, member_list=member_list, voucher_list=voucher_list)
 
 
 @app.route('/download_excel/<db_name>')

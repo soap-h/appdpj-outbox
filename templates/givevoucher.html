@@ -1,6 +1,7 @@
 {% extends "adminbase.html" %}
 {% block title %} ZES³ admin page{% endblock %}
 {% block content %}
+<a href="{{ url_for('admin') }}" class="btn btn-secondary mb-2" style="margin-top: 10px;"><i style="margin-right:5px;" class="bi bi-arrow-left"></i>Back</a>
 {% with messages = get_flashed_messages() %}
         {% if messages %}
             <div class="alert alert-info text-center" role="alert">
@@ -8,8 +9,9 @@
             </div>
         {% endif %}
     {% endwith %}
-    <h2>Give Voucher</h2>
-    <form method="post" action="">
+
+    <form method="post" action="" class="memberform">
+        <h2>Give Voucher</h2>
         <div class="form-group">
             {{ form.voucher_id.label }}
             {{ form.voucher_id(class="form-control") }}
@@ -20,4 +22,50 @@
         </div>
         <button type="submit" class="btn btn-primary">Give Voucher</button>
     </form>
+    <div class="row row justify-content-center" style="margin-top: 70px;">
+    <div class="col-md-5">
+        <table class="table table-bordered table-striped table-sm">
+            <h3>Member list</h3>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>First Name</th>
+                    <th>Last Name</th>
+                    <th>Email</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for member in member_list %}
+                <tr>
+                    <td>{{ member.get_member_id() }}.</td>
+                    <td>{{ member.get_first_name() }}</td>
+                    <td>{{ member.get_last_name() }}</td>
+                    <td>{{ member.get_email() }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="col-md-5">
+        <table class="table table-bordered table-striped table-sm">
+            <h3>Voucher List</h3>
+            <thead>
+                <tr>
+                    <th>Voucher ID</th>
+                    <th>Name</th>
+                    <th>Discount (%)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for voucher in voucher_list %}
+                <tr>
+                    <td>{{ voucher.get_voucher_id() }}</td>
+                    <td>{{ voucher.get_name()[:10] }}{% if voucher.get_name()|length > 10 %}...{% endif %}</td>
+                    <td>{{ voucher.get_discount() }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
 {% endblock %}

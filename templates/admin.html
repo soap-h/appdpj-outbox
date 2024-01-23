@@ -25,19 +25,40 @@
 <p>What would you like to do?</p>
 
 <div class="admin-buttons">
-    <a href="members/viewmembers" class="btn btn-primary btn-lg rounded-pill">View members</a>
-    <a href="/supplier/viewsuppliers" class="btn btn-primary btn-lg rounded-pill">View suppliers</a>
-    <a href="inventory/viewinventory" class="btn btn-primary btn-lg rounded-pill">View inventory</a>
-    <a href="/addproduct" class="btn btn-primary btn-lg rounded-pill">Add product</a>
-    <a href="/viewQuestion" class="btn btn-primary btn-lg rounded-pill">View Forum</a>
-    <a href="/orderhistory" class="btn btn-primary btn-lg rounded-pill">View orders</a>
-    <a href="/addadmin" class="btn btn-primary btn-lg rounded-pill">Add Admin Member</a>
-    <a href="/viewadmins" class="btn btn-primary btn-lg rounded-pill">View Admin Members</a>
-    <a href="/createvoucher" class="btn btn-primary btn-lg rounded-pill">Create Voucher</a>
-    <a href="/viewvouchers" class="btn btn-primary btn-lg rounded-pill">View vouchers</a>
-    <a href="/givevoucher" class="btn btn-primary btn-lg rounded-pill">Give vouchers</a>
-    <a href="/performancereport" class="btn btn-primary btn-lg rounded-pill">Generate Performance Report</a>
-    <a href="#" class="btn btn-primary btn-lg rounded-pill">Generate Feedback Report</a>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="button-group">
+                <h3 style="text-align:center;">Members</h3>
+                <a href="members/viewmembers" class="btn btn-primary btn-lg rounded-pill d-block mb-2">View Members</a>
+                <a href="/addadmin" class="btn btn-primary btn-lg rounded-pill d-block mb-2">Add Admin Member</a>
+                <a href="/viewadmins" class="btn btn-primary btn-lg rounded-pill d-block mb-2">View Admin Members</a>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="button-group">
+                <h3 style="text-align:center;">Outbox</h3>
+                <a href="/addproduct" class="btn btn-success btn-lg rounded-pill d-block mb-2">Add Product</a>
+                <a href="inventory/viewinventory" class="btn btn-success btn-lg rounded-pill d-block mb-2">View Inventory</a>
+                <a href="/viewQuestion" class="btn btn-success btn-lg rounded-pill d-block mb-2">View Forum</a>
+                <a href="/orderhistory" class="btn btn-success btn-lg rounded-pill d-block mb-2">View Orders</a>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="button-group">
+                <h3 style="text-align:center;">Vouchers</h3>
+                <a href="/givevoucher" class="btn btn-warning btn-lg rounded-pill d-block mb-2">Give Vouchers</a>
+                <a href="/viewvouchers" class="btn btn-warning btn-lg rounded-pill d-block mb-2">View Vouchers</a>
+                <a href="/createvoucher" class="btn btn-warning btn-lg rounded-pill d-block mb-2">Create Voucher</a>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="button-group">
+                <h3 style="text-align:center;">Report</h3>
+                <a href="/performancereport" class="btn btn-danger btn-lg rounded-pill d-block mb-2">Generate Performance Report</a>
+                <a href="#" class="btn btn-danger btn-lg rounded-pill d-block mb-2">Generate Feedback Report</a>
+            </div>
+        </div>
+    </div>
 </div>
 
 {% endblock %}

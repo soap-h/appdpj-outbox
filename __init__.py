@@ -1030,15 +1030,15 @@ def feedback_report():
     # # add month columns into df
     # df['Question_Date Posted_Month'] = df['Question_Date Posted'].dt.month
 
-    # positive_reviews = (df['Question_Overall rating'] == "😁").sum()
-    # total_reviews = len(df['Question_Overall rating'])
-    # positive_percentage = positive_reviews / total_reviews
+    positive_reviews = (df['Question_Overall rating'] == "E").sum()
+    total_reviews = df['Question_Overall rating'].isin(["E", "N", "B"]).sum()
+    positive_percentage = positive_reviews / total_reviews
 
     # liquid chart for % of positive reviews
     overall_positive = (
         Liquid()
-        # .add("Positive Reviews", [positive_percentage, 0.60, 0.15, 0.05])
-        .add("Positive Reviews", [0.68, 0.60, 0.15, 0.05])
+        .add("Positive Reviews", [positive_percentage, positive_reviews, 0.15, 0.05])
+        # .add("Positive Reviews", [0.68, 0.60, 0.15, 0.05])
         .set_global_opts(title_opts=opts.TitleOpts(title="% of Positive Reviews"))
     )
 

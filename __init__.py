@@ -275,7 +275,7 @@ def checkout():
 
             # FOR FAKE ORDERHIST DATES
             from datetime import datetime
-            date_str = '2024-06-11'
+            date_str = '2024-02-11'
             date = datetime.strptime(date_str, '%Y-%m-%d').date()
 
             # Check if a voucher has been applied
@@ -318,7 +318,7 @@ def checkout():
 
             # FOR FAKE ORDERHIST DATES
             from datetime import datetime
-            date_str = '2024-05-11'
+            date_str = '2024-02-11'
             date = datetime.strptime(date_str, '%Y-%m-%d').date()
 
             order_hist = Orderhistory.OrderHistory(
@@ -955,6 +955,9 @@ def givevoucher():
                     flash(f'coupon successfully given to {voucher_form.email.data}')
                     break
             db['Members'] = member_dict
+        voucher_list = []
+        for i in voucher_dict:
+            voucher_list.append(voucher_dict[i])
         db.close()
     return render_template("givevoucher.html", form=voucher_form, member_list=member_list, voucher_list=voucher_list)
 

@@ -21,7 +21,7 @@ from openpyxl.utils.dataframe import dataframe_to_rows
 from openpyxl.drawing.image import Image as XLImage
 from ReportGeneration import *
 from pyecharts import options as opts
-from pyecharts.charts import Bar, Calendar, Tab
+from pyecharts.charts import Bar, Calendar, Pie, Liquid, Page, Tab
 from markupsafe import Markup
 
 from forms import CreateMemberForm, CreateProductForm, CreateQuestionForm, CreateLoginForm, CreateCardForm, \
@@ -84,7 +84,6 @@ def login():
         flash("Invalid email or password. Please try again", "error")
 
     return render_template('login.html', form=create_login_form)
-
 
 
 @app.route("/profile")
@@ -246,7 +245,6 @@ def checkout():
         order_dict = db['OrderHist']
         applied_voucher = None
 
-
         if 'name' in session:
             id = session['member_id']
             memberdb = db['Members']
@@ -302,7 +300,7 @@ def checkout():
             date = datetime.strptime(date_str, '%Y-%m-%d').date()
 
             order_hist = Orderhistory.OrderHistory(
-                "Guest", "Null", product, date,     "Null",
+                "Guest", "Null", product, date, "Null",
                 total_price, "None"
             )
             existing_ids = set(order_dict.keys())
@@ -534,6 +532,7 @@ def registrationconfirmation():
 def members():
     return render_template('adminmembers.html')
 
+
 @app.route('/members/viewmembers', methods=['GET', 'POST'])
 def view_members():
     create_search_form = CreateSearchForm(request.form)
@@ -546,7 +545,8 @@ def view_members():
             member_dict = db['Members']
 
             # Find matching members with case-insensitive comparison
-            matching_members = [member for member_id, member in member_dict.items() if member.get_first_name().lower() == search]
+            matching_members = [member for member_id, member in member_dict.items() if
+                                member.get_first_name().lower() == search]
 
             if matching_members:
                 flash("Member(s) found", "success")
@@ -559,7 +559,8 @@ def view_members():
             member_dict = db['Members']
             member_list = list(member_dict.values())  # Fetch all members for initial display
 
-    return render_template('adminviewmembers.html', count=len(member_list), member_list=member_list, form=create_search_form)
+    return render_template('adminviewmembers.html', count=len(member_list), member_list=member_list,
+                           form=create_search_form)
 
 
 @app.route('/updatemember/<int:id>/', methods=['GET', 'POST'])
@@ -662,6 +663,7 @@ def view_inventory():
         inventory_list.append(product)
     return render_template('adminviewinventory.html', count=len(inventory_list), inventory_list=inventory_list)
 
+
 @app.route('/updateproduct/<int:id>/', methods=['GET', 'POST'])
 def update_product(id):
     update_product_form = CreateProductForm(request.form)
@@ -705,7 +707,6 @@ def update_product(id):
         update_product_form.remarks.data = product.get_remarks()
         update_product_form.drinks.data = product.get_drinks()
         return render_template('adminupdateproduct.html', form=update_product_form)
-
 
 
 @app.route('/deleteproduct/<int:id>', methods=['POST'])
@@ -1001,11 +1002,32 @@ def beanbox():
 def feedback_report():
     df = combine_databases()
 
-    # convert 'Question_Date Posted' to DateTime format
-    df['Question_Date Posted'] = pd.to_datetime(df['Question_Date Posted'])
+    # # convert 'Question_Date Posted' to DateTime format
+    # df['Question_Date Posted'] = pd.to_datetime(df['Question_Date Posted'])
+    #
+    # # add month columns into df
+    # df['Question_Date Posted_Month'] = df['Question_Date Posted'].dt.month
 
-    # add month columns into df
-    df['Question_Date Posted_Month'] = df['Question_Date Posted'].dt.month
+    # positive_reviews = (df['Question_Overall rating'] == "😁").sum()
+    # total_reviews = len(df['Question_Overall rating'])
+    # positive_percentage = positive_reviews / total_reviews
+
+    # liquid chart for % of positive reviews
+    overall_positive = (
+        Liquid()
+        # .add("Positive Reviews", [positive_percentage, 0.60, 0.15, 0.05])
+        .add("Positive Reviews", [0.68, 0.60, 0.15, 0.05])
+        .set_global_opts(title_opts=opts.TitleOpts(title="% of Positive Reviews"))
+    )
+
+    # create a Tab and add the chart for the percentage of positive reviews
+    tab = Tab(page_title='Feedback Overview')
+    tab.add(overall_positive, 'Percentage of Positive Reviews')
+
+    # render the tab directly in the HTML template
+    chart_html = Markup(tab.render_embed())
+
+    return render_template('feedbackreport.html', chart_html=chart_html)
 
 
 @app.route('/performancereport')
@@ -1037,7 +1059,7 @@ def performance_report():
 
     bar_chart_by_month.render_notebook()
 
-    # Create a Tab and add the chart for monthly overview
+    # create a Tab and add the chart for monthly overview
     tab = Tab(page_title='Sales Overview')
     tab.add(bar_chart_by_month, 'Sales and Profit by Month')
 
@@ -1062,10 +1084,10 @@ def performance_report():
 
     bar_chart_by_category.render_notebook()
 
-    # Create a Tab and add the chart for product category overview
+    # create a Tab and add the chart for product category overview
     tab.add(bar_chart_by_category, 'Sales and Profit by Product Category')
 
-    # Render the tab directly in the HTML template
+    # render the tab directly in the HTML template
     chart_html = Markup(tab.render_embed())
 
     return render_template('performancereport.html', chart_html=chart_html)

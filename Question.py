@@ -1,7 +1,7 @@
 class Question:
     count_id = 0
 
-    def __init__(self, email, title, question, date_posted, overall, feedback):
+    def __init__(self, email, title, question, date_posted, overall, feedback,reply):
         Question.count_id += 1  # Increment the class-level count_id
         self.__email = email
         self.__title = title
@@ -12,6 +12,7 @@ class Question:
         #######################
         self.__overall = overall
         self.__feedback = feedback
+        self.__reply = reply
         #######################
 
     def as_dict(self):
@@ -41,6 +42,9 @@ class Question:
     def get_feedback(self):
         return self.__feedback
 
+     def get_reply(self):
+        return self.__reply
+
     #######################
 
     def set_question_id(self, question_id):
@@ -61,6 +65,9 @@ class Question:
 
     def set_feedback(self, feedback):
         self.__feedback = feedback
+
+    def set_reply(self, reply):
+    self.__reply = reply
     #######################
 
     def __str__(self):

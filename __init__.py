@@ -26,7 +26,7 @@ from pyecharts.charts import Bar, Calendar, Pie, Liquid, Page, Tab
 from markupsafe import Markup
 
 from forms import CreateMemberForm, CreateProductForm, CreateQuestionForm, CreateLoginForm, CreateCardForm, \
-    CreateAdminForm, CreateVoucherForm, VoucherForm, CreateSearchForm, CreateSupplierForm
+    CreateAdminForm, CreateVoucherForm, VoucherForm, CreateSearchForm, CreateSupplierForm, CreateReplyForm
 
 app = Flask(__name__)
 UPLOAD_FOLDER = 'static/uploads/'
@@ -795,36 +795,37 @@ def cretrieve_questions():
 
 @app.route('/updateQuestion/<int:id>/', methods=['GET', 'POST'])
 def update_question(id):
-    update_question_form = CreateQuestionForm(request.form)
+    update_question_form = CreateReplyForm(request.form)
+
     if request.method == 'POST' and update_question_form.validate():
         print("updating question")
-        db = shelve.open('database.db', 'w')
+        db = shelve.open('question.db', 'w')
         questions_dict = db['Question']
         question = questions_dict.get(id)
-        question.set_email(update_question_form.email.data)
-        question.set_title(update_question_form.title.data)
-        question.set_question(update_question_form.question.data)
-
-        question.set_overall(update_question_form.overall.data)
-        question.set_feedback(update_question_form.feedback.data)
+        question.set_reply(update_question_form.reply.data)
         db['Question'] = questions_dict
         db.close()
         return redirect(url_for('retrieve_questions'))
 
     else:
-        questions_dict = {}
-        db = shelve.open('database.db', 'r')
+        db = shelve.open('question.db', 'r')
         questions_dict = db['Question']
         db.close()
         question = questions_dict.get(id)
-        update_question_form.email.data = question.get_email()
+        id = question.get_question_id()
+        email = question.get_email()
+        title = question.get_title()
+        question_text = question.get_question()
+        overall = question.get_overall()
+        feedback = question.get_feedback()
 
-        update_question_form.title.data = question.get_title()
-        update_question_form.question.data = question.get_question()
-        update_question_form.overall.data = question.get_overall()
-        update_question_form.feedback.data = question.get_feedback()
+        rdate = datetime.date.today()
+        reply = question.get_reply()
 
-        return render_template('updateQuestion.html', form=update_question_form)
+        update_question_form.reply.data = reply
+        date = question.get_date_posted()
+        return render_template('updateQuestion.html', form=update_question_form, date=date, rdate=rdate, id=id,email=email, title=title,
+                               question=question_text, overall=overall, feedback=feedback)
 
 
 @app.route('/deleteQuestion/<int:id>', methods=['POST'])

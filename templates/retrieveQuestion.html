@@ -51,7 +51,7 @@
     <td>{{  question.get_feedback() }}</td>
 
 
-    <td><a href="/updateQuestion/{{question.get_question_id()}}" class="btn btn-warning">Update</a>
+    <td><a href="/updateQuestion/{{question.get_question_id()}}" class="btn btn-warning">Reply</a>
     </td>
       <td>
    <form action="{{url_for('delete_questions', id=question.get_question_id())}}" method="POST">
@@ -95,10 +95,20 @@
 
     </form>
     </td>
-</tr>
-{% endfor %}
-</tbody>
-</table>
-  <a href="{{url_for('excel_converter', db_name='Question')}}" class="btn btn-primary btn-lg rounded-pill">Download as Excel file</a>
+
+  </tr>
+                                   {% if question.get_reply() != "" %}
+                                <tr>
+                                    <td colspan="9"><strong>Reply from Admin:</strong> {{ question.get_reply() }}  </td>
+                                </tr>
+                            {% endif %}
+
+                        </form>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </div>
 {% endblock %}
+

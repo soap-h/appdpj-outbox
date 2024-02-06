@@ -756,7 +756,7 @@ def create_question():
                             create_question_form.question.data,
                             date,
                             create_question_form.overall.data,
-                            create_question_form.feedback.data)
+                            create_question_form.feedback.data, reply="")
         add_question(question)
         return redirect(url_for('feedbackformconfirmation'))
     return render_template('createQuestion.html', form=create_question_form)
@@ -799,7 +799,7 @@ def update_question(id):
 
     if request.method == 'POST' and update_question_form.validate():
         print("updating question")
-        db = shelve.open('question.db', 'w')
+        db = shelve.open('database.db', 'w')
         questions_dict = db['Question']
         question = questions_dict.get(id)
         question.set_reply(update_question_form.reply.data)
@@ -808,7 +808,7 @@ def update_question(id):
         return redirect(url_for('retrieve_questions'))
 
     else:
-        db = shelve.open('question.db', 'r')
+        db = shelve.open('database.db', 'r')
         questions_dict = db['Question']
         db.close()
         question = questions_dict.get(id)

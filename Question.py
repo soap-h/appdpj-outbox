@@ -42,7 +42,7 @@ class Question:
     def get_feedback(self):
         return self.__feedback
 
-     def get_reply(self):
+    def get_reply(self):
         return self.__reply
 
     #######################
@@ -67,7 +67,7 @@ class Question:
         self.__feedback = feedback
 
     def set_reply(self, reply):
-    self.__reply = reply
+        self.__reply = reply
     #######################
 
     def __str__(self):

@@ -42,6 +42,9 @@ class CreateQuestionForm(Form):  # inherit from Form
                          default='N')
     feedback = TextAreaField('Feedback (if any)', [validators.Optional()])
 
+class CreateReplyForm(Form):
+    reply = TextAreaField('Reply from Admin', [validators.Optional()])
+
 
 class CreateCardForm(Form):
     name = StringField('Customer Name', [validators.length(min=1, max=100), validators.DataRequired("message")])

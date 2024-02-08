@@ -572,7 +572,7 @@ def view_members():
             matching_last_name_members = [member for member_id, member in member_dict.items() if
                                            member.get_last_name().lower() == search]
             matching_age_members = [member for member_id, member in member_dict.items() if
-                                    member.get_age() == int(search)]
+                                    member.get_age() == search]
             matching_gender_members = [member for member_id, member in member_dict.items() if
                                            member.get_gender().lower() == search]
             matching_email_members = [member for member_id, member in member_dict.items() if

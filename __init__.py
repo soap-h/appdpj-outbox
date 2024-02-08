@@ -558,28 +558,24 @@ def members():
 @app.route('/members/viewmembers', methods=['GET', 'POST'])
 def view_members():
     create_search_form = CreateSearchForm(request.form)
-    member_list = []  # Initialize member_list to handle both GET and POST cases
+    member_list = []
 
     if request.method == 'POST' and create_search_form.validate():
-        search = create_search_form.search.data.lower()  # Convert search to lowercase
+        search = create_search_form.search.data.lower()
 
         with shelve.open('database.db', 'r') as db:
             member_dict = db['Members']
 
             try:
-                # Check if the search input represents an integer (for age or phone number)
                 search_int = int(search)
 
-                # Find members whose age or phone number matches the specified value
                 matching_age_members = [member for member_id, member in member_dict.items() if
                                         member.get_age() == search_int]
                 matching_phone_members = [member for member_id, member in member_dict.items() if
                                           member.get_phone() == search]
 
-                # Combine the lists of matching members
                 member_list = matching_age_members + matching_phone_members
             except ValueError:
-                # Find matching members with case-insensitive comparison
                 matching_first_name_members = [member for member_id, member in member_dict.items() if
                                                member.get_first_name().lower() == search]
                 matching_last_name_members = [member for member_id, member in member_dict.items() if
@@ -593,7 +589,6 @@ def view_members():
                 matching_passwords = [member for member_id, member in member_dict.items() if
                                       member.get_password().lower() == search]
 
-                # Assign the list of matching members based on priority
                 if matching_first_name_members:
                     member_list = matching_first_name_members
                 elif matching_last_name_members:
@@ -607,10 +602,10 @@ def view_members():
                 elif matching_passwords:
                     member_list = matching_passwords
 
-    else:  # GET request or invalid POST
+    else:
         with shelve.open('database.db', 'r') as db:
             member_dict = db['Members']
-            member_list = list(member_dict.values())  # Fetch all members for initial display
+            member_list = list(member_dict.values())
 
     return render_template('adminviewmembers.html', count=len(member_list), member_list=member_list,
                            form=create_search_form)

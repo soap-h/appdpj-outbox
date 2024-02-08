@@ -567,14 +567,42 @@ def view_members():
             member_dict = db['Members']
 
             # Find matching members with case-insensitive comparison
-            matching_members = [member for member_id, member in member_dict.items() if
+            matching_first_name_members = [member for member_id, member in member_dict.items() if
                                 member.get_first_name().lower() == search]
+            matching_last_name_members = [member for member_id, member in member_dict.items() if
+                                           member.get_last_name().lower() == search]
+            matching_age_members = [member for member_id, member in member_dict.items() if
+                                    member.get_age() == int(search)]
+            matching_gender_members = [member for member_id, member in member_dict.items() if
+                                           member.get_gender().lower() == search]
+            matching_email_members = [member for member_id, member in member_dict.items() if
+                                           member.get_email().lower() == search]
+            matching_phone_members = [member for member_id, member in member_dict.items() if
+                                           member.get_phone() == search]
+            matching_passwords = [member for member_id, member in member_dict.items() if
+                                      member.get_password().lower() == search]
 
-            if matching_members:
-                flash("Member(s) found", "success")
-                member_list = matching_members  # Assign matching members to the list
-            else:
-                flash("Member not found", "error")
+            if matching_first_name_members:
+                member_list = matching_first_name_members  # Assign matching members to the list
+
+            elif matching_last_name_members:
+                member_list = matching_last_name_members
+
+            elif matching_age_members:
+                member_list = matching_age_members
+
+            elif matching_gender_members:
+                member_list = matching_gender_members
+
+            elif matching_email_members:
+                member_list = matching_email_members
+
+            elif matching_phone_members:
+                member_list = matching_phone_members
+
+            elif matching_passwords:
+                member_list = matching_passwords
+
 
     else:  # GET request or invalid POST
         with shelve.open('database.db', 'r') as db:

@@ -94,7 +94,7 @@ class VoucherForm(Form):
 
 
 class CreateSearchForm(Form):
-    search = SearchField('Search here by first name', [validators.Length(min=1, max=150), validators.DataRequired()])
+    search = SearchField('Search here:', [validators.Length(min=1, max=150), validators.DataRequired()])
 
 class CreateSupplierForm(Form):
     company_name = StringField('Company name:', [validators.Length(min=1, max=150), validators.DataRequired()])

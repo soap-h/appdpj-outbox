@@ -34,7 +34,7 @@
     <td>{{ news.get_date_posted() }}</td>
     <td>{{ news.get_title() }}</td>
     <td>{{ news.get_description() }}</td>
-    <td><img src="{{ url_for('static', filename='news/' + news.get_file()) }}" alt="News" style="max-width: 100px; max-height: 100px;"></td>
+    <td><img src="{{ url_for('static', filename='uploads/' + news.get_file()) }}" alt="News" style="max-width: 100px; max-height: 100px;"></td>
     <td><a href="/updateNews/{{news.get_nid()}}" class="btn btn-warning">Update</a></td>
     <td>
       <form action="{{url_for('delete_news', id=news.get_nid())}}" method="POST">

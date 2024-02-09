@@ -14,7 +14,7 @@
     <div id="news">
         <h5><img src="static/photo/zes3logo.png" alt="" style="width: 40px; height: 36px;"> OutBox</h5>
         <h2>{{ news.get_title() }}</h2>
-        <img src="{{ url_for('static', filename='news/' + news.get_file()) }}" alt="News" style="max-width: 850px; max-height: 500px;">
+        <img src="{{ url_for('static', filename='uploads/' + news.get_file()) }}" alt="News" style="max-width: 850px; max-height: 500px;">
         <br>
         <h7>{{ news.get_description() }}</h7>
         <br>

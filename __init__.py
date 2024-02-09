@@ -1266,7 +1266,7 @@ def create_news():
 
         add_news(news)
         return redirect(url_for('homepage'))
-    return render_template('createNews.html', form=create_news_form)
+    return render_template('createNews.html', form=create_news_form, date=date)
 
 
 @app.route('/viewNews')

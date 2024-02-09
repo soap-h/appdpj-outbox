@@ -4,7 +4,7 @@
 import shelve
 
 from Question import Question
-
+from News import News
 
 def get_key(my_dict):  # Find latest key > key is the largest number
     # commonly used function to pass key from a dictionary

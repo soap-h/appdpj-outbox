@@ -38,11 +38,11 @@ def add_question(qn:Question):
 def add_news(n: News):
     news_dict = {}
 
-    db = shelve.open('question.db', 'c')
+    db = shelve.open('database.db', 'c')
     try:
         news_dict = db['News']
     except:
-        print("Error in retrieving questions from question.db.")
+        print("Error in retrieving questions from database.db.")
 
     k = get_key(news_dict)
     n.set_nid(k)

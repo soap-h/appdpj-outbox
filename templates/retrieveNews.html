@@ -1,10 +1,11 @@
 {% extends "base.html" %}
 {% block title %}OutBox Admin - News Posted{% endblock %}
 {% block content %}
+<a href="{{ url_for('admin') }}" class="btn btn-secondary mb-2" style="margin-top: 10px;"><i style="margin-right:5px;" class="bi bi-arrow-left"></i>Back</a>
 <br>
 <br>
 <h1 class="display-4">View News</h1>
-<a href="{{ url_for('admin') }}" class="btn btn-secondary mb-2" style="margin-top: 10px;"><i style="margin-right:5px;" class="bi bi-arrow-left"></i>Back</a>
+
 <div>
 {% if count == 0 %}
 <p>There are no news.</p>

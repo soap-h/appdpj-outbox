@@ -1265,7 +1265,7 @@ def create_news():
                     date, filename)
 
         add_news(news)
-        return redirect(url_for('home'))
+        return redirect(url_for('homepage'))
     return render_template('createNews.html', form=create_news_form)
 
 

@@ -810,37 +810,34 @@ def retrieve_questions():
 def filter_questions(value=None):
     global questions_list
     value = request.args.get('filter_type') or request.form.get('filter_type')
+
+    db = shelve.open('database.db', 'r')
+    questions_dict = db['Question']
+    db.close()
+
     if value == 'all':
-        db = shelve.open('database.db', 'r')
-        questions_dict = db['Question']
-        db.close()
         questions_list = [question for question in questions_dict.values()]
 
-    elif value == 'question':  # have question attribute
-        db = shelve.open('database.db', 'r')
-        questions_dict = db['Question']
-        db.close()
-        questions_list = [question for question in questions_dict.values() if question.get_question() != ""]
+    elif value == 'question':
+        questions_list = [question for question in questions_dict.values() if
+                          question.get_question() != "" and question.get_feedback() == ""]
 
-    elif value == "feedback":  # have feedback attribute
-        db = shelve.open('database.db', 'r')
-        questions_dict = db['Question']
-        db.close()
-        questions_list = [question for question in questions_dict.values() if question.get_feedback() != ""]
+    elif value == "feedback":
+        questions_list = [question for question in questions_dict.values() if
+                          question.get_feedback() != "" and question.get_question() == ""]
 
-    elif value == "reply":  # have reply attribute
-        db = shelve.open('database.db', 'r')
-        questions_dict = db['Question']
-        db.close()
+    elif value == "both":
+        questions_list = [question for question in questions_dict.values() if
+                          question.get_feedback() != "" and question.get_question() != ""]
+
+    elif value == "reply":
         questions_list = [question for question in questions_dict.values() if question.get_reply() != ""]
 
-    elif value == "no_reply":  # have reply attribute
-        db = shelve.open('database.db', 'r')
-        questions_dict = db['Question']
-        db.close()
+    elif value == "no_reply":
         questions_list = [question for question in questions_dict.values() if question.get_reply() == ""]
 
     return render_template('retrieveQuestion.html', count=len(questions_list), questions_list=questions_list)
+
     
 @app.route('/cviewQuestion')
 def cretrieve_questions():

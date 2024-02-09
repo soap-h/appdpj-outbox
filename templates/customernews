@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}OutBox - Lastest News{% endblock %}
+{% block content %}
+<link rel="stylesheet" href="static/style.css">
+<br>
+<br>
+<h1 class="display-4">View News</h1>
+<p>Get the Latest Update of OutBox</p>
+<br>
+<br>
+<br>
+
+  {% for news in news_list %}
+    <div id="news">
+        <h5><img src="static/photo/zes3logo.png" alt="" style="width: 40px; height: 36px;"> OutBox</h5>
+        <h2>{{ news.get_title() }}</h2>
+        <img src="{{ url_for('static', filename='news/' + news.get_file()) }}" alt="News" style="max-width: 850px; max-height: 500px;">
+        <br>
+        <h7>{{ news.get_description() }}</h7>
+        <br>
+        <a href="/"><img src="static/photo/comment.png" alt="" style="width: 30px; height: 30px;"></a>
+        <br>
+        {% for c in comment_list %}
+        <table>
+            <tr><td>{{ c }}</td></tr>
+        </table>
+        {% endfor %}
+        <br>
+        <br>
+        <br>
+        <br>
+    </div>
+    {% endfor %}
+
+
+</div>
+{% endblock %}

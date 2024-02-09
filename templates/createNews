@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}OutBox Admin - New News {% endblock %}
+
+{% block content %}
+{% from "includes/formHelper.html" import render_field %}
+
+<br>
+<br>
+
+<h1 class="display-4">Post News</h1>
+<form method="POST" action="" enctype="multipart/form-data">
+  <div class="form-group">
+    {{ render_field(form.title, class="form-control", placeholder="Title of News") }}
+  </div>
+  <br>
+
+
+    <div class="form-group">
+      <input type="file" name="file" class="form-control" autocomplete="off" required>
+      {% with messages = get_flashed_messages() %}
+        {% if messages %}
+          <ul>
+            {% for message in messages %}
+              <li>{{ message }}</li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+      {% endwith %}
+    </div>
+
+
+  <br>
+  <div class="form-group">
+    {{ render_field(form.description, class="form-control", placeholder="Add a Description") }}
+  </div>
+  <br>
+  <input type="submit" value="Submit" class="btn btn-primary"/>
+</form>
+{% endblock %}

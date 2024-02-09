@@ -35,15 +35,20 @@ class CreateProductForm(Form):
 
 class CreateQuestionForm(Form):  # inherit from Form
     title = StringField('Title', [validators.Length(min=1, max=150), validators.DataRequired()], )
-    email = EmailField('Email', [validators.Email(), validators.Optional()])
+    email = EmailField('Email', [validators.Email(), validators.DataRequired()])
     date_posted = DateField('Date Posted', format='%Y-%m-%d')
-    question = TextAreaField('Question(s) (if any)', [validators.DataRequired()])
+    question = TextAreaField('Question(s) (if any)', [validators.Optional()])
     overall = RadioField('Overall Experience', choices=[('B', 'Bad 😡'), ('N', 'Neutral 😐'), ('E', 'Excellent 😁')],
                          default='N')
     feedback = TextAreaField('Feedback (if any)', [validators.Optional()])
 
 class CreateReplyForm(Form):
     reply = TextAreaField('Reply from Admin', [validators.Optional()])
+
+
+class CreateNewsForm(Form):
+    title = StringField('Title',[validators.Length(min=1, max=150), validators.DataRequired()])
+    description = TextAreaField('Description of News', [validators.DataRequired()])
 
 
 class CreateCardForm(Form):

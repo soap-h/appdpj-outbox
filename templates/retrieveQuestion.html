@@ -14,6 +14,26 @@
 <p>There are {{ count }} questions/feedback.</p>
 {% endif %}
 </div>
+
+<form method="post" action="{{ url_for('filter_questions') }}" class="row g-3">
+    <div class="col-auto">
+        <label for="filter_type" class="visually-hidden">Filter by:</label>
+        <select id="filter_type" name="filter_type" class="form-select">
+            <option value="all">All</option>
+            <option value="question">Questions</option>
+            <option value="feedback">Feedback</option>
+            <option value="reply">Has Been Replied</option>
+            <option value="no_reply">No Reply</option>
+        </select>
+    </div>
+    <div class="col-auto">
+        <input type="submit" value="Apply Filter" class="btn btn-primary"/>
+    </div>
+</form>
+
+
+
+
 <div>
 <table class="table table-striped">
   <thead>

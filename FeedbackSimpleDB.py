@@ -17,6 +17,7 @@ def get_key(my_dict):  # Find latest key > key is the largest number
     return my_key
 
 
+
 def add_question(qn:Question):
     question_dict = {}
 
@@ -32,6 +33,22 @@ def add_question(qn:Question):
     question_dict[k] = qn
     db['Question'] = question_dict  # update database
 
+    db.close()
+
+def add_news(n: News):
+    news_dict = {}
+
+    db = shelve.open('question.db', 'c')
+    try:
+        news_dict = db['News']
+    except:
+        print("Error in retrieving questions from question.db.")
+
+    k = get_key(news_dict)
+    n.set_nid(k)
+    print(n)
+    news_dict[k] = n
+    db['News'] = news_dict  # update database
     db.close()
 
 

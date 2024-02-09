@@ -8,11 +8,12 @@ import Voucher
 import Supplier
 import FeedbackSimpleDB
 
+from News import News
 from flask import Flask, render_template, request, redirect, url_for, flash, session, send_file, jsonify
 import os
 import datetime
 from werkzeug.utils import secure_filename
-from FeedbackSimpleDB import add_question
+from FeedbackSimpleDB import add_question, add_news
 from Question import Question
 
 import pandas as pd
@@ -26,7 +27,7 @@ from pyecharts.charts import Bar, Calendar, Pie, Liquid, Page, Tab
 from markupsafe import Markup
 
 from forms import CreateMemberForm, CreateProductForm, CreateQuestionForm, CreateLoginForm, CreateCardForm, \
-    CreateAdminForm, CreateVoucherForm, VoucherForm, CreateSearchForm, CreateSupplierForm, CreateReplyForm
+    CreateAdminForm, CreateVoucherForm, VoucherForm, CreateSearchForm, CreateSupplierForm, CreateReplyForm, CreateNewsForm
 
 app = Flask(__name__)
 UPLOAD_FOLDER = 'static/uploads/'
@@ -1236,6 +1237,121 @@ def delete_supplier(id):
     db['Supplier'] = supplier_dict
     db.close()
     return redirect(url_for('view_suppliers'))
+
+
+@app.route('/createNews', methods=['GET', 'POST'])
+def create_news():
+    date = datetime.date.today().strftime('%d-%m-%Y')
+    create_news_form = CreateNewsForm(request.form)
+
+    if request.method == 'POST' and create_news_form.validate():
+        if 'file' not in request.files:
+            flash("No file part")
+            return redirect(request.url)
+        file = request.files["file"]
+        if file.filename == "":
+            flash("No image selected for uploading")
+            return redirect(request.url)
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            flash('Image successfully uploaded')
+        else:
+            flash('Allowed image types are png, jpg, jpeg, gif')
+            return redirect(request.url)
+
+        news = News(create_news_form.title.data,
+                    create_news_form.description.data,
+                    date, filename)
+
+        add_news(news)
+        return redirect(url_for('home'))
+    return render_template('createNews.html', form=create_news_form)
+
+
+@app.route('/viewNews')
+def retrieve_news():
+    news_dict = {}
+    db = shelve.open('database.db', 'r')
+    news_dict = db['News']
+    db.close()
+    news_list = []
+
+    for key in news_dict:
+        news = news_dict.get(key)
+        news_list.append(news)
+
+    return render_template('retrieveNews.html', count=len(news_list), news_list=news_list)
+
+
+@app.route('/cviewNews')
+def cretrieve_news():
+    news_dict = {}
+    db = shelve.open('database.db', 'r')
+    news_dict = db['News']
+    db.close()
+    news_list = []
+
+
+    for key in news_dict:
+        news = news_dict.get(key)
+        news_list.append(news)
+    return render_template('customernews.html', count=len(news_list), news_list=news_list)
+
+
+@app.route('/updateNews/<int:id>/', methods=['GET', 'POST'])
+def update_news(id):
+    update_news_form = CreateNewsForm(request.form)
+
+    if request.method == 'POST' and update_news_form.validate():
+        print("updating news")
+        db = shelve.open('database.db', 'w')
+        news_dict = db['News']
+
+        news = news_dict.get(id)
+        news.set_title(update_news_form.title.data)
+        news.set_description(update_news_form.description.data)
+
+        if 'file' in request.files:
+            file = request.files['file']
+
+            if file.filename != '':
+                if allowed_file(file.filename):
+                    old_filename = news.get_file()
+                    old_filepath = os.path.join(app.config['UPLOAD_FOLDER'], old_filename)
+                    if os.path.exists(old_filepath):
+                        os.remove(old_filepath)
+
+                    filename = secure_filename(file.filename)
+                    file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+                    news.set_file(filename)
+
+        db['News'] = news_dict
+        db.close()
+        return redirect(url_for('retrieve_news'))
+
+    else:
+        db = shelve.open('database.db', 'r')
+        news_dict = db['News']
+        db.close()
+        news = news_dict.get(id)
+        update_news_form.title.data = news.get_title()
+        update_news_form.description.data = news.get_description()
+        return render_template('updateNews.html', form=update_news_form)
+
+
+@app.route('/deleteNews/<int:id>', methods=['POST'])
+def delete_news(id):
+    db = shelve.open('database.db', 'w')
+    news_dict = db['News'].copy()
+
+    if id in news_dict:
+        news_dict.pop(id)
+
+    db['News'] = news_dict
+    db.close()
+    return redirect(url_for('retrieve_news'))
+
 
 if __name__ == '__main__':
     app.run(debug=True)

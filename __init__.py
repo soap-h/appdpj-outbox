@@ -807,8 +807,7 @@ def retrieve_questions():
     return render_template('retrieveQuestion.html', count=len(questions_list), questions_list=questions_list)
 
 @app.route('/filter_questions', methods=['GET', 'POST'])
-def filter_questions(value=None):
-    global questions_list
+def filter_questions():
     value = request.args.get('filter_type') or request.form.get('filter_type')
 
     db = shelve.open('database.db', 'r')
@@ -816,7 +815,7 @@ def filter_questions(value=None):
     db.close()
 
     if value == 'all':
-        questions_list = [question for question in questions_dict.values()]
+        questions_list = list(questions_dict.values())
 
     elif value == 'question':
         questions_list = [question for question in questions_dict.values() if

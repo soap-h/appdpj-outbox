@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}OutBox Admin - News Posted{% endblock %}
+{% block content %}
+<br>
+<br>
+<h1 class="display-4">View News</h1>
+<div>
+{% if count == 0 %}
+<p>There are no news.</p>
+{% elif count == 1 %}
+<p>There is 1 news</p>
+{% else %}
+<p>There are {{ count }} news.</p>
+{% endif %}
+</div>
+<div>
+<table class="table table-striped">
+  <thead>
+  <tr>
+    <th>News ID</th>
+    <th>Date Posted</th>
+    <th>Title</th>
+    <th>Description</th>
+    <th>Image</th>
+    <th></th>
+    <th></th>
+    </tr>
+  </thead>
+<tbody>
+  {% for news in news_list %}
+  <tr>
+    <td>{{ news.get_nid() }}</td>
+    <td>{{ news.get_date_posted() }}</td>
+    <td>{{ news.get_title() }}</td>
+    <td>{{ news.get_description() }}</td>
+    <td><img src="{{ url_for('static', filename='news/' + news.get_file()) }}" alt="News" style="max-width: 100px; max-height: 100px;"></td>
+    <td><a href="/updateNews/{{news.get_nid()}}" class="btn btn-warning">Update</a></td>
+    <td>
+      <form action="{{url_for('delete_news', id=news.get_nid())}}" method="POST">
+        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#myModal_{{news.get_nid()}}">
+          Delete
+        </button>
+        <!-- The Modal -->
+        <div class="modal" id="myModal_{{news.get_nid()}}">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <!-- Modal Header -->
+              <div class="modal-header">
+                <h4 class="modal-title">Delete Confirmation</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+              </div>
+              <!-- Modal body -->
+              <div class="modal-body">
+                Are you sure you want to delete News ID:{{news.get_nid()}} ?
+              </div>
+              <!-- Modal footer -->
+              <div class="modal-footer">
+                <input type="submit" value="Delete" class="btn btn-danger">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </form>
+    </td>
+  </tr>
+  {% endfor %}
+</tbody>
+</table>
+</div>
+{% endblock %}

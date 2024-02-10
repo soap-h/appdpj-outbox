@@ -45,10 +45,7 @@ def allowed_file(filename):
 @app.route('/')
 def homepage():
     # db = shelve.open('database.db', 'c')
-    # member_dict = db['Members']
-    # for i in member_dict:
-    #     member_dict[i].del_vouchers()
-    # db['Members'] = member_dict
+    # db['Question'] = {}
     # db.close()
     return render_template('homepage.html')
 
@@ -399,7 +396,16 @@ def delete_order(id):
 def admin():
     if 'admin' in session:
         name = session['name']
-        return render_template('admin.html', name=name)
+        db = shelve.open('database.db', 'r')
+        membercount = len(db['Members'])
+        admincount = len(db['Admin'])
+        suppliercount = len(db['Supplier'])
+        inventorycount = len(db['Inventory'])
+        ordercount = len(db['OrderHist'])
+        foremcount = len(db['Question'])
+        newscount = len(db['News'])
+        vouchercount = len(db['Vouchers'])
+        return render_template('admin.html', name=name, membercount=membercount, admincount=admincount, suppliercount=suppliercount, inventorycount=inventorycount, ordercount=ordercount, foremcount=foremcount, newscount=newscount, vouchercount=vouchercount)
     else:
         flash("UNAUTHORISED ACCESS. LOG IN TO ACCESS", category='error')
         return redirect(url_for('login'))

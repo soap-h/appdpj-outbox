@@ -8,7 +8,11 @@
         </div>
     {% endif %}
 {% endwith %}
-<h1 class="display-4">Outbox</h1>
+<br>
+<div style="background-image: url(../../static/photos/Outbox_Background.jpg); background-size: cover; height: 70%;">
+      <h2 class="Title">Outbox</h2>
+      <p class="Sub">Outbox, a thrift store, offers a curated selection of pre-loved items ranging from clothing to household goods, providing sustainable shopping options at affordable prices</p>
+</div>
 <form method="post" action="{{ url_for('filter_outbox') }}" class="mb-3">
     <div class="input-group" style="width: 30%;margin-left:auto;">
         <select name="category" class="form-select" aria-label="Select Category">

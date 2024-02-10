@@ -333,3 +333,142 @@
 #Details {
 padding-top: 4em;
 }
+
+/* admin page I WANT TO DIE */
+
+.adminnav {
+    cursor: pointer;
+    color: white;
+}
+
+.adminnav:hover {
+    color: rgb(218, 218, 218);
+}
+
+.nav-pills .nav-link.active {
+    background-color: rgb(42, 42, 42) !important;
+    border-radius: 0%;
+}
+
+.tab-content {
+    background-color: #f8f9fa;
+    padding: 20px;
+    min-height: 200px;
+}
+
+.btn-custom {
+    width: 100%;
+    padding: 100px 0px;
+    margin-bottom: 10px;
+    font-size: 20px;
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 10px;
+    position: relative;
+    border-radius: 0%;
+    color: #000000;
+}
+
+.btn-custom:hover {
+    color: #000000;
+}
+
+.btn-custom-number {
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    color: #000000;
+    padding: 5px 10px;
+    font-size: xxx-large;
+}
+
+.btn-custom-image {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    width: 80px;
+    height: 80px;
+    opacity: 50%;
+}
+
+.btn-custom-text {
+    margin-top: 70px;
+    text-align: left;
+    font-size: medium;
+}
+
+.btn-custom-info {
+    margin-top: auto;
+    font-size: small;
+    text-align: center;
+    margin-top: 30px;
+}
+
+.nav.flex-column {
+    background-color: #343a40;
+    height: 100vh;
+}
+.nav-pills {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    color: white;
+}
+
+.nav-pills img{
+    width: 20px;
+    height: 20px;
+    color: white;
+}
+
+.btn-members {
+    background-color: rgb(113, 202, 232);
+    border-color: rgb(113, 202, 232);
+}
+
+.btn-members:hover {
+    background-color: rgb(56, 184, 226);
+    border-color: rgb(56, 184, 226);
+}
+
+.btn-outbox {
+    background-color: lightgreen;
+    border-color: lightgreen;
+}
+
+.btn-outbox:hover {
+    background-color: rgb(96, 249, 96);
+    border-color: rgb(96, 249, 96);
+}
+
+.btn-community {
+    background-color: rgb(255, 255, 150);
+    border-color: rgb(255, 255, 150);
+}
+
+.btn-community:hover {
+    background-color: rgb(255, 255, 107);
+    border-color: rgb(255, 255, 107);
+}
+
+.btn-vouchers {
+    background-color: rgb(254, 154, 254);
+    border-color: rgb(254, 154, 254);
+}
+
+.btn-vouchers:hover {
+    background-color: rgb(255, 100, 255);
+    border-color: rgb(255, 100, 255);
+}
+
+.btn-report {
+    background-color: rgb(249, 162, 162);
+    border-color: rgb(249, 162, 162);
+}
+
+.btn-report:hover {
+    background-color: rgb(255, 118, 118);
+    border-color: rgb(255, 118, 118);
+}

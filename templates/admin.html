@@ -1,19 +1,6 @@
 {% extends "adminbase.html" %}
 {% block title %} ZES&#179; admin page{% endblock %}
 {% block content %}
-<style>
-    .admin-buttons {
-        justify-content: space-around;
-        margin-top: 20px;
-    }
-
-    .admin-buttons a {
-        display: inline-block;
-        margin: 10px 0 10px 10px;
-        text-decoration: none;
-    }
-</style>
-
 {% with messages = get_flashed_messages() %}
         {% if messages %}
             <div class="alert alert-info text-center" role="alert">
@@ -21,47 +8,393 @@
             </div>
         {% endif %}
     {% endwith %}
-<h1>Welcome {{ name }}! This is the admin page.</h1>
-<p>What would you like to do?</p>
 
-<div class="admin-buttons">
-    <div class="row">
-        <div class="col-md-4">
-            <div class="button-group">
-                <h3 style="text-align:center;">Members</h3>
-                <a href="/members/viewmembers" class="btn btn-primary btn-lg rounded-pill d-block mb-2">View Members</a>
-                 <a href="/supplier/viewsuppliers" class="btn btn-primary btn-lg rounded-pill d-block mb-2">View Suppliers</a>
-                <a href="/addadmin" class="btn btn-primary btn-lg rounded-pill d-block mb-2">Add Admin Member</a>
-                <a href="/viewadmins" class="btn btn-primary btn-lg rounded-pill d-block mb-2">View Admin Members</a>
+<div class="container-fluid h-100">
+  <div class="row h-100">
+    <div class="col-md-3 p-0">
+        <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+          <a class="nav-link active adminnav" id="v-pills-member-tab" data-toggle="pill" href="#members" role="tab" aria-controls="v-pills-members" aria-selected="true">
+            <img src="{{ url_for('static', filename='photos/user.png') }}" alt="Image 1" class="mr-2">
+            Members
+        </a>
+          <a class="nav-link adminnav" id="v-pills-outbox-tab" data-toggle="pill" href="#outbox" role="tab" aria-controls="v-pills-outbox" aria-selected="false">
+            <img src="{{ url_for('static', filename='photos/shopping-bag.png') }}" alt="Image 1" class="mr-2">
+            Outbox
+        </a>
+          <a class="nav-link adminnav" id="v-pills-community-tab" data-toggle="pill" href="#community" role="tab" aria-controls="v-pills-community" aria-selected="false">
+            <img src="{{ url_for('static', filename='photos/group-chat.png') }}" alt="Image 1" class="mr-2">
+            Community
+        </a>
+          <a class="nav-link adminnav" id="v-pills-vouchers-tab" data-toggle="pill" href="#vouchers" role="tab" aria-controls="v-pills-vouchers" aria-selected="false">
+            <img src="{{ url_for('static', filename='photos/coupon.png') }}" alt="Image 1" class="mr-2">
+            Vouchers
+        </a>
+          <a class="nav-link adminnav" id="v-pills-report-tab" data-toggle="pill" href="#report" role="tab" aria-controls="v-pills-report" aria-selected="false">
+            <img src="{{ url_for('static', filename='photos/report.png') }}" alt="Image 1" class="mr-2">
+            Report
+        </a>
+        </div>
+    </div>
+    <div class="col-md-9">
+      <div class="tab-content" id="v-pills-tabContent">
+        <div class="tab-pane fade show active" id="members" role="tabpanel" aria-labelledby="v-pills-member-tab">
+          <h3>Members</h3>
+          <div class="row">
+            <div class="col-md-4">
+                <div class="button-row">
+                    <a href="/members/viewmembers" class="btn btn-primary btn-custom btn-members">
+                        <span class="btn-custom-number">{{ membercount }}</span>
+                        <img src="{{ url_for('static', filename='photos/user-512.png') }}" alt="Button Image" class="btn-custom-image">
+                        <span class="btn-custom-text">Registered Members</span>
+                        <span class="btn-custom-info">Click here for more information</span>
+                    </a>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="button-row">
+                    <a href="/supplier/viewsuppliers" class="btn btn-primary btn-custom btn-members">
+                        <span class="btn-custom-number">{{ suppliercount }}</span>
+                        <img src="{{ url_for('static', filename='photos/factory-512.png') }}" alt="Button Image" class="btn-custom-image">
+                        <span class="btn-custom-text">Registered Suppliers</span>
+                        <span class="btn-custom-info">Click here for more information</span>
+                    </a>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="button-row">
+                    <a href="/viewadmins"  class="btn btn-primary btn-custom btn-members">
+                        <span class="btn-custom-number">{{ admincount }}</span>
+                        <img src="{{ url_for('static', filename='photos/administrator-2-512.png') }}" alt="Button Image" class="btn-custom-image">
+                        <span class="btn-custom-text">Admin Members</span>
+                        <span class="btn-custom-info">Click here for more information</span>
+                    </a>
+                </div>
             </div>
         </div>
-        <div class="col-md-4">
-            <div class="button-group">
-                <h3 style="text-align:center;">Outbox</h3>
-                <a href="/addproduct" class="btn btn-success btn-lg rounded-pill d-block mb-2">Add Product</a>
-                <a href="inventory/viewinventory" class="btn btn-success btn-lg rounded-pill d-block mb-2">View Inventory</a>
-                <a href="/viewQuestion" class="btn btn-success btn-lg rounded-pill d-block mb-2">View Forum</a>
-                <a href="/createNews" class="btn btn-success btn-lg rounded-pill d-block mb-2">Create News</a>
-                <a href="/viewNews" class="btn btn-success btn-lg rounded-pill d-block mb-2">Retrieve News</a>
-                <a href="/orderhistory" class="btn btn-success btn-lg rounded-pill d-block mb-2">View Orders</a>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="button-group">
-                <h3 style="text-align:center;">Vouchers</h3>
-                <a href="/givevoucher" class="btn btn-warning btn-lg rounded-pill d-block mb-2">Give Vouchers</a>
-                <a href="/viewvouchers" class="btn btn-warning btn-lg rounded-pill d-block mb-2">View Vouchers</a>
-                <a href="/createvoucher" class="btn btn-warning btn-lg rounded-pill d-block mb-2">Create Voucher</a>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="button-group">
-                <h3 style="text-align:center;">Report</h3>
-                <a href="/performancereport" class="btn btn-danger btn-lg rounded-pill d-block mb-2">Generate Performance Report</a>
-                <a href="/feedbackreport" class="btn btn-danger btn-lg rounded-pill d-block mb-2">Generate Feedback Report</a>
+        <div class="row">
+            <div class="col-md-4">
+                <div class="button-row">
+                    <a href="/addadmin" class="btn btn-primary btn-custom btn-members">
+                        <img src="{{ url_for('static', filename='photos/addadministrator-512.png') }}" alt="Button Image" class="btn-custom-image">
+                        <span class="btn-custom-text">Register Admin</span>
+                        <span class="btn-custom-info">Click here to add admin</span>
+                    </a>
+                </div>
             </div>
         </div>
     </div>
+    <div class="tab-pane fade" id="outbox" role="tabpanel" aria-labelledby="v-pills-outbox-tab">
+        <h3>Outbox</h3>
+        <div class="row">
+          <div class="col-md-4">
+              <div class="button-row">
+                  <a href="inventory/viewinventory" class="btn btn-primary btn-custom btn-outbox">
+                      <span class="btn-custom-number">{{ inventorycount }}</span>
+                      <img src="{{ url_for('static', filename='photos/box-2-512.png') }}" alt="Button Image" class="btn-custom-image">
+                      <span class="btn-custom-text">Inventory Items</span>
+                      <span class="btn-custom-info">Click here for more information</span>
+                  </a>
+              </div>
+          </div>
+          <div class="col-md-4">
+              <div class="button-row">
+                  <a href="/orderhistory" class="btn btn-primary btn-custom btn-outbox">
+                      <span class="btn-custom-number">{{ ordercount }}</span>
+                      <img src="{{ url_for('static', filename='photos/clipboard-8-512.png') }}" alt="Button Image" class="btn-custom-image">
+                      <span class="btn-custom-text">Orders Made</span>
+                      <span class="btn-custom-info">Click here for more information</span>
+                  </a>
+              </div>
+          </div>
+          <div class="col-md-4">
+              <div class="button-row">
+                  <a href="/addproduct" class="btn btn-primary btn-custom btn-outbox">
+                      <img src="{{ url_for('static', filename='photos/addbox-512.png') }}" alt="Button Image" class="btn-custom-image">
+                      <span class="btn-custom-text">Add product</span>
+                      <span class="btn-custom-info">Click here to add product</span>
+                  </a>
+              </div>
+          </div>
+      </div>
+  </div>
+  <div class="tab-pane fade" id="community" role="tabpanel" aria-labelledby="v-pills-community-tab">
+    <h3>Community</h3>
+    <div class="row">
+      <div class="col-md-4">
+          <div class="button-row">
+              <a href="/viewQuestion" class="btn btn-primary btn-custom btn-community">
+                  <span class="btn-custom-number">{{ foremcount }}</span>
+                  <img src="{{ url_for('static', filename='photos/clipboard-8-512.png') }}" alt="Button Image" class="btn-custom-image">
+                  <span class="btn-custom-text">Forems Made</span>
+                  <span class="btn-custom-info">Click here for more information</span>
+              </a>
+          </div>
+      </div>
+      <div class="col-md-4">
+          <div class="button-row">
+              <a href="/viewNews" class="btn btn-primary btn-custom btn-community">
+                  <span class="btn-custom-number">{{ newscount }}</span>
+                  <img src="{{ url_for('static', filename='photos/google-news-512.png') }}" alt="Button Image" class="btn-custom-image">
+                  <span class="btn-custom-text">News Made</span>
+                  <span class="btn-custom-info">Click here for more information</span>
+              </a>
+          </div>
+      </div>
+      <div class="col-md-4">
+          <div class="button-row">
+              <a href="/createNews" class="btn btn-primary btn-custom btn-community">
+                  <img src="{{ url_for('static', filename='photos/addnews-512.png') }}" alt="Button Image" class="btn-custom-image">
+                  <span class="btn-custom-text">Post News</span>
+                  <span class="btn-custom-info">Click here to post a news</span>
+              </a>
+          </div>
+      </div>
+  </div>
 </div>
+<div class="tab-pane fade" id="vouchers" role="tabpanel" aria-labelledby="v-pills-vouchers-tab">
+    <h3>Vouchers</h3>
+    <div class="row">
+      <div class="col-md-4">
+          <div class="button-row">
+              <a href="/viewvouchers" class="btn btn-primary btn-custom btn-vouchers">
+                  <span class="btn-custom-number">{{ vouchercount }}</span>
+                  <img src="{{ url_for('static', filename='photos/sale-2-512.png') }}" alt="Button Image" class="btn-custom-image">
+                  <span class="btn-custom-text">Vouchers</span>
+                  <span class="btn-custom-info">Click here for more information</span>
+              </a>
+          </div>
+      </div>
+      <div class="col-md-4">
+          <div class="button-row">
+              <a href="/givevoucher" class="btn btn-primary btn-custom btn-vouchers">
+                  <img src="{{ url_for('static', filename='photos/givevoucher.png') }}" alt="Button Image" class="btn-custom-image">
+                  <span class="btn-custom-text">Give Voucher</span>
+                  <span class="btn-custom-info">Click here to a voucher</span>
+              </a>
+          </div>
+      </div>
+      <div class="col-md-4">
+          <div class="button-row">
+              <a href="/createvoucher" class="btn btn-primary btn-custom btn-vouchers">
+                  <img src="{{ url_for('static', filename='photos/addvoucher.png') }}" alt="Button Image" class="btn-custom-image">
+                  <span class="btn-custom-text">Create Voucher</span>
+                  <span class="btn-custom-info">Click here to create a voucher</span>
+              </a>
+          </div>
+      </div>
+  </div>
+</div>
+<div class="tab-pane fade" id="report" role="tabpanel" aria-labelledby="v-pills-report-tab">
+    <h3>Report Generation</h3>
+    <div class="row">
+      <div class="col-md-4">
+          <div class="button-row">
+              <a href="/performancereport" class="btn btn-primary btn-custom btn-report">
+                  <img src="{{ url_for('static', filename='photos/report-2-512.png') }}" alt="Button Image" class="btn-custom-image">
+                  <span class="btn-custom-text">Generate <br> Performance report</span>
+                  <span class="btn-custom-info">Click here to view report</span>
+              </a>
+          </div>
+      </div>
+      <div class="col-md-4">
+          <div class="button-row">
+              <a href="/feedbackreport" class="btn btn-primary btn-custom btn-report">
+                  <img src="{{ url_for('static', filename='photos/report-512.png') }}" alt="Button Image" class="btn-custom-image">
+                  <span class="btn-custom-text">Generate <br> Feedback report</span>
+                  <span class="btn-custom-info">Click here to view report</span>
+              </a>
+          </div>
+      </div>
+  </div>
+</div>
+    </div>
+  </div>
+</div>
+    </div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<style>
+    /* admin page I WANT TO DIE */
+
+.adminnav {
+    cursor: pointer;
+    color: white;
+}
+
+.adminnav:hover {
+    color: rgb(218, 218, 218);
+}
+
+.nav-pills .nav-link.active {
+    background-color: rgb(42, 42, 42) !important;
+    border-radius: 0%;
+}
+
+.tab-content {
+    background-color: #f8f9fa;
+    padding: 20px;
+    min-height: 200px;
+}
+
+.btn-custom {
+    width: 100%;
+    padding: 100px 0px;
+    margin-bottom: 10px;
+    font-size: 20px;
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 10px;
+    position: relative;
+    border-radius: 0%;
+    color: #000000;
+}
+
+.btn-custom:hover {
+    color: #000000;
+}
+
+.btn-custom-number {
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    color: #000000;
+    padding: 5px 10px;
+    font-size: xxx-large;
+}
+
+.btn-custom-image {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    width: 80px;
+    height: 80px;
+    opacity: 50%;
+}
+
+.btn-custom-text {
+    margin-top: 70px;
+    text-align: left;
+    font-size: medium;
+}
+
+.btn-custom-info {
+    margin-top: auto;
+    font-size: small;
+    text-align: center;
+    margin-top: 30px;
+}
+
+.nav.flex-column {
+    background-color: #343a40;
+    height: 100vh;
+}
+.nav-pills {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    color: white;
+}
+
+.nav-pills img{
+    width: 20px;
+    height: 20px;
+    color: white;
+}
+
+.btn-members {
+    background-color: rgb(113, 202, 232);
+    border-color: rgb(113, 202, 232);
+}
+
+.btn-members:hover {
+    background-color: rgb(56, 184, 226);
+    border-color: rgb(56, 184, 226);
+}
+
+.btn-outbox {
+    background-color: lightgreen;
+    border-color: lightgreen;
+}
+
+.btn-outbox:hover {
+    background-color: rgb(96, 249, 96);
+    border-color: rgb(96, 249, 96);
+}
+
+.btn-community {
+    background-color: rgb(255, 255, 150);
+    border-color: rgb(255, 255, 150);
+}
+
+.btn-community:hover {
+    background-color: rgb(255, 255, 107);
+    border-color: rgb(255, 255, 107);
+}
+
+.btn-vouchers {
+    background-color: rgb(254, 154, 254);
+    border-color: rgb(254, 154, 254);
+}
+
+.btn-vouchers:hover {
+    background-color: rgb(255, 100, 255);
+    border-color: rgb(255, 100, 255);
+}
+
+.btn-report {
+    background-color: rgb(249, 162, 162);
+    border-color: rgb(249, 162, 162);
+}
+
+.btn-report:hover {
+    background-color: rgb(255, 118, 118);
+    border-color: rgb(255, 118, 118);
+}
+
+</style>
+<!--<div class="admin-buttons">-->
+<!--    <div class="row">-->
+<!--        <div class="col-md-4">-->
+<!--            <div class="button-group">-->
+<!--                <h3 style="text-align:center;">Members</h3>-->
+<!--                <a href="/members/viewmembers" class="btn btn-primary btn-lg rounded-pill d-block mb-2">View Members</a>-->
+<!--                 <a href="/supplier/viewsuppliers" class="btn btn-primary btn-lg rounded-pill d-block mb-2">View Suppliers</a>-->
+<!--                <a href="/addadmin" class="btn btn-primary btn-lg rounded-pill d-block mb-2">Add Admin Member</a>-->
+<!--                <a href="/viewadmins" class="btn btn-primary btn-lg rounded-pill d-block mb-2">View Admin Members</a>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--        <div class="col-md-4">-->
+<!--            <div class="button-group">-->
+<!--                <h3 style="text-align:center;">Outbox</h3>-->
+<!--                <a href="/addproduct" class="btn btn-success btn-lg rounded-pill d-block mb-2">Add Product</a>-->
+<!--                <a href="inventory/viewinventory" class="btn btn-success btn-lg rounded-pill d-block mb-2">View Inventory</a>-->
+<!--                <a href="/viewQuestion" class="btn btn-success btn-lg rounded-pill d-block mb-2">View Forum</a>-->
+<!--                <a href="/createNews" class="btn btn-success btn-lg rounded-pill d-block mb-2">Create News</a>-->
+<!--                <a href="/viewNews" class="btn btn-success btn-lg rounded-pill d-block mb-2">Admin Retrieve News</a>-->
+<!--                <a href="/orderhistory" class="btn btn-success btn-lg rounded-pill d-block mb-2">View Orders</a>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--        <div class="col-md-4">-->
+<!--            <div class="button-group">-->
+<!--                <h3 style="text-align:center;">Vouchers</h3>-->
+<!--                <a href="/givevoucher" class="btn btn-warning btn-lg rounded-pill d-block mb-2">Give Vouchers</a>-->
+<!--                <a href="/viewvouchers" class="btn btn-warning btn-lg rounded-pill d-block mb-2">View Vouchers</a>-->
+<!--                <a href="/createvoucher" class="btn btn-warning btn-lg rounded-pill d-block mb-2">Create Voucher</a>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--        <div class="col-md-4">-->
+<!--            <div class="button-group">-->
+<!--                <h3 style="text-align:center;">Report</h3>-->
+<!--                <a href="/performancereport" class="btn btn-danger btn-lg rounded-pill d-block mb-2">Generate Performance Report</a>-->
+<!--                <a href="/feedbackreport" class="btn btn-danger btn-lg rounded-pill d-block mb-2">Generate Feedback Report</a>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--    </div>-->
+<!--</div>-->
 
 {% endblock %}

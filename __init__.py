@@ -110,7 +110,7 @@ def profile():
             db = shelve.open('database.db', 'r')
             supplier = session['supplier']
             supplier_dict = db['Supplier']
-            id = session["supplier_id"]
+            id = session["member_id"]
             supplier_info = supplier_dict[id]
         else:
             supplier = None

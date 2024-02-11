@@ -105,25 +105,27 @@ def profile():
             admin = session['admin']
         else:
             admin = None
+
         if 'supplier' in session:
             db = shelve.open('database.db', 'r')
             supplier = session['supplier']
             supplier_dict = db['Supplier']
+            id = session["supplier_id"]
             supplier_info = supplier_dict[id]
         else:
             supplier = None
+
         member_dict = {}
         db = shelve.open('database.db', 'r')
         member_dict = db['Members']
         user_info = member_dict[id]
 
         order_hist = db['OrderHist']
-
-
         member_orderhist = []
         for order_id in order_hist:
             if order_hist[order_id].get_name() == name:
                 member_orderhist.append(order_hist[order_id])
+
         voucher_dict = db['Vouchers']
         voucher_list = []
         voucher_id = member_dict[id].get_vouchers()
@@ -358,7 +360,6 @@ def checkout():
     return render_template('checkout.html',
                            cart_items=checkout_dict.values(), total_price=total_price, form=create_card_form,
                            vouchers=vouchers, name=name)
-
 
 @app.route('/set_voucher_session/<voucher_id>', methods=['POST'])
 def set_voucher_session(voucher_id):
@@ -705,19 +706,43 @@ def inventory():
     return render_template('admininventory.html')
 
 
-@app.route('/inventory/viewinventory')
+@app.route('/inventory/viewinventory', methods=['GET', 'POST'])
 def view_inventory():
-    inventory_dict = {}
-    db = shelve.open('database.db', 'r')
-    inventory_dict = db['Inventory']
-    db.close()
-
+    create_search_form = CreateSearchForm(request.form)
     inventory_list = []
-    for key in inventory_dict:
-        product = inventory_dict.get(key)
-        inventory_list.append(product)
-    return render_template('adminviewinventory.html', count=len(inventory_list), inventory_list=inventory_list)
 
+    if request.method == 'POST' and create_search_form.validate():
+        search = create_search_form.search.data.lower()
+
+        with shelve.open('database.db', 'r') as db:
+            inventory_dict = db['Inventory']
+
+            try:
+                search_int = int(search)
+
+                matching_price_product = [product for product_id, product in inventory_dict.items() if
+                                            str(product.get_price()) == search]  # Compare as string
+
+                inventory_list = matching_price_product
+            except ValueError:
+                matching_name_product = [product for product_id, product in inventory_dict.items() if
+                                           product.get_name().lower() == search]
+                matching_category_product = [product for product_id, product in inventory_dict.items() if
+                                         product.get_category().lower() == search]
+                matching_remarks_product = [product for product_id, product in inventory_dict.items() if
+                                         product.get_remarks().lower() == search]
+                matching_drinks_product = [product for product_id, product in inventory_dict.items() if
+                                         product.get_drinks().lower() == search]
+
+                inventory_list = matching_name_product + matching_category_product + matching_remarks_product + matching_drinks_product
+
+    else:
+        with shelve.open('database.db', 'r') as db:
+            inventory_dict = db['Inventory']
+            inventory_list = list(inventory_dict.values())
+
+    return render_template('adminviewinventory.html', count=len(inventory_list), inventory_list=inventory_list,
+                           form=create_search_form)
 
 @app.route('/updateproduct/<int:id>/', methods=['GET', 'POST'])
 def update_product(id):
@@ -1223,18 +1248,45 @@ def create_supplier():
                 db.close()
             return redirect(url_for('registrationconfirmation'))
     return render_template('adminsuppliers.html', form=create_supplier_form)
-@app.route('/supplier/viewsuppliers')
+@app.route('/supplier/viewsuppliers', methods=['GET', 'POST'])
 def view_suppliers():
-    supplier_dict = {}
-    db = shelve.open('database.db', 'r')
-    supplier_dict = db['Supplier']
-    db.close()
-
+    create_search_form = CreateSearchForm(request.form)
     supplier_list = []
-    for key in supplier_dict:
-        supplier = supplier_dict.get(key)
-        supplier_list.append(supplier)
-    return render_template('adminviewsuppliers.html', count=len(supplier_list), supplier_list=supplier_list)
+
+    if request.method == 'POST' and create_search_form.validate():
+        search = create_search_form.search.data.lower()
+
+        with shelve.open('database.db', 'r') as db:
+            supplier_dict = db['Supplier']
+
+            try:
+                search_int = int(search)  # Try converting search input to integer
+
+                matching_phone_suppliers = [supplier for supplier_id, supplier in supplier_dict.items() if
+                                            str(supplier.get_company_phone()) == search]  # Compare as string
+
+                supplier_list = matching_phone_suppliers
+            except ValueError:
+                # Handle non-integer search inputs as string searches
+                matching_name_suppliers = [supplier for supplier_id, supplier in supplier_dict.items() if
+                                           supplier.get_company_name().lower() == search]
+                matching_email_suppliers = [supplier for supplier_id, supplier in supplier_dict.items() if
+                                            supplier.get_company_email().lower() == search]
+                matching_address_suppliers = [supplier for supplier_id, supplier in supplier_dict.items() if
+                                              supplier.get_company_address().lower() == search]
+                matching_passwords = [supplier for supplier_id, supplier in supplier_dict.items() if
+                                      supplier.get_password().lower() == search]
+
+                # Combine all matches
+                supplier_list = matching_name_suppliers + matching_email_suppliers + matching_address_suppliers + matching_passwords
+
+    else:
+        with shelve.open('database.db', 'r') as db:
+            supplier_dict = db['Supplier']
+            supplier_list = list(supplier_dict.values())
+
+    return render_template('adminviewsuppliers.html', count=len(supplier_list), supplier_list=supplier_list,
+                           form=create_search_form)
 
 @app.route('/updatesupplier/<int:id>/', methods=['GET', 'POST'])
 def update_supplier(id):

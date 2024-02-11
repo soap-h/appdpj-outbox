@@ -12,7 +12,7 @@
 
   {% for news in news_list %}
     <div id="news">
-        <h5><img src="static/photos/zes3logo.png" alt="" style="width: 40px; height: 36px;"> OutBox</h5>
+       <h5><img src="static/photos/zes3logo.png" alt="" style="width: 40px; height: 36px;"> OutBox <span>{{ news.get_date_posted() }}</span></h5>
         <h2>{{ news.get_title() }}</h2>
         <img src="{{ url_for('static', filename='uploads/' + news.get_file()) }}" alt="News" style="max-width: 850px; max-height: 500px;">
         <br>

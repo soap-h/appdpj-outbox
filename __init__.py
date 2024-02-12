@@ -28,6 +28,7 @@ from ReportGeneration import *
 from pyecharts import options as opts
 from pyecharts.charts import Bar, Calendar, Pie, Liquid, Page, Tab
 from markupsafe import Markup
+from collections import Counter
 
 from forms import (CreateMemberForm, CreateProductForm, CreateQuestionForm, CreateLoginForm, CreateCardForm,
                    CreateAdminForm, CreateVoucherForm, VoucherForm, CreateSearchForm, CreateCommentForm,
@@ -954,14 +955,27 @@ def filter_questions():
 @app.route('/cviewQuestion')
 def cretrieve_questions():
     questions_dict = {}
-    db = shelve.open('database.db', 'r')
+    db = shelve.open('question.db', 'r')
     questions_dict = db['Question']
     db.close()
     questions_list = []
+
+    overall_counts = Counter()
+    total_questions = len(questions_dict)
+
     for key in questions_dict:
         question = questions_dict.get(key)
         questions_list.append(question)
-    return render_template('customerforum.html', count=len(questions_list), questions_list=questions_list)
+        overall_counts[question.get_overall()] += 1
+
+    # Calculate percentages of "Overall Experience"
+    bad_percentage = round((overall_counts['B'] / total_questions) * 100, 2) if total_questions > 0 else 0.0
+    neutral_percentage = round((overall_counts['N'] / total_questions) * 100, 2) if total_questions > 0 else 0.0
+    excellent_percentage = round((overall_counts['E'] / total_questions) * 100, 2) if total_questions > 0 else 0.0
+
+    return render_template('customerforum.html', count=len(questions_list), questions_list=questions_list,
+                           bad_percentage=bad_percentage, neutral_percentage=neutral_percentage,
+                           excellent_percentage=excellent_percentage)
 
 
 @app.route('/updateQuestion/<int:id>/', methods=['GET', 'POST'])

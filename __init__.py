@@ -339,7 +339,7 @@ def checkout():
         voucher_list = member_dict[member_id].get_vouchers()
         for i in voucher_list:
             vouchers.append(voucher_dict[i])
-        print(vouchers)
+
 
     if request.method == "POST" and create_card_form.validate():
         order_dict = db['OrderHist']
@@ -381,7 +381,7 @@ def checkout():
             )
 
             existing_ids = set(order_dict.keys())
-            missing_ids = set(range(1, max(existing_ids) + 2)) - existing_ids
+            missing_ids = set(range(1, max(existing_ids, default=0) + 2)) - existing_ids
             if missing_ids:
                 my_key = min(missing_ids)
             else:

@@ -11,3 +11,6 @@ _It's interactive unlike matplotlib/seaborn/plotly_
 
 ### **For forms to work,**
 [pip install email_validator]() in venv Command Prompt Terminal.
+
+### **For OTP email to work,**
+[pip install flask_mail]() in venv Command Prompt Terminal.

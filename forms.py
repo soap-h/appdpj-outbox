@@ -3,7 +3,7 @@ from wtforms import (Form, StringField, RadioField, SelectField, TextAreaField,
 from wtforms.fields import EmailField, DateField, SearchField
 
 
-# CAN YOU FUCKING WORK PLEASE I FUCKING HATE YOU PLEASE PLEASE PLEASE PLEASE PLEASE PLEASE PLEASE
+# CAN YOU  WORK PLEASE I  HATE YOU PLEASE PLEASE PLEASE PLEASE PLEASE PLEASE PLEASE
 class CreateLoginForm(Form):
     email = EmailField('Email:', [validators.Email(), validators.Length(min=1, max=150), validators.DataRequired()])
     password = PasswordField('Password:', [validators.Length(min=1, max=150), validators.DataRequired()])
@@ -119,3 +119,18 @@ class CreateSupplierForm(Form):
 class CreateForgetPassword(Form):
     email = EmailField('Your email:',
                        [validators.Email(), validators.Length(min=1, max=150), validators.DataRequired()])
+
+
+class VerifyOTPForm(Form):
+    otp = StringField('OTP', [validators.Length(min=6, max=6), validators.DataRequired()])
+
+
+class ResetPasswordForm(Form):
+    new_password = PasswordField('New Password', [
+        validators.DataRequired(),
+        validators.Length(min=8, message='Password must be at least 8 characters long')
+    ])
+    confirm_password = PasswordField('Confirm Password', [
+        validators.DataRequired(),
+        validators.EqualTo('new_password', message='Passwords must match')
+    ])

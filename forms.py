@@ -51,6 +51,8 @@ class CreateNewsForm(Form):
     title = StringField('Title', [validators.Length(min=1, max=150), validators.DataRequired()])
     description = TextAreaField('Description of News', [validators.DataRequired()])
 
+class CreateCommentForm(Form):
+    comment = TextAreaField('Comment', [validators.DataRequired()])
 
 class CreateCardForm(Form):
     name = StringField('Customer Name', [validators.length(min=1, max=100), validators.DataRequired("message")])

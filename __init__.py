@@ -1,3 +1,5 @@
+import random
+
 import Member
 import Product
 import Orderhistory
@@ -8,13 +10,16 @@ import Voucher
 import Supplier
 import FeedbackSimpleDB
 
+
 from News import News
 from flask import Flask, render_template, request, redirect, url_for, flash, session, send_file, jsonify
+from flask_mail import *
 import os
 import datetime
 from werkzeug.utils import secure_filename
 from FeedbackSimpleDB import add_question, add_news
 from Question import Question
+
 
 import pandas as pd
 import openpyxl
@@ -26,8 +31,9 @@ from pyecharts import options as opts
 from pyecharts.charts import Bar, Calendar, Pie, Liquid, Page, Tab
 from markupsafe import Markup
 
-from forms import CreateMemberForm, CreateProductForm, CreateQuestionForm, CreateLoginForm, CreateCardForm, \
-    CreateAdminForm, CreateVoucherForm, VoucherForm, CreateSearchForm, CreateSupplierForm, CreateReplyForm, CreateNewsForm
+from forms import (CreateMemberForm, CreateProductForm, CreateQuestionForm, CreateLoginForm, CreateCardForm,
+    CreateAdminForm, CreateVoucherForm, VoucherForm, CreateSearchForm,
+                   CreateSupplierForm, CreateReplyForm, CreateNewsForm, CreateForgetPassword)
 
 app = Flask(__name__)
 UPLOAD_FOLDER = 'static/uploads/'
@@ -37,6 +43,15 @@ app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 
 ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif'])
 
+# ----------------- mail config ---------------------
+app.config["MAIL_SERVER"] = 'smtp.office365.com'
+app.config["MAIL_PORT"] = '587'
+app.config["MAIL_USERNAME"] = 'outbox1022@outlook.com'
+app.config["MAIL_PASSWORD"] = 'Liklikliklik1'
+app.config["MAIL_USE_TLS"] = True
+app.config["MAIL_USE_SSL"] = False
+mail = Mail(app)
+# ----------------------------------------------------
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -93,6 +108,27 @@ def login():
         flash("Invalid email or password. Please try again", "error")
 
     return render_template('login.html', form=create_login_form)
+
+@app.route("/forgetpasswordemail", methods=['GET', 'POST'])
+def forgetpasswordemail():
+    form = CreateForgetPassword(request.form)
+    if request.method == "POST" and form.validate():
+        email = form.email.data
+        global otp
+        otp = random.randint(100000, 999999)
+
+        msg = Message('Password reset', sender='outbox1022@outlook.com', recipients=[email])
+
+        msg.body = "Your otp is " + str(otp)
+
+        mail.send(msg)
+
+    return render_template('forgetpassword.html', form=form)
+
+
+@app.route("/forgetpasswordotp", methods=['GET', "POST"])
+def forgetpaswordotp():
+    return render_template('forgetpasswordotp')
 
 
 @app.route("/profile")

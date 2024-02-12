@@ -42,12 +42,13 @@ class CreateQuestionForm(Form):  # inherit from Form
                          default='N')
     feedback = TextAreaField('Feedback (if any)', [validators.Optional()])
 
+
 class CreateReplyForm(Form):
     reply = TextAreaField('Reply from Admin', [validators.Optional()])
 
 
 class CreateNewsForm(Form):
-    title = StringField('Title',[validators.Length(min=1, max=150), validators.DataRequired()])
+    title = StringField('Title', [validators.Length(min=1, max=150), validators.DataRequired()])
     description = TextAreaField('Description of News', [validators.DataRequired()])
 
 
@@ -101,6 +102,7 @@ class VoucherForm(Form):
 class CreateSearchForm(Form):
     search = SearchField('Search here:', [validators.Length(min=1, max=150), validators.DataRequired()])
 
+
 class CreateSupplierForm(Form):
     company_name = StringField('Company name:', [validators.Length(min=1, max=150), validators.DataRequired()])
     company_email = EmailField('Company email:', [validators.Length(min=1, max=150), validators.DataRequired()])
@@ -110,3 +112,8 @@ class CreateSupplierForm(Form):
                              [validators.DataRequired(), validators.Length(min=8, message='Too Short')])
     confirm = PasswordField('Confirm password:', [validators.DataRequired(),
                                                   validators.EqualTo('password', 'password does not match')])
+
+
+class CreateForgetPassword(Form):
+    email = EmailField('Your email:',
+                       [validators.Email(), validators.Length(min=1, max=150), validators.DataRequired()])

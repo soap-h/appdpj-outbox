@@ -42,7 +42,7 @@ def add_news(n: News):
     try:
         news_dict = db['News']
     except:
-        print("Error in retrieving questions from database.db.")
+        print("Error in retrieving news from database.db.")
 
     k = get_key(news_dict)
     n.set_nid(k)
@@ -50,6 +50,8 @@ def add_news(n: News):
     news_dict[k] = n
     db['News'] = news_dict  # update database
     db.close()
+
+
 
 
 # see if adding user is successful

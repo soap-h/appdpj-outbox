@@ -37,7 +37,7 @@
         <div class="card">
             <div class="card-body">
                 <p><img src="{{ url_for('static', filename='uploads/' + product.get_image()) }}" alt="Product Image"
-                        style="width: 425px; height: 300px;"></p>
+                        style="width: 400px;"></p>
                 <h3 class="card-title">{{ product.get_name() }}</h3>
                 <p class="card-text">Price: ${{ product.get_price() }}</p>
                 <p class="card-text">Category: {{ product.get_category() }}</p>

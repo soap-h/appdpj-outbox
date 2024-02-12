@@ -762,9 +762,8 @@ def create_product():
                 inventory_dict = db['Inventory']
             except:
                 print("Error in retrieving products from database.db")
-
             existing_ids = set(inventory_dict.keys())
-            missing_ids = set(range(1, max(existing_ids) + 2)) - existing_ids
+            missing_ids = set(range(1, max(existing_ids, default=0) + 2)) - existing_ids
             if missing_ids:
                 my_key = min(missing_ids)
             else:

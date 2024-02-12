@@ -1,18 +1,19 @@
 {% extends "base.html" %}
-{% block title %}ZES&#179;{% endblock %}
+{% block title %}ZES³{% endblock %}
 {% block content %}
 <section class="about" id="about">
     <div class="about-img">
+        <div class="gradient"></div>
         <img class="img-fluid homepageimage"  src="{{ url_for('static', filename='photos/homepageimage.jpg') }}" alt="image">
     </div>
     <div class="about-text">
-        <h2>About us</h2>
+        <h2>Experience a<br> fresh way to <span style="color:green;">thrift</span></h2>
         <p>Outbox, founded by a team of developers and sustainability enthusiasts,
-            manages an eco-conscious thrift clothing store (Outbox) and an accompanying café (Beanbox).
+            manages a thrift store (Outbox) and an café (Beanbox).
             Initially driven by a mission to promote sustainability and increase revenue,
-            the company's evolution is marked by the digitalization of its thrift store into an online
-            e-commerce platform. ZES³, Outbox's online application, caters to fashion enthusiasts with
-            affordable and vintage clothing, prioritizing eco-friendly practices. The integration of a
+            the company's evolution is marked by the digitalization of its thrift store into an
+            e-commerce platform. ZES³ caters to fashion enthusiasts with
+            affordable and vintage clothing. The integration of a
             physical café exemplifies Outbox's inventive approach,
             creating a unique and environmentally conscious shopping experience.</p><br>
         <a href="/outbox" class="button">Get started!</a>

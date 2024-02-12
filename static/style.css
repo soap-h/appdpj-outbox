@@ -12,43 +12,67 @@
     text-decoration: none;
 }
 .about {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(17rem, auto));
-    align-items: center;
-    gap: 1.5rem;
-    padding-top
+    position: relative;
+    overflow: hidden;
 }
 
-.about-img img {
-    border-radius: 0.5rem;
-    margin-top: 100px;
+.gradient {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 85%;
+    height: 100%;
+    background: linear-gradient(to left, rgba(255,255,255,0) 0%, rgba(255,255,255,1) 60%, rgba(255,255,255,1) 100%);
+}
+
+
+.about-img {
+    position: relative;
+    float: right;
+    padding-left:30%;
+}
+
+.homepageimage {
+    max-width: 100%;
+    display: block;
+}
+.about-text {
+    position: absolute;
+    top: 45%;
+    transform: translateY(-50%);
+    padding: 20px;
+    color: #fff;
+    max-width:38%;
 }
 
 .about-text h2 {
-    margin-top: 50px;
-    font-size: 50px;
-    text-transform: uppercase;
+    font-size: 15px;
+    margin-bottom: 20px;
+    color:black;
+    font-size:300%;
 }
 
 .about-text p {
-    margin-top: 20px;
-    font-size: 17px;
-    text-align: justified;
+    font-size: 15px;
+    line-height: 1.5;
+    margin-bottom: 30px;
+    color: black;
 }
+
 
 .button {
     margin-top: 60px;
     padding: 10px 40px;
     border-radius: 0.3rem;
-    background: lightblue;
-    color: black;
+    background: green;
+    color: white;
     font-weight: 500;
     text-decoration: none;
 }
 
 .button:hover {
-    background-color: #87cbe1;
-    color:black;
+    background-color: #02a702;
+    color:white;
 }
 
 /* registering member */

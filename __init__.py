@@ -62,7 +62,7 @@ def allowed_file(filename):
 @app.route('/')
 def homepage():
     # db = shelve.open('database.db', 'c')
-    # db['Question'] = {}
+    # db['News'] = {}
     # db.close()
     return render_template('homepage.html')
 

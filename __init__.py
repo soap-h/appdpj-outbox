@@ -8,7 +8,7 @@ import Question
 import Admin
 import Voucher
 import Supplier
-import FeedbackSimpleDB
+
 
 
 from News import News, Comment

@@ -919,7 +919,7 @@ def retrieve_questions():
     return render_template('retrieveQuestion.html', count=len(questions_list), questions_list=questions_list)
 
 
-@app.route('/filter_questions', methods=['GET', 'POST'])
+@app.route('/viewQuestion', methods=['GET', 'POST'])
 def filter_questions():
     value = request.args.get('filter_type') or request.form.get('filter_type')
 

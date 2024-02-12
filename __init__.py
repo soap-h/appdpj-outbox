@@ -1477,7 +1477,7 @@ def delete_news(id):
     return redirect(url_for('retrieve_news'))
 
 def get_news_by_id(news_id):
-    db = shelve.open('question.db', 'r')
+    db = shelve.open('database.db', 'r')
     news_dict = db.get('News', {})
     db.close()
 
@@ -1492,7 +1492,7 @@ def add_comment(news_id):
         comment_text = create_comment_form.comment.data
         comment = Comment(comment_text)
 
-        db = shelve.open('question.db', 'w')  
+        db = shelve.open('database.db', 'w')  
         news_dict = db.get('News')
 
         news = news_dict.get(news_id)

@@ -1,6 +1,12 @@
 {% extends "base.html" %}
 {% block title %}OutBox - Retrieve Forum{% endblock %}
 {% block content %}
+<style>
+  #exp p {
+    display: inline;
+    padding-right: 20px;
+  }
+</style>
 <a href="{{ url_for('homepage') }}" class="btn btn-secondary mb-2" style="margin-top: 10px;"><i style="margin-right:5px;" class="bi bi-arrow-left"></i>Back</a>
 <br>
 <br>
@@ -14,6 +20,13 @@
 <p>There are {{ count }} questions/feedback.</p>
 {% endif %}
 </div>
+
+<div id="exp">
+  <p>😁: {{ excellent_percentage }}%</p>
+  <p>😐: {{ neutral_percentage }}%</p>
+  <p>😡: {{ bad_percentage }}%</p>
+</div>
+
 <div>
 <table class="table table-striped">
   <thead>

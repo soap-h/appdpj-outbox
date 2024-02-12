@@ -8,4 +8,29 @@
 
 {{ chart_html | safe }}
 
+<!-- Positive Feedback Tab -->
+{% if positive_feedback %}
+    <h2>Positive Feedback Comments:</h2>
+    <ul>
+        {% for feedback in positive_feedback %}
+            <li>{{ feedback }}</li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>No positive feedback comments available.</p>
+{% endif %}
+
+<!-- Negative Feedback Tab -->
+{% if negative_feedback %}
+    <h2>Negative Feedback Comments:</h2>
+    <ul>
+        {% for feedback in negative_feedback %}
+            <li>{{ feedback }}</li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>No negative feedback comments available.</p>
+{% endif %}
+
+
 {% endblock %}

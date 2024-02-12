@@ -1,5 +1,7 @@
 import random
 
+import numpy as np
+
 import Member
 import Product
 import Orderhistory
@@ -1219,26 +1221,45 @@ def feedback_report():
     # # add month columns into df
     # df['Question_Date Posted_Month'] = df['Question_Date Posted'].dt.month
 
-    positive_reviews = (df['Question_Overall rating'] == "E").sum()
+    # Filter positive reviews
+    positive_reviews_df = df[df['Question_Overall rating'] == "E"]
+    positive_feedback = positive_reviews_df['Question_Written feedback'].tolist()
+
+    # Filter negative reviews
+    negative_reviews_df = df[df['Question_Overall rating'] == "B"]
+    negative_feedback = negative_reviews_df['Question_Written feedback'].tolist()
+
+    # Calculate statistics for positive reviews
+    positive_reviews = len(positive_reviews_df)
     total_reviews = df['Question_Overall rating'].isin(["E", "N", "B"]).sum()
     positive_percentage = positive_reviews / total_reviews
+
+    # Calculate statistics for negative reviews
+    negative_reviews = len(negative_reviews_df)
+    negative_percentage = negative_reviews / total_reviews
 
     # liquid chart for % of positive reviews
     overall_positive = (
         Liquid()
         .add("Positive Reviews", [positive_percentage, positive_reviews, 0.15, 0.05])
-        # .add("Positive Reviews", [0.68, 0.60, 0.15, 0.05])
         .set_global_opts(title_opts=opts.TitleOpts(title="% of Positive Reviews"))
     )
 
-    # create a Tab and add the chart for the percentage of positive reviews
+    # liquid chart for % of negative reviews
+    overall_negative = (
+        Liquid()
+        .add("Negative Reviews", [negative_percentage, negative_reviews, 0.15, 0.05])
+        .set_global_opts(title_opts=opts.TitleOpts(title="% of Negative Reviews"))
+    )
+
+    # create a Tab and add the charts
     tab = Tab(page_title='Feedback Overview')
-    tab.add(overall_positive, 'Percentage of Positive Reviews')
+    tab.add(overall_positive, 'Positive Reviews')
+    tab.add(overall_negative, 'Negative Reviews')
 
-    # render the tab directly in the HTML template
-    chart_html = Markup(tab.render_embed())
-
-    return render_template('feedbackreport.html', chart_html=chart_html)
+    # Pass feedback comments to the template
+    return render_template('feedbackreport.html', chart_html=Markup(tab.render_embed()),
+                           positive_feedback=positive_feedback, negative_feedback=negative_feedback)
 
 
 @app.route('/performancereport')
@@ -1297,6 +1318,66 @@ def performance_report():
 
     # create a Tab and add the chart for product category overview
     tab.add(bar_chart_by_category, 'Sales and Profit by Product Category')
+
+    # plot sales calendar
+    sales_by_date = df.groupby(by=['OrderHist_Date']).sum()['OrderHist_Payment amount'].round(0)
+    sales_by_date = sales_by_date.reset_index()
+
+    data = sales_by_date[['OrderHist_Date', 'OrderHist_Payment amount']].values.tolist()
+    min_sales = df['OrderHist_Payment amount'].min()
+    max_sales = df['OrderHist_Payment amount'].max()
+
+    sales_calendar = (
+        Calendar()
+        .add('', data, calendar_opts=opts.CalendarOpts(range_='2024'))
+        .set_global_opts(
+            title_opts = opts.TitleOpts(title='Sales Calendar', subtitle='in SGD'),
+            legend_opts=opts.LegendOpts(is_show=False),
+            visualmap_opts= opts.VisualMapOpts(
+                max_= max_sales,
+                min_=min_sales,
+                orient='horizontal',
+                is_piecewise=False,
+                pos_top='230px',
+                pos_left='100px',
+            )
+        )
+    )
+
+    sales_calendar.render_notebook()
+
+    # create a Tab and add the chart for product category overview
+    tab.add(sales_calendar, 'Sales Calendar')
+
+    # group data by gender and count members
+    grouped_by_gender = df.groupby(by=['Members_Gender']).size()
+
+    # # debug: check the counts for each gender category
+    # print(grouped_by_gender)
+
+    # plot the number of members by gender
+    pie_chart_by_gender = (
+        Pie()
+        .add("", [list(z) for z in zip(grouped_by_gender.index.tolist(), grouped_by_gender.values.tolist())])
+        .set_global_opts(title_opts=opts.TitleOpts(title="Members by Gender"))
+        .set_series_opts(label_opts=opts.LabelOpts(formatter="{b}: {c}"))
+    )
+
+    # create a Tab and add the pie cahrt
+    tab.add(pie_chart_by_gender, 'Members by Gender')
+
+    # group data by age and count members
+    grouped_by_age = df.groupby(by=['Members_Age']).size()
+
+    bar_chart_by_age = (
+        Bar()
+        .add_xaxis(grouped_by_age.index.tolist())
+        .add_yaxis("Number of Members", grouped_by_age.values.tolist())
+        .set_global_opts(title_opts=opts.TitleOpts(title="Members by Age"))
+        .set_series_opts(label_opts=opts.LabelOpts(formatter="{c}"))
+    )
+
+    tab.add(bar_chart_by_age, 'Members by Age')
 
     # render the tab directly in the HTML template
     chart_html = Markup(tab.render_embed())

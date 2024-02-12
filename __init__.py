@@ -10,7 +10,6 @@ import Voucher
 import Supplier
 
 
-
 from News import News, Comment
 from flask import Flask, render_template, request, redirect, url_for, flash, session, send_file, jsonify
 from flask_mail import *
@@ -19,7 +18,6 @@ import datetime
 from werkzeug.utils import secure_filename
 from FeedbackSimpleDB import add_question, add_news
 from Question import Question
-
 
 import pandas as pd
 import openpyxl
@@ -32,8 +30,9 @@ from pyecharts.charts import Bar, Calendar, Pie, Liquid, Page, Tab
 from markupsafe import Markup
 
 from forms import (CreateMemberForm, CreateProductForm, CreateQuestionForm, CreateLoginForm, CreateCardForm,
-    CreateAdminForm, CreateVoucherForm, VoucherForm, CreateSearchForm, CreateCommentForm,
-                   CreateSupplierForm, CreateReplyForm, CreateNewsForm, CreateForgetPassword)
+                   CreateAdminForm, CreateVoucherForm, VoucherForm, CreateSearchForm, CreateCommentForm,
+                   CreateSupplierForm, CreateReplyForm, CreateNewsForm, CreateForgetPassword, ResetPasswordForm,
+                   VerifyOTPForm)
 
 app = Flask(__name__)
 UPLOAD_FOLDER = 'static/uploads/'
@@ -51,6 +50,8 @@ app.config["MAIL_PASSWORD"] = 'Liklikliklik1'
 app.config["MAIL_USE_TLS"] = True
 app.config["MAIL_USE_SSL"] = False
 mail = Mail(app)
+
+
 # ----------------------------------------------------
 
 def allowed_file(filename):
@@ -109,6 +110,7 @@ def login():
 
     return render_template('login.html', form=create_login_form)
 
+
 @app.route("/forgetpasswordemail", methods=['GET', 'POST'])
 def forgetpasswordemail():
     form = CreateForgetPassword(request.form)
@@ -118,17 +120,57 @@ def forgetpasswordemail():
         otp = random.randint(100000, 999999)
 
         msg = Message('Password reset', sender='outbox1022@outlook.com', recipients=[email])
-
         msg.body = "Your otp is " + str(otp)
-
         mail.send(msg)
+
+        # Store email and OTP in session for verification
+        session['email'] = email
+        session['otp'] = otp
+
+        # Redirect to the page where the user can enter the OTP
+        return redirect(url_for('forgetpasswordotp'))
 
     return render_template('forgetpassword.html', form=form)
 
 
-@app.route("/forgetpasswordotp", methods=['GET', "POST"])
-def forgetpaswordotp():
-    return render_template('forgetpasswordotp')
+@app.route("/forgetpasswordotp", methods=['GET', 'POST'])
+def forgetpasswordotp():
+    form = VerifyOTPForm(request.form)
+    if request.method == 'POST' and form.validate():
+        entered_otp = form.otp.data
+        if entered_otp == str(session.get('otp')):  # Verify if entered OTP matches the generated OTP
+            return redirect(url_for('resetpassword'))  # Redirect to password reset page
+        else:
+            flash('Invalid OTP. Please try again.', 'error')
+    return render_template('forgetpasswordotp.html', form=form)
+
+
+def get_member_id_by_email(email):
+    with shelve.open('database.db', 'r') as db:
+        member_dict = db.get('Members', {})
+        for member_id, member in member_dict.items():
+            if member.get_email() == email:
+                return member_id
+    return None
+
+
+@app.route("/resetpassword", methods=['GET', 'POST'])
+def resetpassword():
+    form = ResetPasswordForm(request.form)
+    if request.method == 'POST' and form.validate():
+        email = session.get('email')
+        member_id = get_member_id_by_email(email)
+        if member_id is not None:
+            with shelve.open('database.db', 'w') as db:
+                members_dict = db.get('Members', {})
+                member = members_dict.get(member_id)
+                member.set_password(form.new_password.data)
+                db['Members'] = members_dict
+            flash('Password reset successful. You can now log in with your new password.', 'success')
+            return redirect(url_for('login'))  # Redirect to login page
+        else:
+            flash('Member with the provided email does not exist.', 'error')
+    return render_template('resetpassword.html', form=form)
 
 
 @app.route("/profile")
@@ -167,7 +209,6 @@ def profile():
         voucher_id = member_dict[id].get_vouchers()
         for i in voucher_id:
             voucher_list.append(voucher_dict[i])
-
 
     return render_template('profile.html', admin=admin, supplier=supplier,
                            name=name, id=id, user=user_info, supplier_user=supplier_info, history=member_orderhist,
@@ -397,6 +438,7 @@ def checkout():
                            cart_items=checkout_dict.values(), total_price=total_price, form=create_card_form,
                            vouchers=vouchers, name=name)
 
+
 @app.route('/set_voucher_session/<voucher_id>', methods=['POST'])
 def set_voucher_session(voucher_id):
     session['applied_voucher'] = voucher_id
@@ -442,7 +484,9 @@ def admin():
         foremcount = len(db['Question'])
         newscount = len(db['News'])
         vouchercount = len(db['Vouchers'])
-        return render_template('admin.html', name=name, membercount=membercount, admincount=admincount, suppliercount=suppliercount, inventorycount=inventorycount, ordercount=ordercount, foremcount=foremcount, newscount=newscount, vouchercount=vouchercount)
+        return render_template('admin.html', name=name, membercount=membercount, admincount=admincount,
+                               suppliercount=suppliercount, inventorycount=inventorycount, ordercount=ordercount,
+                               foremcount=foremcount, newscount=newscount, vouchercount=vouchercount)
     else:
         flash("UNAUTHORISED ACCESS. LOG IN TO ACCESS", category='error')
         return redirect(url_for('login'))
@@ -757,18 +801,18 @@ def view_inventory():
                 search_int = int(search)
 
                 matching_price_product = [product for product_id, product in inventory_dict.items() if
-                                            str(product.get_price()) == search]  # Compare as string
+                                          str(product.get_price()) == search]  # Compare as string
 
                 inventory_list = matching_price_product
             except ValueError:
                 matching_name_product = [product for product_id, product in inventory_dict.items() if
-                                           product.get_name().lower() == search]
+                                         product.get_name().lower() == search]
                 matching_category_product = [product for product_id, product in inventory_dict.items() if
-                                         product.get_category().lower() == search]
+                                             product.get_category().lower() == search]
                 matching_remarks_product = [product for product_id, product in inventory_dict.items() if
-                                         product.get_remarks().lower() == search]
+                                            product.get_remarks().lower() == search]
                 matching_drinks_product = [product for product_id, product in inventory_dict.items() if
-                                         product.get_drinks().lower() == search]
+                                           product.get_drinks().lower() == search]
 
                 inventory_list = matching_name_product + matching_category_product + matching_remarks_product + matching_drinks_product
 
@@ -779,6 +823,7 @@ def view_inventory():
 
     return render_template('adminviewinventory.html', count=len(inventory_list), inventory_list=inventory_list,
                            form=create_search_form)
+
 
 @app.route('/updateproduct/<int:id>/', methods=['GET', 'POST'])
 def update_product(id):
@@ -873,6 +918,7 @@ def retrieve_questions():
         questions_list.append(question)
     return render_template('retrieveQuestion.html', count=len(questions_list), questions_list=questions_list)
 
+
 @app.route('/filter_questions', methods=['GET', 'POST'])
 def filter_questions():
     value = request.args.get('filter_type') or request.form.get('filter_type')
@@ -904,7 +950,7 @@ def filter_questions():
 
     return render_template('retrieveQuestion.html', count=len(questions_list), questions_list=questions_list)
 
-    
+
 @app.route('/cviewQuestion')
 def cretrieve_questions():
     questions_dict = {}
@@ -949,7 +995,8 @@ def update_question(id):
 
         update_question_form.reply.data = reply
         date = question.get_date_posted()
-        return render_template('updateQuestion.html', form=update_question_form, date=date, rdate=rdate, id=id,email=email, title=title,
+        return render_template('updateQuestion.html', form=update_question_form, date=date, rdate=rdate, id=id,
+                               email=email, title=title,
                                question=question_text, overall=overall, feedback=feedback)
 
 
@@ -1243,6 +1290,7 @@ def performance_report():
 
     return render_template('performancereport.html', chart_html=chart_html)
 
+
 @app.route('/view_more/<int:product_id>')
 def view_more(product_id):
     inventory_dict = {}
@@ -1253,6 +1301,7 @@ def view_more(product_id):
     selected_product = inventory_dict.get(product_id)
 
     return render_template('view_more.html', selected_product=selected_product)
+
 
 @app.route('/supplier', methods=['GET', 'POST'])
 def create_supplier():
@@ -1271,8 +1320,10 @@ def create_supplier():
             if create_supplier_form.company_email.data in email_list:
                 flash('email already exists. Please choose a different one.', 'error')
             else:
-                supplier = Supplier.Supplier(create_supplier_form.company_name.data, create_supplier_form.company_email.data,
-                                             create_supplier_form.company_phone.data, create_supplier_form.company_address.data,
+                supplier = Supplier.Supplier(create_supplier_form.company_name.data,
+                                             create_supplier_form.company_email.data,
+                                             create_supplier_form.company_phone.data,
+                                             create_supplier_form.company_address.data,
                                              create_supplier_form.password.data)
                 if len(supplier_dict) == 0:
                     my_key = 1
@@ -1284,6 +1335,8 @@ def create_supplier():
                 db.close()
             return redirect(url_for('registrationconfirmation'))
     return render_template('adminsuppliers.html', form=create_supplier_form)
+
+
 @app.route('/supplier/viewsuppliers', methods=['GET', 'POST'])
 def view_suppliers():
     create_search_form = CreateSearchForm(request.form)
@@ -1324,6 +1377,7 @@ def view_suppliers():
     return render_template('adminviewsuppliers.html', count=len(supplier_list), supplier_list=supplier_list,
                            form=create_search_form)
 
+
 @app.route('/updatesupplier/<int:id>/', methods=['GET', 'POST'])
 def update_supplier(id):
     update_supplier_form = CreateSupplierForm(request.form)
@@ -1352,6 +1406,7 @@ def update_supplier(id):
         update_supplier_form.company_address.data = supplier.get_company_address()
         update_supplier_form.password.data = supplier.get_password()
         return render_template('adminupdatesupplier.html', form=update_supplier_form)
+
 
 @app.route('/deletesupplier/<int:id>', methods=['POST'])
 def delete_supplier(id):
@@ -1416,7 +1471,6 @@ def cretrieve_news():
     db.close()
     news_list = []
 
-
     for key in news_dict:
         news = news_dict.get(key)
         news_list.append(news)
@@ -1476,6 +1530,7 @@ def delete_news(id):
     db.close()
     return redirect(url_for('retrieve_news'))
 
+
 def get_news_by_id(news_id):
     db = shelve.open('database.db', 'r')
     news_dict = db.get('News', {})
@@ -1492,13 +1547,13 @@ def add_comment(news_id):
         comment_text = create_comment_form.comment.data
         comment = Comment(comment_text)
 
-        db = shelve.open('database.db', 'w')  
+        db = shelve.open('database.db', 'w')
         news_dict = db.get('News')
 
         news = news_dict.get(news_id)
         if news:
             news.add_comment(comment)
-            db['News'] = news_dict  
+            db['News'] = news_dict
         else:
             return redirect(url_for('cretrieve_news'))
 

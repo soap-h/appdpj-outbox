@@ -11,7 +11,7 @@ import Supplier
 import FeedbackSimpleDB
 
 
-from News import News
+from News import News, Comment
 from flask import Flask, render_template, request, redirect, url_for, flash, session, send_file, jsonify
 from flask_mail import *
 import os

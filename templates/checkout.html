@@ -29,7 +29,7 @@
                 {% if 'name' in session %}
                 <p>Coupon applied: <span id="appliedCoupon">None</span></p>
                 {% endif %}
-                <p>Total Price: $<span id="totalPrice">{{ total_price }}</span></p>
+                <p>Total Price: <span id="totalPrice">{{ "$%.2f"|format(total_price) }}</span></p>
             </div>
             {% if 'name' in session %}
             <div class="checkout_items">

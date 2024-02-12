@@ -3,7 +3,6 @@ from wtforms import (Form, StringField, RadioField, SelectField, TextAreaField,
 from wtforms.fields import EmailField, DateField, SearchField
 
 
-# CAN YOU  WORK PLEASE I  HATE YOU PLEASE PLEASE PLEASE PLEASE PLEASE PLEASE PLEASE
 class CreateLoginForm(Form):
     email = EmailField('Email:', [validators.Email(), validators.Length(min=1, max=150), validators.DataRequired()])
     password = PasswordField('Password:', [validators.Length(min=1, max=150), validators.DataRequired()])
@@ -18,7 +17,10 @@ class CreateMemberForm(Form):
     email = EmailField('Email', [validators.Email(), validators.Length(min=1, max=150), validators.DataRequired()])
     phone = StringField('Phone Number', [validators.DataRequired()])
     password = PasswordField('Enter password',
-                             [validators.DataRequired(), validators.Length(min=8, message='Too Short')])
+                             [validators.DataRequired(), validators.Length(min=8, message='Too Short'),
+                              validators.Regexp('^(?=.*[A-Z])(?=.*[0-9])',
+                                                message='Password must contain at least one capital letter and one '
+                                                        'number')])
     confirm = PasswordField('Confirm password:', [validators.DataRequired(),
                                                   validators.EqualTo('password', 'password does not match')])
 

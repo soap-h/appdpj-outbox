@@ -1,7 +1,13 @@
 {% extends "base.html" %}
-{% block title %}OutBox - Lastest News{% endblock %}
+{% block title %}OutBox - Latest News{% endblock %}
 {% block content %}
-<link rel="stylesheet" href="static/style.css">
+<style>
+    ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+</style>
 <br>
 <br>
 <h1 class="display-4">View News</h1>
@@ -10,22 +16,32 @@
 <br>
 <br>
 
-  {% for news in news_list %}
+{% for news in news_list %}
     <div id="news">
-       <h5><img src="static/photos/zes3logo.png" alt="" style="width: 40px; height: 36px;"> OutBox <span>{{ news.get_date_posted() }}</span></h5>
+        <h5><img src="static/photos/zes3logo.png" alt="" style="width: 40px; height: 36px;"> OutBox</h5>
+        <p>{{ news.get_date_posted() }}</p>
         <h2>{{ news.get_title() }}</h2>
         <img src="{{ url_for('static', filename='uploads/' + news.get_file()) }}" alt="News" style="max-width: 850px; max-height: 500px;">
         <br>
         <h6>{{ news.get_description() }}</h6>
         <br>
-        <br>
+
+        <!-- Display comments for the current news item if available and iterable -->
+        {% if news.get_comments() %}
+            <h5>Comments:</h5>
+            <ul>
+                {% for comment in news.get_comments() %}
+                    <li>{{ comment.get_text() }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+
+        <!-- Add a Comment button with a link to the add_comment route -->
+        <a href="{{ url_for('add_comment', news_id=news.get_nid()) }}" class="btn btn-primary">Add a Comment</a>
         <br>
         <br>
         <br>
         <br>
     </div>
-    {% endfor %}
-
-
-</div>
+{% endfor %}
 {% endblock %}

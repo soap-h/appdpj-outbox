@@ -32,7 +32,7 @@ from pyecharts.charts import Bar, Calendar, Pie, Liquid, Page, Tab
 from markupsafe import Markup
 
 from forms import (CreateMemberForm, CreateProductForm, CreateQuestionForm, CreateLoginForm, CreateCardForm,
-    CreateAdminForm, CreateVoucherForm, VoucherForm, CreateSearchForm,
+    CreateAdminForm, CreateVoucherForm, VoucherForm, CreateSearchForm, CreateCommentForm
                    CreateSupplierForm, CreateReplyForm, CreateNewsForm, CreateForgetPassword)
 
 app = Flask(__name__)
@@ -1388,10 +1388,9 @@ def create_news():
         news = News(create_news_form.title.data,
                     create_news_form.description.data,
                     date, filename)
-
         add_news(news)
         return redirect(url_for('homepage'))
-    return render_template('createNews.html', form=create_news_form, date=date)
+    return render_template('createNews.html', form=create_news_form)
 
 
 @app.route('/viewNews')
@@ -1476,6 +1475,37 @@ def delete_news(id):
     db['News'] = news_dict
     db.close()
     return redirect(url_for('retrieve_news'))
+
+def get_news_by_id(news_id):
+    db = shelve.open('question.db', 'r')
+    news_dict = db.get('News', {})
+    db.close()
+
+    return news_dict.get(news_id)
+
+
+@app.route('/addComment/<int:news_id>', methods=['GET', 'POST'])
+def add_comment(news_id):
+    create_comment_form = CreateCommentForm(request.form)
+
+    if request.method == 'POST' and create_comment_form.validate():
+        comment_text = create_comment_form.comment.data
+        comment = Comment(comment_text)
+
+        db = shelve.open('question.db', 'w')  
+        news_dict = db.get('News')
+
+        news = news_dict.get(news_id)
+        if news:
+            news.add_comment(comment)
+            db['News'] = news_dict  
+        else:
+            return redirect(url_for('cretrieve_news'))
+
+        db.close()
+        return redirect(url_for('cretrieve_news'))
+
+    return render_template('createComment.html', form=create_comment_form, news_id=news_id)
 
 
 if __name__ == '__main__':

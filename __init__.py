@@ -32,7 +32,7 @@ from pyecharts.charts import Bar, Calendar, Pie, Liquid, Page, Tab
 from markupsafe import Markup
 
 from forms import (CreateMemberForm, CreateProductForm, CreateQuestionForm, CreateLoginForm, CreateCardForm,
-    CreateAdminForm, CreateVoucherForm, VoucherForm, CreateSearchForm, CreateCommentForm
+    CreateAdminForm, CreateVoucherForm, VoucherForm, CreateSearchForm, CreateCommentForm,
                    CreateSupplierForm, CreateReplyForm, CreateNewsForm, CreateForgetPassword)
 
 app = Flask(__name__)

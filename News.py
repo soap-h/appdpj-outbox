@@ -1,4 +1,5 @@
 class News():
+    comment_count = 0
     count_id = 0
 
     def __init__(self, title, description, date_posted, file):
@@ -8,8 +9,7 @@ class News():
         self.__date_posted = date_posted
         self.__file = file
         self.__news_id = News.count_id
-
-
+        self.__comments = []
 
     def get_title(self):
         return self.__title
@@ -26,12 +26,6 @@ class News():
     def get_file(self):
         return self.__file
 
-
-
-
-
-
-
     def set_title(self, title):
         self.__title = title
 
@@ -46,3 +40,30 @@ class News():
 
     def set_file(self, file):
         self.__file = file
+
+
+    def add_comment(self, comment):
+        self.__comments.append(comment)
+
+    def get_comments(self):
+        return self.__comments
+
+    def __str__(self):
+        return f"{self.__title}, {self.__description}, {self.__date_posted}, {self.__comments}"
+
+
+
+class Comment():
+    def __init__(self, text):
+        self.__text = text
+        self.__comid = int
+
+    def get_comid(self):
+        return self.__comid
+
+    def get_text(self):
+        return self.__text
+
+    def set_text(self, text):
+        self.__text = text
+

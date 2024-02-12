@@ -7,6 +7,11 @@
         padding: 0;
         margin: 0;
     }
+
+    #date {
+        padding-left: 10px;
+        color: #888888;
+    }
 </style>
 <br>
 <br>
@@ -18,15 +23,13 @@
 
 {% for news in news_list %}
     <div id="news">
-        <h5><img src="static/photos/zes3logo.png" alt="" style="width: 40px; height: 36px;"> OutBox</h5>
-        <p>{{ news.get_date_posted() }}</p>
+        <h5><img src="static/photos/zes3logo.png" alt="" style="width: 40px; height: 36px;"> OutBox <span id="date">{{ news.get_date_posted() }}</span></h5>
         <h2>{{ news.get_title() }}</h2>
         <img src="{{ url_for('static', filename='uploads/' + news.get_file()) }}" alt="News" style="max-width: 850px; max-height: 500px;">
         <br>
         <h6>{{ news.get_description() }}</h6>
         <br>
 
-        <!-- Display comments for the current news item if available and iterable -->
         {% if news.get_comments() %}
             <h5>Comments:</h5>
             <ul>
@@ -36,7 +39,7 @@
             </ul>
         {% endif %}
 
-        <!-- Add a Comment button with a link to the add_comment route -->
+
         <a href="{{ url_for('add_comment', news_id=news.get_nid()) }}" class="btn btn-primary">Add a Comment</a>
         <br>
         <br>

@@ -48,7 +48,7 @@ ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif'])
 # ----------------- mail config ---------------------
 app.config["MAIL_SERVER"] = 'smtp.office365.com'
 app.config["MAIL_PORT"] = '587'
-app.config["MAIL_USERNAME"] = 'outbox1022@outlook.com'
+app.config["MAIL_USERNAME"] = 'outbox1111@outlook.com'
 app.config["MAIL_PASSWORD"] = 'Liklikliklik1'
 app.config["MAIL_USE_TLS"] = True
 app.config["MAIL_USE_SSL"] = False
@@ -122,7 +122,7 @@ def forgetpasswordemail():
         global otp
         otp = random.randint(100000, 999999)
 
-        msg = Message('Password reset', sender='outbox1022@outlook.com', recipients=[email])
+        msg = Message('Password reset', sender='outbox1111@outlook.com', recipients=[email])
         msg.body = "Your otp is " + str(otp)
         mail.send(msg)
 
@@ -224,6 +224,8 @@ def logout():
     session.pop('member_id', None)
     if 'admin' in session:
         session.pop('admin', None)
+    if 'supplier' in session:
+        session.pop('supplier', None)
     session['cart'] = []
     db = shelve.open('database.db', 'c')
     db['Outbox'] = {}

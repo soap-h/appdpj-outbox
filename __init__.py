@@ -1,5 +1,6 @@
 import random
 
+import datetime as datetime
 import numpy as np
 
 import Member
@@ -357,7 +358,7 @@ def checkout():
 
             # FOR FAKE ORDERHIST DATES
             from datetime import datetime
-            date_str = '2024-02-05'
+            date_str = '2024-02-13'
             date = datetime.strptime(date_str, '%Y-%m-%d').date()
 
             # Check if a voucher has been applied

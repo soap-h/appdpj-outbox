@@ -39,7 +39,7 @@
 <table class="table table-striped">
   <thead>
   <tr>
-    <th>Question ID</th>
+    <th>ID</th>
     <th>Email</th>
     <th>Date Posted</th>
     <th>Title</th>
@@ -59,7 +59,7 @@
     <td>{{ question.get_date_posted() }}</td>
     <td>{{ question.get_title() }}</td>
     <td>{{ question.get_question() }}</td>
-
+    <td>{{  question.get_feedback() }}</td>
 
     {% if question.get_overall() == "B" %}
     <td>😡</td>
@@ -69,7 +69,7 @@
     <td>😁</td>
     {% endif %}
 
-    <td>{{  question.get_feedback() }}</td>
+
 
 
     <td><a href="/updateQuestion/{{question.get_question_id()}}" class="btn btn-warning">Reply</a>

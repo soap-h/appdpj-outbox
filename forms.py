@@ -80,7 +80,10 @@ class CreateAdminForm(Form):
     last_name = StringField('Last Name', [validators.Length(min=1, max=150), validators.DataRequired()])
     email = EmailField('email', [validators.Email(), validators.Length(min=1, max=150), validators.DataRequired()])
     password = PasswordField('Enter password',
-                             [validators.DataRequired(), validators.Length(min=8, message='Too Short')])
+                             [validators.DataRequired(), validators.Length(min=8, message='Too Short'),
+                              validators.Regexp('^(?=.*[A-Z])(?=.*[0-9])',
+                                                message='Password must contain at least one capital letter and one '
+                                                        'number')])
     confirm = PasswordField('Confirm password:', [validators.DataRequired(),
                                                   validators.EqualTo('password', 'password does not match')])
 
@@ -113,7 +116,10 @@ class CreateSupplierForm(Form):
     company_phone = StringField('Company phone:', [validators.Length(min=1, max=150), validators.DataRequired()])
     company_address = StringField('Company address:', [validators.Length(min=1, max=150), validators.DataRequired()])
     password = PasswordField('Enter password',
-                             [validators.DataRequired(), validators.Length(min=8, message='Too Short')])
+                             [validators.DataRequired(), validators.Length(min=8, message='Too Short'),
+                              validators.Regexp('^(?=.*[A-Z])(?=.*[0-9])',
+                                                message='Password must contain at least one capital letter and one '
+                                                        'number')])
     confirm = PasswordField('Confirm password:', [validators.DataRequired(),
                                                   validators.EqualTo('password', 'password does not match')])
 
@@ -130,7 +136,10 @@ class VerifyOTPForm(Form):
 class ResetPasswordForm(Form):
     new_password = PasswordField('New Password', [
         validators.DataRequired(),
-        validators.Length(min=8, message='Password must be at least 8 characters long')
+        validators.Length(min=8, message='Password must be at least 8 characters long'),
+                              validators.Regexp('^(?=.*[A-Z])(?=.*[0-9])',
+                                                message='Password must contain at least one capital letter and one '
+                                                        'number')
     ])
     confirm_password = PasswordField('Confirm Password', [
         validators.DataRequired(),

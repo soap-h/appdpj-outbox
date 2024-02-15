@@ -1,7 +1,8 @@
 {% extends "adminbase.html" %}
-{% block title %}ZES&#179; view feedback{% endblock %}
+{% block title %}ZES³ view feedback{% endblock %}
 {% block content %}
-<a href="{{ url_for('admin') }}" class="btn btn-secondary mb-2" style="margin-top: 10px;"><i style="margin-right:5px;" class="bi bi-arrow-left"></i>Back</a>
+<a href="{{ url_for('admin') }}" class="btn btn-secondary mb-2" style="margin-top: 10px;"><i style="margin-right:5px;"
+                                                                                             class="bi bi-arrow-left"></i>Back</a>
 
 <h1>Feedback Report</h1>
 <p>Browse through the tabs to view the feedback/reviews for Outbox.</p>
@@ -10,27 +11,30 @@
 
 <!-- Positive Feedback Tab -->
 {% if positive_feedback %}
-    <h2>Positive Feedback Comments:</h2>
-    <ul>
-        {% for feedback in positive_feedback %}
-            <li>{{ feedback }}</li>
-        {% endfor %}
-    </ul>
+<h2>Positive Feedback Comments:</h2>
+<ol>
+    {% set positive_counter = namespace(value=1) %}
+    {% for feedback in positive_feedback %}
+    <li>{{ positive_counter.value }}. {{ feedback }}</li>
+    {% set positive_counter.value = positive_counter.value + 1 %}
+    {% endfor %}
+</ol>
 {% else %}
     <p>No positive feedback comments available.</p>
 {% endif %}
 
 <!-- Negative Feedback Tab -->
 {% if negative_feedback %}
-    <h2>Negative Feedback Comments:</h2>
-    <ul>
-        {% for feedback in negative_feedback %}
-            <li>{{ feedback }}</li>
-        {% endfor %}
-    </ul>
+<h2>Negative Feedback Comments:</h2>
+<ol>
+    {% set negative_counter = namespace(value=1) %}
+    {% for feedback in negative_feedback %}
+    <li>{{ negative_counter.value }}. {{ feedback }}</li>
+    {% set negative_counter.value = negative_counter.value + 1 %}
+    {% endfor %}
+</ol>
 {% else %}
     <p>No negative feedback comments available.</p>
 {% endif %}
-
 
 {% endblock %}

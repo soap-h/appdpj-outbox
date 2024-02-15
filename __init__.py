@@ -1,7 +1,5 @@
 import random
 
-import datetime as datetime
-import numpy as np
 
 import Member
 import Product
@@ -54,9 +52,8 @@ app.config["MAIL_PASSWORD"] = 'Liklikliklik1'
 app.config["MAIL_USE_TLS"] = True
 app.config["MAIL_USE_SSL"] = False
 mail = Mail(app)
-
-
 # ----------------------------------------------------
+
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -124,7 +121,7 @@ def forgetpasswordemail():
         otp = random.randint(100000, 999999)
 
         msg = Message('Password reset', sender='outbox1111@outlook.com', recipients=[email])
-        msg.body = "Your otp is " + str(otp)
+        msg.body = "Your otp is " + str(otp) + "."
         mail.send(msg)
 
         # Store email and OTP in session for verification
@@ -1194,8 +1191,8 @@ def excel_converter(db_name):
                 # os.path.join method to construct the file path, and os.path.normpath method to normalize the path
                 image_path = os.path.normpath(os.path.join(image_folder, image_filename))
                 img = XLImage(image_path)
-                # img.width = 120  # no need to adjust the image dimensions for now
-                # img.height = 160
+                img.width = 80     # comment to have original image dimensions
+                img.height = 70    # comment to have original image dimensions
                 ws.add_image(img, f'H{index + 2}')  # 'Image file' column to be in column H
                 ws['H1'] = 'Image file'  # add title
 
@@ -1233,12 +1230,12 @@ def feedback_report():
     negative_feedback = negative_reviews_df['Question_Written feedback'].tolist()
 
     # Calculate statistics for positive reviews
-    positive_reviews = len(positive_reviews_df)
+    positive_reviews = (df['Question_Overall rating'] == "E").sum()
     total_reviews = df['Question_Overall rating'].isin(["E", "N", "B"]).sum()
     positive_percentage = positive_reviews / total_reviews
 
     # Calculate statistics for negative reviews
-    negative_reviews = len(negative_reviews_df)
+    negative_reviews = (df['Question_Overall rating'] == "B").sum()
     negative_percentage = negative_reviews / total_reviews
 
     # liquid chart for % of positive reviews
@@ -1260,8 +1257,10 @@ def feedback_report():
     tab.add(overall_positive, 'Positive Reviews')
     tab.add(overall_negative, 'Negative Reviews')
 
-    # Pass feedback comments to the template
-    return render_template('feedbackreport.html', chart_html=Markup(tab.render_embed()),
+    # render the tab directly in the HTML template
+    chart_html = Markup(tab.render_embed())
+
+    return render_template('feedbackreport.html', chart_html=chart_html,
                            positive_feedback=positive_feedback, negative_feedback=negative_feedback)
 
 

@@ -15,6 +15,8 @@ class Member:
         self.__phone = phone
         self.__password = password
         self.__vouchers = []
+        self.__address = None
+        self.__postal = None
 
     def as_dict(self):
         return {'Member ID': self.__member_id, 'First name': self.__first_name, 'Last name': self.__last_name,
@@ -77,4 +79,16 @@ class Member:
 
     def del_vouchers(self):
         self.__vouchers = []
+
+    def set_address(self, address):
+        self.__address = address
+
+    def set_postal(self, postal):
+        self.__postal = postal
+
+    def get_address(self):
+        return self.__address
+
+    def get_postal(self):
+        return self.__postal
 # can you see this

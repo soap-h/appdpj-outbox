@@ -31,7 +31,6 @@
                 <th>Gender</th>
                 <th>Email</th>
                 <th>Phone Number</th>
-                <th>Password</th>
                 <th></th>
                 <th></th>
             </tr>
@@ -46,7 +45,6 @@
             <td>{{ member.get_gender() }}</td>
             <td>{{ member.get_email() }}</td>
             <td>{{ member.get_phone() }}</td>
-            <td>{{ member.get_password() }}</td>
             <td><a href="/updatemember/{{member.get_member_id()}}" class="btn btn-warning">Update</a></td>
             <td>
                 <form action="{{url_for('delete_user', id=member.get_member_id())}}" method="POST">

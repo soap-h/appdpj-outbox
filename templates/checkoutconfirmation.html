@@ -3,19 +3,108 @@
 {% block title %}Checkout Confirmation{% endblock %}
 
 {% block content %}
-<div class="container" style="text-align: center;">
-    <h1 class="mt-4 mb-4">Thank you for your purchase!</h1>
-    <div class="card text-center">
-        <div class="card-body">
-            <h5 class="card-title">What would you like to do next?</h5>
+<style>
+        body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f4f4f4;
+        color: #333;
+    }
 
-            <div class="btn-group mt-3" role="group">
-                <a href="/" class="btn btn-warning">Home</a>
-                <a href="/outbox" class="btn btn-warning">Outbox</a>
-                <a href="/profile" class="btn btn-warning">Profile</a>
-                <a href="/createQuestion" class="btn btn-warning">Feedback</a>
+    .container {
+        max-width: 800px;
+        margin: 20px auto;
+        padding: 20px;
+        background-color: #fff;
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    h1, h2, h3 {
+        color: #333;
+    }
+
+    .list-group-item {
+        border: none;
+    }
+
+    .btn {
+        margin-right: 10px;
+    }
+
+    .btn-group {
+        margin-top: 20px;
+    }
+
+    .card-title {
+        margin-bottom: 10px;
+    }
+</style>
+{% from "includes/formHelper.html" import render_field %}
+{% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <div class="alert alert-info text-center" role="alert">
+                {{ messages[0] }}
             </div>
+        {% endif %}
+    {% endwith %}
+<div class="container">
+    <h1 class="mt-4 mb-4">Thank you for your purchase!</h1>
 
+    <div class="row">
+        <!-- Receipt Details -->
+        <div class="col-md-6">
+            <h4 class="card-title">Order Summary</h4>
+            <div class="card">
+                <div class="card-body">
+                    <ul class="list-group">
+                        <h5 class="card-title">Ordered items</h5>
+                        {% for i in range(productlen) %}
+                        <li class="list-group-item">
+                            {{ order_hist.get_products()[i] }} - ${{ product_amt[i] }}
+                        </li>
+                        {% endfor %}
+                        <li class="list-group-item"><strong>Total:</strong> ${{ order_hist.get_payment_amt() }}</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        {% if 'name' in session %}
+        <!-- Customer Details -->
+        <div class="col-md-6">
+            <h4 class="card-title">Customer Information</h4>
+            <div class="card">
+                <div class="card-body">
+                    <ul class="list-group">
+                        <li class="list-group-item"><strong>Name:</strong> {{ order_hist.get_name() }}</li>
+                        <li class="list-group-item"><strong>Email:</strong> {{ order_hist.get_email() }}</li>
+                        <li class="list-group-item"><strong>Address:</strong> {{ member_info.get_address() }}</li>
+                        <li class="list-group-item"><strong>Postal Code:</strong> {{ member_info.get_postal() }}</li>
+                        <li class="list-group-item"><strong>Date Ordered:</strong> {{ order_hist.get_date() }}</li>
+                        <li class="list-group-item"><strong>Estimated Arrival:</strong> {{ esti }}</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    <div class="mt-4">
+        <p>Your order has been confirmed. Above is the receipt for your purchase.</p>
+        <p>Thank you for shopping with us!</p>
+    </div>
+    {% if 'name' in session %}
+    <form method="POST">
+        <input type="submit" value="Email receipt" class="btn btn-primary"/>
+    </form>
+    {% endif %}
+    <div class="text-center mt-4">
+        <div class="btn-group" role="group">
+            <a href="/" class="btn btn-warning">Home</a>
+            <a href="/outbox" class="btn btn-warning">Outbox</a>
+            <a href="/profile" class="btn btn-warning">Profile</a>
+            <a href="/createQuestion" class="btn btn-warning">Feedback</a>
         </div>
     </div>
 </div>

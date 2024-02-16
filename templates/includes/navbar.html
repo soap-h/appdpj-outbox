@@ -33,7 +33,10 @@
                 {% endif %}
                 {% if 'name' in session %}
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('profile') }}">Profile</a>
+                        <a class="nav-link d-flex align-items-center" href="{{ url_for('profile') }}">
+                            <i class="bi bi-person-circle" style="font-size: 1.5rem; color:white;"></i>
+                            <span class="ms-2">{{session['name']}}</span>
+                        </a>
                     </li>
                 {% endif %}
                 <li class="nav-item d-flex align-items-center">

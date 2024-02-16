@@ -60,7 +60,7 @@
                 {% for voucher in voucher_list %}
                 <tr>
                     <td>{{ voucher.get_voucher_id() }}</td>
-                    <td>{{ voucher.get_name()[:10] }}{% if voucher.get_name()|length > 10 %}...{% endif %}</td>
+                    <td>{{ voucher.get_name() }}</td>
                     <td>{{ voucher.get_discount() }}</td>
                 </tr>
                 {% endfor %}

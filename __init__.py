@@ -15,7 +15,7 @@ from News import News, Comment
 from flask import Flask, render_template, request, redirect, url_for, flash, session, send_file, jsonify
 from flask_mail import *
 import os
-import datetime
+from datetime import datetime, timedelta
 from werkzeug.utils import secure_filename
 from FeedbackSimpleDB import add_question, add_news
 from Question import Question
@@ -34,7 +34,7 @@ from collections import Counter
 from forms import (CreateMemberForm, CreateProductForm, CreateQuestionForm, CreateLoginForm, CreateCardForm,
                    CreateAdminForm, CreateVoucherForm, VoucherForm, CreateSearchForm, CreateCommentForm,
                    CreateSupplierForm, CreateReplyForm, CreateNewsForm, CreateForgetPassword, ResetPasswordForm,
-                   VerifyOTPForm)
+                   VerifyOTPForm, CreateAddressForm)
 
 app = Flask(__name__)
 UPLOAD_FOLDER = 'static/uploads/'
@@ -47,7 +47,7 @@ ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif'])
 # ----------------- mail config ---------------------
 app.config["MAIL_SERVER"] = 'smtp.office365.com'
 app.config["MAIL_PORT"] = '587'
-app.config["MAIL_USERNAME"] = 'outbox1111@outlook.com'
+app.config["MAIL_USERNAME"] = 'outbox1022@outlook.com'
 app.config["MAIL_PASSWORD"] = 'Liklikliklik1'
 app.config["MAIL_USE_TLS"] = True
 app.config["MAIL_USE_SSL"] = False
@@ -63,7 +63,11 @@ def allowed_file(filename):
 def homepage():
     # db = shelve.open('database.db', 'c')
     # db['News'] = {}
+    # for i in db['Members']:
+    #     i.set_address(None)
+    #     i.set_postal(None)
     # db.close()
+
     return render_template('homepage.html')
 
 
@@ -120,7 +124,7 @@ def forgetpasswordemail():
         global otp
         otp = random.randint(100000, 999999)
 
-        msg = Message('Password reset', sender='outbox1111@outlook.com', recipients=[email])
+        msg = Message('Password reset', sender='outbox1022@outlook.com', recipients=[email])
         msg.body = "Your otp is " + str(otp) + "."
         mail.send(msg)
 
@@ -329,7 +333,7 @@ def checkout():
     checkout_dict = {}
     checkout_dict = db['Outbox']
     discount = None
-
+    member_info = None
     total_price = sum(float(item.get_price()) for item in checkout_dict.values())
     vouchers = []
     voucher_dict = []
@@ -341,7 +345,7 @@ def checkout():
         voucher_list = member_dict[member_id].get_vouchers()
         for i in voucher_list:
             vouchers.append(voucher_dict[i])
-
+        member_info = member_dict[member_id]
 
     if request.method == "POST" and create_card_form.validate():
         order_dict = db['OrderHist']
@@ -352,10 +356,9 @@ def checkout():
             memberdb = db['Members']
             product = [item.get_name() for item in checkout_dict.values()]
             # date = datetime.date.today()
-
             # FOR FAKE ORDERHIST DATES
             from datetime import datetime
-            date_str = '2024-02-13'
+            date_str = '2024-02-16'
             date = datetime.strptime(date_str, '%Y-%m-%d').date()
 
             # Check if a voucher has been applied
@@ -405,15 +408,9 @@ def checkout():
                 "Guest", "Null", product, date, "Null",
                 total_price, "None"
             )
-            existing_ids = set(order_dict.keys())
-            missing_ids = set(range(1, max(existing_ids) + 2)) - existing_ids
-            if missing_ids:
-                my_key = min(missing_ids)
-            else:
-                my_key = len(order_dict) + 1
 
             existing_ids = set(order_dict.keys())
-            missing_ids = set(range(1, max(existing_ids) + 2)) - existing_ids
+            missing_ids = set(range(1, max(existing_ids, default=0) + 2)) - existing_ids
             if missing_ids:
                 my_key = min(missing_ids)
             else:
@@ -435,11 +432,56 @@ def checkout():
         nothing = {}
         db['Outbox'] = nothing
         db.close()
-        return render_template("checkoutconfirmation.html")
+        order_dict = order_dict[len(order_dict)]
+        return redirect(url_for('checkoutconfirmation'))
     db.close()
     return render_template('checkout.html',
                            cart_items=checkout_dict.values(), total_price=total_price, form=create_card_form,
-                           vouchers=vouchers, name=name)
+                           vouchers=vouchers, name=name, member_info=member_info)
+
+@app.route('/checkoutconfirmation', methods=['GET', 'POST'])
+def checkoutconfirmation():
+    db = shelve.open("database.db", "c")
+    if 'name' in session:
+        id = session['member_id']
+        member_info = db['Members'][id]
+    else:
+        id = None
+        member_info = None
+
+    inventory = db['Inventory']
+    order_dict = db['OrderHist']
+    order_dict = order_dict[len(order_dict)]
+    date = order_dict.get_date()
+    new_date = date + timedelta(days=2)
+    estidate = new_date.strftime('%Y-%m-%d')
+    productlen = len(order_dict.get_products())
+
+    product_amt = []
+    for i in order_dict.get_products():
+        for j in inventory:
+            if inventory[j].get_name() == i:
+                product_amt.append(inventory[j].get_price())
+
+
+    orderlist = []
+    if request.method == "POST":
+        email = order_dict.get_email()
+        msg = Message('OutBox receipt', sender='outbox1022@outlook.com', recipients=[email])
+        for i in order_dict.get_products():
+            x = order_dict.get_products().index(i)
+            orderlist.append(f"{x+1}: {order_dict.get_products()[x]} \n")
+        orderedproducts = ''.join(orderlist)
+        html_content = render_template('receipt.html', order_hist=order_dict, member_info=member_info, esti=estidate, product_amt=product_amt, productlen=productlen)
+        msg.html = html_content
+        with app.open_resource('static/photos/zes3logo.png') as img:
+            msg.attach('zes3logo.png', 'image/png', img.read(), 'inline', headers=[('Content-ID', '<zes3logo.png>')])
+        mail.send(msg)
+        flash(f"Receipt sent successfully to {email}. Please check your email!")
+
+        return render_template('checkoutconfirmation.html', order_hist=order_dict, member_info=member_info, esti=estidate, product_amt=product_amt, productlen=productlen)
+    db.close()
+    return render_template('checkoutconfirmation.html', order_hist=order_dict, member_info=member_info, esti=estidate, product_amt=product_amt, productlen=productlen)
 
 
 @app.route('/set_voucher_session/<voucher_id>', methods=['POST'])
@@ -609,7 +651,7 @@ def create_member():
         admin_list = db['Admin']
 
         existing_ids = set(member_list.keys())
-        missing_ids = set(range(1, max(existing_ids) + 2)) - existing_ids
+        missing_ids = set(range(1, max(existing_ids, default=0) + 2)) - existing_ids
         if missing_ids:
             my_key = min(missing_ids)
         else:
@@ -710,26 +752,59 @@ def update_user(id):
         db = shelve.open('database.db', 'w')
         members_dict = db['Members']
         member = members_dict.get(id)
-        member.set_first_name(update_member_form.first_name.data)
-        member.set_last_name(update_member_form.last_name.data)
-        member.set_email(update_member_form.email.data)
-        member.set_phone(update_member_form.phone.data)
-        member.set_password(update_member_form.password.data)
-        db['Members'] = members_dict
-        db.close()
-        return redirect(url_for('view_members'))
+        if member:
+            member.set_first_name(update_member_form.first_name.data)
+            member.set_last_name(update_member_form.last_name.data)
+            member.set_email(update_member_form.email.data)
+            member.set_phone(update_member_form.phone.data)
+            member.set_password(update_member_form.password.data)
+            db['Members'] = members_dict
+            db.close()
+            return redirect(url_for('view_members'))
+        else:
+            flash('Member not found', 'error')
+            db.close()
+            return redirect(url_for('view_members'))
     else:
         members_dict = {}
         db = shelve.open('database.db', 'r')
         members_dict = db['Members']
         db.close()
         member = members_dict.get(id)
-        update_member_form.first_name.data = member.get_first_name()
-        update_member_form.last_name.data = member.get_last_name()
-        update_member_form.email.data = member.get_email()
-        update_member_form.phone.data = member.get_phone()
-        update_member_form.password.data = member.get_password()
-        return render_template('adminupdatemember.html', form=update_member_form)
+        if member:
+            update_member_form.first_name.data = member.get_first_name()
+            update_member_form.last_name.data = member.get_last_name()
+            update_member_form.email.data = member.get_email()
+            update_member_form.phone.data = member.get_phone()
+        else:
+            flash('Member not found', 'error')
+            return redirect(url_for('view_members'))
+    return render_template('adminupdatemember.html', form=update_member_form)
+
+@app.route('/updateaddress/<int:id>/', methods=['GET', 'POST'])
+def update_address(id):
+    update_address_form = CreateAddressForm(request.form)
+    if request.method == "POST" and update_address_form.validate():
+        address_dict = {}
+        db = shelve.open('database.db', 'w')
+        address_dict = db['Members']
+        member = address_dict.get(id)
+        if member:
+            member.set_address(update_address_form.address.data)
+            member.set_postal(update_address_form.postalcode.data)
+            db['Members'] = address_dict
+            db.close()
+            return redirect(url_for('profile'))
+    else:
+        address_dict = {}
+        db = shelve.open('database.db', 'w')
+        address_dict = db['Members']
+        member = address_dict.get(id)
+        if member:
+            update_address_form.address.data = member.get_address()
+            update_address_form.postalcode.data = member.get_postal()
+
+    return render_template('updateaddress.html', form=update_address_form)
 
 
 @app.route('/deletemember/<int:id>', methods=['POST'])
@@ -1098,7 +1173,7 @@ def delete_voucher(id):
     member_dict = db['Members']
     for i in member_dict:
         vouchers = member_dict[i].get_vouchers()
-        if voucher_dict[id].get_voucher_id() in vouchers:
+        while voucher_dict[id].get_voucher_id() in vouchers:
             vouchers.remove(voucher_dict[id].get_voucher_id())
     voucher_dict.pop(id)
     db['Vouchers'] = voucher_dict

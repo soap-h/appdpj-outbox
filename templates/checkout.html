@@ -74,6 +74,7 @@
         <!-- Right column for payment information -->
         <div class="col-md-6">
     <div class="checkout_items">
+
         <h2>Customer Information</h2>
         <form method="post" action="">
             <div class="mb-3 form-group">
@@ -85,6 +86,9 @@
             <div class="mb-3 form-group">
                 {{ render_field(form.postalcode, class="form-control") }}
             </div>
+            {% if 'name' in session %}
+            <button type="button" onclick="autofillInformation()" class="btn btn-primary">Autofill Information</button>
+            {% endif %}
             <hr>
             <!-- Card Number -->
             <div class="mb-3 form-group">
@@ -131,7 +135,7 @@
 
                 // Apply voucher discount to the total amount
                 var totalPriceElement = document.getElementById('totalPrice');
-                var currentTotal = parseFloat(totalPriceElement.innerText);
+                var currentTotal = parseFloat(totalPriceElement.innerText.replace('$', ''));
                 var discountedTotal = currentTotal - (currentTotal * (selectedVoucherDiscount / 100));
 
                 // Update total price display
@@ -147,6 +151,15 @@
     } else {
         alert('No voucher selected.');
     }
+    {% if 'name' in session %}
     }
+        function autofillInformation() {
+        document.getElementById('name').value = "{{member_info.get_first_name()}} {{member_info.get_last_name()}}";
+
+
+        document.getElementById('address').value = "{{member_info.get_address()}}";
+        document.getElementById('postalcode').value = "{{member_info.get_postal()}}";
+    }
+    {% endif %}
 </script>
 {% endblock %}

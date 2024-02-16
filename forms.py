@@ -1,6 +1,7 @@
 from wtforms import (Form, StringField, RadioField, SelectField, TextAreaField,
                      validators, TelField, PasswordField, IntegerField)
 from wtforms.fields import EmailField, DateField, SearchField
+from datetime import datetime
 
 
 class CreateLoginForm(Form):
@@ -59,7 +60,7 @@ class CreateCommentForm(Form):
 class CreateCardForm(Form):
     name = StringField('Customer Name', [validators.length(min=1, max=100), validators.DataRequired("message")])
     address = StringField('Address', [validators.Length(min=1, max=100), validators.DataRequired("message")])
-    postalcode = StringField('Postal Code', [validators.length(min=6, max=6), validators.DataRequired("message")])
+    postalcode = StringField('Postal Code', [validators.length(min=6, max=6), validators.DataRequired("message"), validators.Regexp('^\d+$', message='Postal must only contain digits')])
     card = StringField('Card Number', [validators.Length(min=16, max=16, message='Card number must be 16 digits'),
                                        validators.Regexp('^\d+$', message='Card number must only contain digits'),
                                        validators.DataRequired(message='Card number is required')])
@@ -74,6 +75,43 @@ class CreateCardForm(Form):
                                                                 message='Security code must only contain digits'),
                                               validators.DataRequired(message='Security code is required')])
 
+    def validate_expdate(form, field):
+        try:
+            # Split the expiry date into month and year components
+            parts = field.data.split('/')
+
+
+            # Ensure there are exactly two parts (month and year)
+            if len(parts) != 2:
+                raise ValueError('Invalid expiry date format. Must be in MM/YY format')
+
+            # Convert month and year to integers
+            month = int(parts[0])
+
+            year = int("20" + parts[1])
+
+            # Check if month is between 1 and 12 (valid month range)
+            if not 1 <= month <= 12:
+                raise ValueError('Invalid month')
+
+
+            # Get the current date
+            current_date = datetime.now()
+
+            # Create a datetime object for the expiry date
+            exp_date = datetime(year, month, 1)
+            print(exp_date)
+            print(current_date)
+            # Check if expiry date is in the past
+            if exp_date < current_date:
+                raise ValueError('Expiry date cannot be in the past')
+        except (ValueError, AttributeError):
+            raise validators.ValidationError('Invalid expiry date format. Must be in MM/YY format')
+
+
+class CreateAddressForm(Form):
+    address = StringField('Address', [validators.Length(min=1, max=100), validators.DataRequired("message")])
+    postalcode = StringField('Postal Code', [validators.length(min=6, max=6), validators.DataRequired("message"), validators.Regexp('^\d+$', message='Postal must only contain digits')])
 
 class CreateAdminForm(Form):
     first_name = StringField('First Name', [validators.Length(min=1, max=150), validators.DataRequired()])
@@ -145,3 +183,4 @@ class ResetPasswordForm(Form):
         validators.DataRequired(),
         validators.EqualTo('new_password', message='Passwords must match')
     ])
+

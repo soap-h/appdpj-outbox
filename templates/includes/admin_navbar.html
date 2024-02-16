@@ -8,9 +8,17 @@
                     <a class="nav-link h1" href="#">Outbox</a>
                 </li>
             </ul>
-            <ul class="navbar-nav">
+
+            <ul class="navbar-nav ms-auto d-flex align-items-center">
+
                 <li class="nav-item">
                     <a class="nav-link p" href="/">Back to home page</a>
+                </li>
+                                <li class="nav-item">
+                    <a class="nav-link d-flex align-items-center" href="{{ url_for('profile') }}">
+                        <i class="bi bi-person-circle" style="font-size: 1.5rem; color:white;"></i>
+                        <span class="ms-2">{{session['name']}}</span>
+                    </a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link p" href="{{ url_for('logout') }}">Log out</a>

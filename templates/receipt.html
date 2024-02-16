@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OutBox Receipt</title>
+    <style>
+        body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f4f4f4;
+        color: #333;
+    }
+
+    .container {
+        max-width: 600px;
+        margin: 20px auto;
+        padding: 20px;
+        background-color: #fff;
+        border: 1px solid #ddd; /* Border to resemble paper */
+        border-radius: 5px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    h1, h2, h3 {
+        color: #333;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+    }
+
+    table, th, td {
+        border: 1px solid #ddd;
+        padding: 8px;
+    }
+
+    th {
+        background-color: #f2f2f2;
+        font-weight: bold;
+        text-align: left;
+    }
+
+    img {
+        max-width: 100%;
+        height: auto;
+        margin-bottom: 20px;
+    }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <img src="cid:zes3logo.png" alt="OutBox Logo">
+        <h1>OutBox Receipt</h1>
+        <p>Thank you for your purchase, {{ order_hist.get_name() }}!</p>
+        <p>Your order details:</p>
+        <table>
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Price</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for i in range(productlen) %}
+                <tr>
+                    <td>{{ order_hist.get_products()[i] }}</td>
+                    <td>${{ product_amt[i] }}</td>
+                </tr>
+                {% endfor %}
+                <tr>
+                    <td><strong>Total:</strong></td>
+                    <td><strong>{{ "$%.2f"|format(order_hist.get_payment_amt()) }}</strong></td>
+                </tr>
+            </tbody>
+        </table>
+        <p>Estimated delivery date: {{ esti }}</p>
+        <p>Shipping Address:</p>
+        <p>{{ member_info.get_address() }}</p>
+        <p>Postal Code: {{ member_info.get_postal() }}</p>
+        <p>For any inquiries, please contact us at <a href="outbox1022@outlook.com">outbox1022@outlook.com</a>.</p>
+    </div>
+</body>
+</html>
